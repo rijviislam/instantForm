@@ -1,26 +1,119 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg-warm: #fbfbfb;
+    --bg-cream: #e8f9ff;
+    --bg-card: #ffffff;
+
+    --coral-500: #c4d9ff;
+    --coral-600: #c5baff;
+    --coral-50: #e8f9ff;
+    --coral-100: #c4d9ff;
+
+    --stone-900: #1c1917;
+    --stone-800: #292524;
+    --stone-600: #57534e;
+    --stone-400: #a8a29e;
+    --stone-200: #c4d9ff;
+    --stone-100: #fbfbfb;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background-color: #e8f9ff;
+    color: #c4d9ff;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  body {
+    background-color: #faf8f5;
+    color: #1c1917;
+    overflow-x: hidden;
+    selection-background-color: #ffe5de;
+    selection-color: #c5baff;
+  }
+
+  ::selection {
+    background: #faf8f5;
+    color: #c5baff;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Custom editorial typography styles */
+.font-serif-editorial {
+  font-family:
+    var(--font-newsreader), "Newsreader", "Fraunces", "Playfair Display",
+    Georgia, serif;
+  font-feature-settings:
+    "liga" 1,
+    "dlig" 1,
+    "swsh" 1;
+}
+
+.font-sans-modern {
+  font-family:
+    var(--font-jakarta),
+    "Plus Jakarta Sans",
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+}
+
+/* Soft ambient glows */
+.coral-glow {
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 90, 54, 0.15) 0%,
+    rgba(255, 90, 54, 0) 70%
+  );
+}
+
+.warm-mesh-bg {
+  background:
+    radial-gradient(at 10% 20%, rgba(255, 237, 226, 0.8) 0px, transparent 50%),
+    radial-gradient(at 90% 10%, rgba(254, 243, 199, 0.6) 0px, transparent 50%),
+    radial-gradient(at 50% 80%, rgba(255, 241, 235, 0.7) 0px, transparent 50%),
+    #faf8f5;
+}
+
+.subtle-border {
+  border-color: rgba(231, 226, 216, 0.85);
+}
+
+.card-shadow {
+  box-shadow:
+    0 4px 20px -2px rgba(28, 25, 23, 0.04),
+    0 2px 6px -1px rgba(28, 25, 23, 0.02);
+}
+
+.card-shadow-hover {
+  box-shadow:
+    0 20px 35px -8px rgba(28, 25, 23, 0.08),
+    0 8px 16px -4px rgba(28, 25, 23, 0.04);
+}
+
+.glass-nav {
+  background: rgba(250, 248, 245, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #faf8f5;
+}
+::-webkit-scrollbar-thumb {
+  background: #d8d2c6;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #bcb5a6;
 }

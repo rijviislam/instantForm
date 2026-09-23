@@ -11,7 +11,10 @@ import {
 import { registerGSAP, prefersReducedMotion, gsap } from "@/lib/animations/gsapUtils";
 import confetti from "canvas-confetti";
 
+import { useRouter } from "next/navigation";
+
 export function FinalCTA() {
+  const router = useRouter();
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -63,8 +66,9 @@ export function FinalCTA() {
       origin: { y: 0.6 },
       colors: ["#FF5A36", "#FFA07A", "#292524", "#F4EFE6", "#FFFFFF"],
     });
-    const el = document.getElementById("hero-preview");
-    el?.scrollIntoView({ behavior: "smooth" });
+    setTimeout(() => {
+      router.push("/register");
+    }, 400);
   };
 
   return (

@@ -6,7 +6,10 @@ import { Button } from "../ui/Button";
 import { ArrowRight, Menu, X, Sparkles } from "lucide-react";
 import { clsx } from "clsx";
 
+import { useRouter } from "next/navigation";
+
 export function Navbar() {
+  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -65,8 +68,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={() => {
-                const el = document.getElementById("templates");
-                el?.scrollIntoView({ behavior: "smooth" });
+                router.push("/login");
               }}
               className="px-4 py-2 text-sm font-medium text-[#57534E] hover:text-[#1C1917] transition-colors cursor-pointer"
             >
@@ -77,8 +79,7 @@ export function Navbar() {
               size="md"
               iconRight={<ArrowRight className="w-4 h-4" />}
               onClick={() => {
-                const el = document.getElementById("hero-preview");
-                el?.scrollIntoView({ behavior: "smooth" });
+                router.push("/register");
               }}
             >
               Start building
@@ -91,8 +92,7 @@ export function Navbar() {
               variant="primary"
               size="sm"
               onClick={() => {
-                const el = document.getElementById("hero-preview");
-                el?.scrollIntoView({ behavior: "smooth" });
+                router.push("/register");
               }}
             >
               Build
@@ -158,6 +158,7 @@ export function Navbar() {
               className="w-full justify-center"
               onClick={() => {
                 setMobileMenuOpen(false);
+                router.push("/login");
               }}
             >
               Log in
@@ -169,8 +170,7 @@ export function Navbar() {
               iconRight={<ArrowRight className="w-4 h-4" />}
               onClick={() => {
                 setMobileMenuOpen(false);
-                const el = document.getElementById("hero-preview");
-                el?.scrollIntoView({ behavior: "smooth" });
+                router.push("/register");
               }}
             >
               Start building free

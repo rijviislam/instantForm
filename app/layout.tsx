@@ -1,7 +1,9 @@
 import SmoothScroll from "@/components/SmoothScroll";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 import type { Metadata } from "next";
 import { Newsreader, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+
 const newsreader = Newsreader({
   subsets: ["latin"],
   display: "swap",
@@ -57,7 +59,7 @@ export default function RootLayout({
     >
       <body className="min-h-screen bg-[#FAF8F5] text-[#1C1917] flex flex-col overflow-x-hidden selection:bg-[#FFE5DE] selection:text-[#E44825]">
         <SmoothScroll />
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

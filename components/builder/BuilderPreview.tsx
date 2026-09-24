@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   X,
   CheckCircle2,
@@ -14,19 +14,19 @@ import {
   Mic,
   Camera,
   PenTool,
-  MapPin,
-  Globe2,
-  Navigation,
-  KeyRound,
-  CalendarRange,
-  Hourglass,
-  Calendar,
-  Clock,
-  CircleDot,
-  CheckSquare,
+  Monitor,
+  Tablet,
+  Smartphone,
+  Sparkles,
+  RotateCcw,
 } from "lucide-react";
 import { FormField, FormStyle } from "@/lib/api-client";
-import { FormTheme, resolveFormTheme, getThemeComputedStyles, getComputedFieldStyles } from "@/lib/form-theme";
+import {
+  FormTheme,
+  resolveFormTheme,
+  getThemeComputedStyles,
+  getComputedFieldStyles,
+} from "@/lib/form-theme";
 import { DynamicFontLoader } from "./DynamicFontLoader";
 import { ViewportMode } from "./BuilderTopBar";
 
@@ -46,16 +46,28 @@ export function BuilderPreview({
   style,
   theme: rawTheme,
   fields,
-  viewport,
+  viewport: initialViewport,
   onClose,
 }: BuilderPreviewProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [previewViewport, setPreviewViewport] = useState<ViewportMode>(initialViewport || "desktop");
 
   const theme = resolveFormTheme(rawTheme, style);
-  const { backgroundStyle, containerStyle, inputStyle, buttonStyle, headingStyle } =
+  const { backgroundStyle, containerStyle, buttonStyle, headingStyle } =
     getThemeComputedStyles(theme);
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
 
   const handleAnswerChange = (fieldId: string, value: any) => {
     setAnswers((prev) => ({ ...prev, [fieldId]: value }));
@@ -66,58 +78,80 @@ export function BuilderPreview({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col overflow-hidden animate-in fade-in duration-200"
-      style={backgroundStyle}
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 md:p-8 animate-in fade-in duration-200"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
       data-lenis-prevent="true"
     >
       <DynamicFontLoader theme={theme} />
 
-      {/* Preview Header */}
-      <div className="h-14 border-b border-[#EAE3D6] bg-white px-4 sm:px-6 flex items-center justify-between shrink-0 shadow-xs z-20">
-        <div className="flex items-center gap-2">
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#FFF0EB] text-[#FF5A36] border border-[#FFD8CC]">
-            Preview Mode
-          </span>
-          <span className="text-xs text-[#78716C] hidden sm:inline">
-            ({style.charAt(0).toUpperCase() + style.slice(1)} style)
-          </span>
-        </div>
-
-        <button
-          type="button"
-          onClick={onClose}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#1C1917] hover:bg-[#FAF8F5] border border-[#EAE3D6] transition-colors cursor-pointer"
-        >
-          <X className="w-4 h-4" />
-          <span>Exit Preview</span>
-        </button>
-      </div>
-
-      {/* Preview Content Area */}
+      {/* Modal Dialog Window */}
       <div
-        className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-8 flex items-center justify-center overscroll-contain"
-        data-lenis-prevent="true"
+        className="relative w-full max-w-5xl h-[92vh] max-h-[95vh] bg-[#FAF8F5] rounded-2xl sm:rounded-3xl shadow-2xl border border-[#EAE3D6] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
       >
-        <div
-          className={`w-full transition-all duration-300 ${
-            viewport === "mobile" ? "max-w-[390px]" : "max-w-2xl"
-          }`}
-        >
-          {submitted ? (
-            /* Success screen simulation */
-            <div
-              className="p-10 sm:p-14 text-center card-shadow space-y-4"
-              style={containerStyle}
+        {/* Modal Header */}
+        <div className="h-14 border-b border-[#EAE3D6] bg-white px-4 sm:px-6 flex items-center justify-between shrink-0 shadow-xs z-30">
+          {/* Left: Mode Badge & Title */}
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FFF0EB] text-[#FF5A36] border border-[#FFD8CC] shrink-0">
+              <Sparkles className="w-3.5 h-3.5" />
+              Live Preview
+            </span>
+            <span className="text-xs font-semibold text-[#1C1917] truncate hidden sm:inline">
+              {title || "Untitled Form"}
+            </span>
+          </div>
+
+          {/* Center: Interactive Device Viewport Toggle */}
+          <div className="flex items-center p-1 bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl">
+            <button
+              type="button"
+              onClick={() => setPreviewViewport("desktop")}
+              title="Desktop view"
+              className={`p-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                previewViewport === "desktop"
+                  ? "bg-white text-[#1C1917] shadow-xs"
+                  : "text-[#78716C] hover:text-[#1C1917]"
+              }`}
             >
-              <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto mb-2">
-                <CheckCircle2 className="w-8 h-8" />
-              </div>
-              <h2 style={headingStyle} className="tracking-tight">
-                Thank you!
-              </h2>
-              <p className="text-xs sm:text-sm text-[#78716C] max-w-sm mx-auto">
-                Your response was recorded in preview simulation mode.
-              </p>
+              <Monitor className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Desktop</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPreviewViewport("tablet")}
+              title="Tablet view"
+              className={`p-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                previewViewport === "tablet"
+                  ? "bg-white text-[#1C1917] shadow-xs"
+                  : "text-[#78716C] hover:text-[#1C1917]"
+              }`}
+            >
+              <Tablet className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Tablet</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPreviewViewport("mobile")}
+              title="Mobile view"
+              className={`p-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                previewViewport === "mobile"
+                  ? "bg-white text-[#1C1917] shadow-xs"
+                  : "text-[#78716C] hover:text-[#1C1917]"
+              }`}
+            >
+              <Smartphone className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Mobile</span>
+            </button>
+          </div>
+
+          {/* Right: Restart & Close */}
+          <div className="flex items-center gap-2 shrink-0">
+            {(submitted || currentStep > 0) && (
               <button
                 type="button"
                 onClick={() => {
@@ -125,229 +159,350 @@ export function BuilderPreview({
                   setAnswers({});
                   setCurrentStep(0);
                 }}
-                className="mt-4 px-4 py-2 text-xs font-semibold text-[#FF5A36] hover:underline cursor-pointer"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-[#78716C] hover:text-[#1C1917] hover:bg-[#FAF8F5] transition-colors cursor-pointer"
+                title="Restart simulation"
               >
-                Restart Preview
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Reset</span>
               </button>
-            </div>
-          ) : style.toLowerCase() === "conversation" ? (
-            /* Conversation: One question at a time */
+            )}
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#1C1917] bg-[#FAF8F5] hover:bg-[#F5F2EB] border border-[#EAE3D6] transition-colors cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>Close</span>
+              <kbd className="hidden sm:inline-block text-[10px] text-[#A8A29E] bg-white border border-[#EAE3D6] px-1 py-0.5 rounded ml-0.5">
+                ESC
+              </kbd>
+            </button>
+          </div>
+        </div>
+
+        {/* Modal Body: Scrollable Canvas Canvas Area */}
+        <div
+          className="flex-1 min-h-0 overflow-y-auto px-4 py-8 sm:px-8 sm:py-12 flex justify-center overscroll-contain relative"
+          style={backgroundStyle}
+          data-lenis-prevent="true"
+        >
+          {/* Inner Viewport Frame */}
+          <div
+            className={`w-full transition-all duration-300 ${
+              previewViewport === "mobile"
+                ? "max-w-[390px]"
+                : previewViewport === "tablet"
+                ? "max-w-[640px]"
+                : "max-w-2xl"
+            }`}
+          >
+            {/* Form Header Banner (if configured) */}
+            {theme.branding.headerImageUrl && (
+              <div
+                className="w-full rounded-t-3xl overflow-hidden mb-[-1.5rem] relative z-0 border border-b-0 border-[#EAE3D6] shadow-sm"
+                style={{
+                  height:
+                    theme.branding.headerImageHeight === "sm"
+                      ? "120px"
+                      : theme.branding.headerImageHeight === "lg"
+                      ? "240px"
+                      : "180px",
+                }}
+              >
+                <img
+                  src={theme.branding.headerImageUrl}
+                  alt="Header banner"
+                  className="w-full h-full"
+                  style={{ objectFit: theme.branding.headerImageFit || "cover" }}
+                />
+              </div>
+            )}
+
+            {/* Main Form Card Container */}
             <div
-              className="p-8 sm:p-12 card-shadow space-y-8 min-h-[380px] flex flex-col justify-between"
+              className="transition-all relative z-10"
               style={containerStyle}
             >
-              <div>
-                {/* Progress bar */}
-                <div className="flex items-center justify-between text-xs font-medium text-[#78716C] mb-6">
-                  <span>
-                    Question {currentStep + 1} of {fields.length || 1}
-                  </span>
-                  <span>
-                    {Math.round(((currentStep + 1) / (fields.length || 1)) * 100)}%
-                  </span>
-                </div>
-                <div className="w-full h-1.5 bg-[#F5F2EB] rounded-full overflow-hidden mb-8">
-                  <div
-                    className="h-full bg-[#FF5A36] transition-all duration-300"
+              {/* Form Branding Logo (if configured) */}
+              {theme.branding.logoUrl && (
+                <div
+                  className={`mb-6 flex ${
+                    theme.branding.logoPosition === "center"
+                      ? "justify-center"
+                      : theme.branding.logoPosition === "right"
+                      ? "justify-end"
+                      : "justify-start"
+                  }`}
+                >
+                  <img
+                    src={theme.branding.logoUrl}
+                    alt="Form logo"
+                    className="rounded-xl object-contain"
                     style={{
-                      width: `${((currentStep + 1) / (fields.length || 1)) * 100}%`,
-                      backgroundColor: theme.colors.primary || "#FF5A36",
+                      height:
+                        theme.branding.logoSize === "sm"
+                          ? "32px"
+                          : theme.branding.logoSize === "lg"
+                          ? "64px"
+                          : "48px",
                     }}
                   />
                 </div>
+              )}
 
-                {currentField ? (
-                  <div className="space-y-4 animate-in fade-in duration-200">
-                    <h3 style={currentFieldStyles?.inputLabelStyle || headingStyle}>
-                      {currentField.label}
-                      {currentField.required && (
-                        currentFieldStyles?.requiredIndicator === "badge" ? (
-                          <span
-                            className="ml-2 px-2 py-0.5 rounded text-[10px] font-semibold border"
-                            style={{
-                              color: currentFieldStyles.requiredColor,
-                              borderColor: `${currentFieldStyles.requiredColor}40`,
-                              backgroundColor: `${currentFieldStyles.requiredColor}10`,
-                            }}
-                          >
-                            Required
-                          </span>
-                        ) : currentFieldStyles?.requiredIndicator === "dot" ? (
-                          <span
-                            className="ml-1 text-sm font-black"
-                            style={{ color: currentFieldStyles.requiredColor }}
-                          >
-                            •
-                          </span>
-                        ) : currentFieldStyles?.requiredIndicator === "none" ? null : (
-                          <span
-                            className="ml-1 font-bold"
-                            style={{ color: currentFieldStyles?.requiredColor || "#FF5A36" }}
-                          >
-                            *
-                          </span>
-                        )
-                      )}
-                    </h3>
-                    {currentField.description && (
-                      <p className="text-xs text-[#78716C]">
-                        {currentField.description}
-                      </p>
-                    )}
-
-                    {/* Input */}
-                    <div className="pt-2">
-                      {renderPreviewInput(currentField, answers, handleAnswerChange, theme)}
-                    </div>
+              {submitted ? (
+                /* Success Screen Simulation */
+                <div className="py-8 text-center space-y-4">
+                  <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto mb-2 shadow-xs animate-in zoom-in-95 duration-200">
+                    <CheckCircle2 className="w-9 h-9" />
                   </div>
-                ) : (
-                  <p className="text-sm text-[#78716C]">No questions in form.</p>
-                )}
-              </div>
-
-              {/* Navigation buttons */}
-              <div className="flex items-center justify-between pt-6 border-t border-[#F5F2EB]">
-                <button
-                  type="button"
-                  onClick={() => setCurrentStep((s) => Math.max(0, s - 1))}
-                  disabled={currentStep === 0}
-                  className="px-3.5 py-1.5 text-xs font-semibold text-[#78716C] disabled:opacity-30 flex items-center gap-1 cursor-pointer"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" /> Back
-                </button>
-
-                {currentStep < fields.length - 1 ? (
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep((s) => s + 1)}
-                    style={buttonStyle}
-                    className="flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>Next</span> <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setSubmitted(true)}
-                    style={buttonStyle}
-                    className="cursor-pointer"
-                  >
-                    Submit
-                  </button>
-                )}
-              </div>
-            </div>
-          ) : (
-            /* Multi-field list view */
-            <div
-              className="p-8 sm:p-12 card-shadow space-y-6"
-              style={containerStyle}
-            >
-              <div className="border-b border-[#F5F2EB] pb-6 space-y-2">
-                <h1 style={headingStyle} className="tracking-tight">
-                  {title || "Untitled Form"}
-                </h1>
-                {description && (
+                  <h2 style={headingStyle} className="tracking-tight text-2xl font-bold">
+                    Thank you!
+                  </h2>
                   <p
-                    className="text-xs sm:text-sm"
+                    className="text-xs sm:text-sm max-w-sm mx-auto leading-relaxed"
                     style={{ color: theme.colors.mutedText || "#78716C" }}
                   >
-                    {description}
+                    Your submission was recorded in preview simulation mode.
                   </p>
-                )}
-              </div>
-
-              <div
-                className="space-y-6"
-                style={{
-                  gap:
-                    theme.inputs?.fieldSpacing === "compact"
-                      ? "12px"
-                      : theme.inputs?.fieldSpacing === "relaxed"
-                      ? "24px"
-                      : theme.inputs?.fieldSpacing === "loose"
-                      ? "32px"
-                      : theme.inputs?.fieldSpacing === "custom" && theme.inputs.customFieldSpacing !== undefined
-                      ? `${theme.inputs.customFieldSpacing}px`
-                      : "16px",
-                }}
-              >
-                {fields.map((field, idx) => {
-                  if (field.type === "divider") {
-                    return <div key={field.id} className="h-px bg-[#EAE3D6] my-4" />;
-                  }
-                  if (field.type === "section_heading") {
-                    return (
-                      <div key={field.id} className="pt-4 pb-1 border-b border-[#F5F2EB]">
-                        <h3 className="text-base font-bold text-[#1C1917]">{field.label}</h3>
-                        {field.description && (
-                          <p className="text-xs text-[#78716C] mt-0.5">{field.description}</p>
-                        )}
-                      </div>
-                    );
-                  }
-
-                  const fieldStyles = getComputedFieldStyles(field, theme);
-
-                  return (
-                    <div key={field.id} style={fieldStyles.fieldCardStyle} className="space-y-2">
-                      <label
-                        className="block text-xs sm:text-sm"
-                        style={fieldStyles.inputLabelStyle}
-                      >
-                        {idx + 1}. {field.label}
-                        {field.required && (
-                          fieldStyles.requiredIndicator === "badge" ? (
-                            <span
-                              className="ml-2 px-2 py-0.5 rounded text-[10px] font-semibold border"
-                              style={{
-                                color: fieldStyles.requiredColor,
-                                borderColor: `${fieldStyles.requiredColor}40`,
-                                backgroundColor: `${fieldStyles.requiredColor}10`,
-                              }}
-                            >
-                              Required
-                            </span>
-                          ) : fieldStyles.requiredIndicator === "dot" ? (
-                            <span
-                              className="ml-1 text-sm font-black"
-                              style={{ color: fieldStyles.requiredColor }}
-                            >
-                              •
-                            </span>
-                          ) : fieldStyles.requiredIndicator === "none" ? null : (
-                            <span
-                              className="ml-1 font-bold"
-                              style={{ color: fieldStyles.requiredColor }}
-                            >
-                              *
-                            </span>
-                          )
-                        )}
-                      </label>
-                      {field.description && (
-                        <p className="text-[11px] text-[#78716C]">
-                          {field.description}
-                        </p>
-                      )}
-                      {renderPreviewInput(field, answers, handleAnswerChange, theme)}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubmitted(false);
+                      setAnswers({});
+                      setCurrentStep(0);
+                    }}
+                    style={buttonStyle}
+                    className="mt-4 cursor-pointer shadow-xs inline-block"
+                  >
+                    Submit Another Response
+                  </button>
+                </div>
+              ) : style.toLowerCase() === "conversation" ? (
+                /* Conversational Mode: Step by Step */
+                <div className="space-y-6 min-h-[320px] flex flex-col justify-between">
+                  <div>
+                    {/* Progress Indicator */}
+                    <div className="flex items-center justify-between text-xs font-semibold text-[#78716C] mb-4">
+                      <span>
+                        Question {currentStep + 1} of {fields.length || 1}
+                      </span>
+                      <span>
+                        {Math.round(((currentStep + 1) / (fields.length || 1)) * 100)}%
+                      </span>
                     </div>
-                  );
-                })}
-              </div>
+                    <div className="w-full h-1.5 bg-[#F5F2EB] rounded-full overflow-hidden mb-6">
+                      <div
+                        className="h-full transition-all duration-300"
+                        style={{
+                          width: `${((currentStep + 1) / (fields.length || 1)) * 100}%`,
+                          backgroundColor: theme.colors.primary || "#FF5A36",
+                        }}
+                      />
+                    </div>
 
-              <div className="pt-6 border-t border-[#F5F2EB] flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setSubmitted(true)}
-                  style={buttonStyle}
-                  className="cursor-pointer"
-                >
-                  Submit Form
-                </button>
-              </div>
+                    {currentField ? (
+                      <div className="space-y-4 animate-in fade-in duration-150">
+                        <h3 style={currentFieldStyles?.inputLabelStyle || headingStyle} className="text-base font-semibold">
+                          {currentField.label}
+                          {currentField.required && (
+                            currentFieldStyles?.requiredIndicator === "badge" ? (
+                              <span
+                                className="ml-2 px-2 py-0.5 rounded text-[10px] font-semibold border"
+                                style={{
+                                  color: currentFieldStyles.requiredColor,
+                                  borderColor: `${currentFieldStyles.requiredColor}40`,
+                                  backgroundColor: `${currentFieldStyles.requiredColor}10`,
+                                }}
+                              >
+                                Required
+                              </span>
+                            ) : currentFieldStyles?.requiredIndicator === "dot" ? (
+                              <span
+                                className="ml-1 text-sm font-black"
+                                style={{ color: currentFieldStyles.requiredColor }}
+                              >
+                                •
+                              </span>
+                            ) : currentFieldStyles?.requiredIndicator === "none" ? null : (
+                              <span
+                                className="ml-1 font-bold"
+                                style={{ color: currentFieldStyles?.requiredColor || "#FF5A36" }}
+                              >
+                                *
+                              </span>
+                            )
+                          )}
+                        </h3>
+
+                        {currentField.description && (
+                          <p className="text-xs text-[#78716C]">
+                            {currentField.description}
+                          </p>
+                        )}
+
+                        <div className="pt-2">
+                          {renderPreviewInput(currentField, answers, handleAnswerChange, theme)}
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-[#78716C]">No questions in form.</p>
+                    )}
+                  </div>
+
+                  {/* Step Navigation */}
+                  <div className="flex items-center justify-between pt-6 border-t border-[#F5F2EB]">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep((s) => Math.max(0, s - 1))}
+                      disabled={currentStep === 0}
+                      className="px-3.5 py-2 text-xs font-semibold text-[#78716C] disabled:opacity-30 flex items-center gap-1 cursor-pointer transition-colors hover:text-[#1C1917]"
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5" /> Back
+                    </button>
+
+                    {currentStep < fields.length - 1 ? (
+                      <button
+                        type="button"
+                        onClick={() => setCurrentStep((s) => s + 1)}
+                        style={buttonStyle}
+                        className="flex items-center gap-1.5 cursor-pointer shadow-xs"
+                      >
+                        <span>Next</span> <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setSubmitted(true)}
+                        style={buttonStyle}
+                        className="cursor-pointer shadow-xs"
+                      >
+                        Submit
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                /* Classic / Editorial / Multi-Question Form */
+                <div className="space-y-6">
+                  {/* Form Header */}
+                  <div className="border-b border-[#F5F2EB] pb-6 space-y-2">
+                    <h1 style={headingStyle} className="tracking-tight text-xl sm:text-2xl font-bold">
+                      {title || "Untitled Form"}
+                    </h1>
+                    {description && (
+                      <p
+                        className="text-xs sm:text-sm leading-relaxed"
+                        style={{ color: theme.colors.mutedText || "#78716C" }}
+                      >
+                        {description}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Form Fields List */}
+                  <div
+                    className="space-y-4"
+                    style={{
+                      gap: theme.inputs.customFieldSpacing
+                        ? `${theme.inputs.customFieldSpacing}px`
+                        : undefined,
+                    }}
+                  >
+                    {fields.length === 0 ? (
+                      <p className="text-sm text-[#78716C] py-4 text-center">
+                        This form has no questions yet.
+                      </p>
+                    ) : (
+                      fields.map((field, idx) => {
+                        if (field.type === "divider") {
+                          return <div key={field.id} className="h-px bg-[#EAE3D6] my-4" />;
+                        }
+                        if (field.type === "section_heading") {
+                          return (
+                            <div key={field.id} className="pt-4 pb-1 border-b border-[#F5F2EB]">
+                              <h3 className="text-base font-bold text-[#1C1917]">{field.label}</h3>
+                              {field.description && (
+                                <p className="text-xs text-[#78716C] mt-0.5">{field.description}</p>
+                              )}
+                            </div>
+                          );
+                        }
+
+                        const fieldStyles = getComputedFieldStyles(field, theme);
+
+                        return (
+                          <div
+                            key={field.id}
+                            style={fieldStyles.fieldCardStyle}
+                            className="space-y-2.5 transition-all"
+                          >
+                            <label
+                              className="block text-xs sm:text-sm font-semibold"
+                              style={fieldStyles.inputLabelStyle}
+                            >
+                              {idx + 1}. {field.label}
+                              {field.required && (
+                                fieldStyles.requiredIndicator === "badge" ? (
+                                  <span
+                                    className="ml-2 px-2 py-0.5 rounded text-[10px] font-semibold border"
+                                    style={{
+                                      color: fieldStyles.requiredColor,
+                                      borderColor: `${fieldStyles.requiredColor}40`,
+                                      backgroundColor: `${fieldStyles.requiredColor}10`,
+                                    }}
+                                  >
+                                    Required
+                                  </span>
+                                ) : fieldStyles.requiredIndicator === "dot" ? (
+                                  <span
+                                    className="ml-1 text-sm font-black"
+                                    style={{ color: fieldStyles.requiredColor }}
+                                  >
+                                    •
+                                  </span>
+                                ) : fieldStyles.requiredIndicator === "none" ? null : (
+                                  <span
+                                    className="ml-1 font-bold"
+                                    style={{ color: fieldStyles.requiredColor }}
+                                  >
+                                    *
+                                  </span>
+                                )
+                              )}
+                            </label>
+
+                            {field.description && (
+                              <p className="text-[11px] text-[#78716C]">
+                                {field.description}
+                              </p>
+                            )}
+
+                            {renderPreviewInput(field, answers, handleAnswerChange, theme)}
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  {/* Form Submit Button */}
+                  {fields.length > 0 && (
+                    <div className="pt-6 border-t border-[#F5F2EB] flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setSubmitted(true)}
+                        style={buttonStyle}
+                        className="cursor-pointer shadow-xs"
+                      >
+                        Submit Response
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
@@ -376,9 +531,7 @@ function renderPreviewInput(
               onClick={() => onChange(field.id, star)}
               style={fieldStyles.ratingStyle}
               className={`w-9 h-9 border flex items-center justify-center transition-all cursor-pointer ${
-                isFilled
-                  ? "border-amber-300"
-                  : "hover:text-amber-400"
+                isFilled ? "border-amber-300" : "hover:text-amber-400"
               }`}
             >
               <Star

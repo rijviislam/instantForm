@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
-export type ViewportMode = "desktop" | "mobile";
+export type ViewportMode = "desktop" | "tablet" | "mobile";
 export type SaveState = "saved" | "saving" | "unsaved" | "error";
 
 interface BuilderTopBarProps {

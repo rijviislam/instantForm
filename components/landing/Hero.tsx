@@ -6,7 +6,10 @@ import { useEffect, useRef } from "react";
 import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";
 
+import { useRouter } from "next/navigation";
+
 export function Hero() {
+  const router = useRouter();
   const heroRef = useRef<HTMLDivElement>(null);
   const headlineRef = useRef<HTMLHeadingElement>(null);
   const scrollSectionRef = useRef<HTMLDivElement>(null);
@@ -222,8 +225,7 @@ export function Hero() {
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             }
             onClick={() => {
-              const el = document.getElementById("templates");
-              el?.scrollIntoView({ behavior: "smooth" });
+              router.push("/register");
             }}
           >
             Start building

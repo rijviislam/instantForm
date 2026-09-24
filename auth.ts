@@ -1,15 +1,13 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import Google from "next-auth/providers/google";
 import GitHub from "next-auth/providers/github";
+import Google from "next-auth/providers/google";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Google({
       clientId:
-        process.env.AUTH_GOOGLE_ID ||
-        process.env.GOOGLE_CLIENT_ID ||
-        "",
+        process.env.AUTH_GOOGLE_ID || process.env.GOOGLE_CLIENT_ID || "",
       clientSecret:
         process.env.AUTH_GOOGLE_SECRET ||
         process.env.GOOGLE_CLIENT_SECRET ||
@@ -18,9 +16,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
     GitHub({
       clientId:
-        process.env.AUTH_GITHUB_ID ||
-        process.env.GITHUB_CLIENT_ID ||
-        "",
+        process.env.AUTH_GITHUB_ID || process.env.GITHUB_CLIENT_ID || "",
       clientSecret:
         process.env.AUTH_GITHUB_SECRET ||
         process.env.GITHUB_CLIENT_SECRET ||
@@ -109,12 +105,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
-        if ((user as unknown as { token?: string }).token) {
-          token.apiToken = (user as unknown as { token?: string }).token;
+        if (user.token) {
+          token.apiToken = user.token;
         }
       }
 
-      if (account && (account.provider === "google" || account.provider === "github")) {
+      if (
+        account &&
+        (account.provider === "google" || account.provider === "github")
+      ) {
         try {
           const apiBaseUrl =
             process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
@@ -145,9 +144,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = (token.id || token.sub) as string;
+        session.user.id = token.id || token.sub || "";
       }
-      (session as unknown as { apiToken?: string }).apiToken = token.apiToken as string;
+
+      session.apiToken = token.apiToken;
+
       return session;
     },
   },

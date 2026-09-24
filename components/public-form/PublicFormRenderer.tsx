@@ -22,6 +22,7 @@ import {
 import { PublicFormItem, FormField, submitPublicResponseApi } from "@/lib/api-client";
 import { FormTheme, resolveFormTheme, getThemeComputedStyles, getComputedFieldStyles } from "@/lib/form-theme";
 import { DynamicFontLoader } from "@/components/builder/DynamicFontLoader";
+import { CardSurfaceBackground } from "./CardSurfaceBackground";
 
 interface PublicFormRendererProps {
   form: PublicFormItem;
@@ -32,11 +33,28 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [hasPreviouslySubmitted, setHasPreviouslySubmitted] = useState(false);
+  const [previouslySubmittedAt, setPreviouslySubmittedAt] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
+
+  // Check if respondent on this device has already submitted this form
+  useEffect(() => {
+    try {
+      const keyId = `instantform_sub_${form.id}`;
+      const keySlug = `instantform_sub_${form.slug}`;
+      const recorded = localStorage.getItem(keyId) || localStorage.getItem(keySlug);
+      if (recorded) {
+        setHasPreviouslySubmitted(true);
+        setPreviouslySubmittedAt(recorded);
+      }
+    } catch (e) {
+      // ignore localStorage
+    }
+  }, [form.id, form.slug]);
 
   // Theme resolution
   const theme = resolveFormTheme(form.theme, form.style);
-  const { backgroundStyle, containerStyle, inputStyle, buttonStyle, headingStyle } =
+  const { backgroundStyle, containerStyle, inputStyle, buttonStyle, headingStyle, descriptionStyle } =
     getThemeComputedStyles(theme);
 
   // For Conversation & Chat styles
@@ -146,16 +164,32 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
         }
       }
 
-      // URL validation
-      if (field.type === "url" && typeof val === "string") {
+      // URL / Link validation (type === 'url' or label/placeholder contains URL/LinkedIn/Portfolio/Website)
+      const isUrlField =
+        field.type === "url" ||
+        (field.type === "short_text" &&
+          /(url|website|portfolio|linkedin|github|link\b)/i.test(
+            `${field.label || ""} ${field.placeholder || ""}`
+          ));
+
+      if (isUrlField && typeof val === "string" && val.trim().length > 0) {
+        const trimmed = val.trim();
+        const urlPattern =
+          /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/.*)?$/i;
+        if (!urlPattern.test(trimmed)) {
+          return "Please enter a valid URL (e.g. https://linkedin.com/in/username)";
+        }
         try {
-          const formatted = val.startsWith("http://") || val.startsWith("https://") ? val : `https://${val}`;
-          new URL(formatted);
-          if (!val.includes(".")) {
-            return "Please enter a valid website URL (e.g. https://example.com)";
+          const formatted =
+            trimmed.startsWith("http://") || trimmed.startsWith("https://")
+              ? trimmed
+              : `https://${trimmed}`;
+          const parsed = new URL(formatted);
+          if (!parsed.hostname || !parsed.hostname.includes(".") || parsed.hostname.endsWith(".")) {
+            return "Please enter a valid URL (e.g. https://linkedin.com/in/username)";
           }
         } catch {
-          return "Please enter a valid website URL (e.g. https://example.com)";
+          return "Please enter a valid URL (e.g. https://linkedin.com/in/username)";
         }
       }
 
@@ -252,6 +286,14 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
 
       if (res.success) {
         setIsSubmitted(true);
+        setHasPreviouslySubmitted(true);
+        try {
+          const now = new Date().toISOString();
+          localStorage.setItem(`instantform_sub_${form.id}`, now);
+          localStorage.setItem(`instantform_sub_${form.slug}`, now);
+        } catch (e) {
+          // ignore
+        }
         try {
           confetti({
             particleCount: 80,
@@ -314,7 +356,42 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
     }
   };
 
-  // 1. Success State
+  // 1. Already Submitted State Screen (One submission per respondent)
+  if (hasPreviouslySubmitted && !isSubmitted) {
+    return (
+      <div className="w-full flex items-center justify-center p-4">
+        <DynamicFontLoader theme={theme} />
+        <div
+          className="w-full max-w-md text-center animate-in zoom-in-95 duration-200 space-y-4"
+          style={containerStyle}
+        >
+          <CardSurfaceBackground theme={theme} />
+          <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto mb-2 animate-in zoom-in-50 duration-300">
+            <CheckCircle2 className="w-9 h-9" />
+          </div>
+
+          <h2 style={headingStyle} className="tracking-tight text-xl font-bold">
+            Application Already Submitted
+          </h2>
+
+          <p
+            className="text-xs sm:text-sm leading-relaxed max-w-xs mx-auto"
+            style={{ color: theme.colors.mutedText || "#78716C" }}
+          >
+            You have already submitted this application. Each user is permitted to submit only once.
+          </p>
+
+          {previouslySubmittedAt && (
+            <p className="text-[11px] text-[#A8A29E]">
+              Recorded on {new Date(previouslySubmittedAt).toLocaleDateString()} at {new Date(previouslySubmittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Immediate Success State Screen
   if (isSubmitted) {
     return (
       <div className="w-full flex items-center justify-center p-4">
@@ -323,11 +400,12 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
           className="w-full max-w-md text-center animate-in zoom-in-95 duration-200 space-y-4"
           style={containerStyle}
         >
+          <CardSurfaceBackground theme={theme} />
           <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto mb-2 animate-in zoom-in-50 duration-300">
             <CheckCircle2 className="w-9 h-9" />
           </div>
 
-          <h2 style={headingStyle} className="tracking-tight">
+          <h2 style={headingStyle} className="tracking-tight text-xl font-bold">
             Thank you!
           </h2>
 
@@ -338,16 +416,9 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
             Your response has been submitted successfully.
           </p>
 
-          <div className="pt-4">
-            <button
-              type="button"
-              onClick={handleReset}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-[#78716C] hover:text-[#1C1917] hover:bg-[#FAF8F5] border border-[#EAE3D6] transition-colors cursor-pointer"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Submit another response</span>
-            </button>
-          </div>
+          <p className="text-[11px] text-[#A8A29E]">
+            Your submission has been recorded.
+          </p>
         </div>
       </div>
     );
@@ -391,9 +462,10 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
         )}
 
         <div
-          className="w-full min-h-[420px] flex flex-col justify-between"
+          className="w-full min-h-[420px] flex flex-col justify-between relative"
           style={containerStyle}
         >
+          <CardSurfaceBackground theme={theme} />
           <div>
             {/* Progress Bar */}
             <div className="flex items-center justify-between text-xs font-semibold text-[#78716C] mb-3">
@@ -458,7 +530,7 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
                   {currentField.description && (
                     <p
                       className="text-xs mt-1"
-                      style={{ color: theme.colors.mutedText || "#78716C" }}
+                      style={descriptionStyle}
                     >
                       {currentField.description}
                     </p>
@@ -567,6 +639,7 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
         className="w-full space-y-6 relative z-10"
         style={containerStyle}
       >
+        <CardSurfaceBackground theme={theme} />
         {/* Form Logo */}
         {theme.branding.logoUrl && (
           <div
@@ -595,14 +668,17 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
         )}
 
         {/* Header */}
-        <div className="border-b border-[#F5F2EB] pb-6 space-y-2">
+        <div
+          className="border-b pb-6 space-y-2"
+          style={{ borderBottomColor: theme.container.borderColor || theme.colors.border || "#F5F2EB" }}
+        >
           <h1 style={headingStyle} className="tracking-tight">
             {form.title}
           </h1>
           {form.description && (
             <p
               className="text-xs sm:text-sm leading-relaxed"
-              style={{ color: theme.colors.mutedText || "#78716C" }}
+              style={descriptionStyle}
             >
               {form.description}
             </p>
@@ -634,14 +710,24 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
         >
           {fields.map((field, idx) => {
             if (field.type === "divider") {
-              return <div key={field.id} className="h-px bg-[#EAE3D6] my-4" />;
+              return (
+                <div
+                  key={field.id}
+                  className="h-px my-4"
+                  style={{ backgroundColor: theme.colors.border || theme.container.borderColor || "#EAE3D6" }}
+                />
+              );
             }
             if (field.type === "section_heading") {
               return (
-                <div key={field.id} className="pt-4 pb-1 border-b border-[#F5F2EB]">
+                <div
+                  key={field.id}
+                  className="pt-4 pb-1 border-b"
+                  style={{ borderBottomColor: theme.fieldCard.borderColor || theme.container.borderColor || theme.colors.border || "#F5F2EB" }}
+                >
                   <h3 className="text-base font-bold text-[#1C1917]">{field.label}</h3>
                   {field.description && (
-                    <p className="text-xs text-[#78716C] mt-0.5">{field.description}</p>
+                    <p className="text-xs mt-0.5" style={descriptionStyle}>{field.description}</p>
                   )}
                 </div>
               );
@@ -699,7 +785,7 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
                 {field.description && (
                   <p
                     className="text-[11px]"
-                    style={{ color: theme.colors.mutedText || "#78716C" }}
+                    style={descriptionStyle}
                   >
                     {field.description}
                   </p>
@@ -787,17 +873,58 @@ function FileUploadFieldControl({
 
   const handleFile = (file: File) => {
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const dataUrl = e.target?.result as string;
+
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const rawUrl = e.target?.result as string;
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const maxDim = 160;
+          let width = img.width;
+          let height = img.height;
+          if (width > height) {
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, width, height);
+          const thumbUrl = canvas.toDataURL("image/jpeg", 0.6);
+          onChange({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            dataUrl: thumbUrl,
+          });
+        };
+        img.onerror = () => {
+          onChange({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+          });
+        };
+        img.src = rawUrl;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      // Document / PDF / Resume / Video / Audio: Instant clean metadata (no massive base64 delay)
       onChange({
         name: file.name,
         size: file.size,
         type: file.type,
-        dataUrl: dataUrl,
       });
-    };
-    reader.readAsDataURL(file);
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {

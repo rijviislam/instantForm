@@ -47,17 +47,28 @@ export function FormStyleCustomizer({
   const [activeFieldCardSubTab, setActiveFieldCardSubTab] = useState<string>("presets");
   const [activeInputSubTab, setActiveInputSubTab] = useState<string>("presets");
 
+  const updateMultiple = (updates: { [K in keyof FormTheme]?: Partial<FormTheme[K]> }) => {
+    let nextTheme = { ...theme };
+    (Object.keys(updates) as Array<keyof FormTheme>).forEach((section) => {
+      const sectionUpdates = updates[section];
+      if (sectionUpdates) {
+        nextTheme = {
+          ...nextTheme,
+          [section]: {
+            ...nextTheme[section],
+            ...sectionUpdates,
+          },
+        };
+      }
+    });
+    onChange(nextTheme);
+  };
+
   const updateSubKey = <K extends keyof FormTheme>(
     section: K,
     updates: Partial<FormTheme[K]>
   ) => {
-    onChange({
-      ...theme,
-      [section]: {
-        ...theme[section],
-        ...updates,
-      },
-    });
+    updateMultiple({ [section]: updates });
   };
 
   const handleApplyPreset = (presetTheme: Partial<FormTheme>) => {
@@ -257,8 +268,10 @@ export function FormStyleCustomizer({
                     type="color"
                     value={theme.colors.primary}
                     onChange={(e) => {
-                      updateSubKey("colors", { primary: e.target.value });
-                      updateSubKey("buttons", { backgroundColor: e.target.value });
+                      updateMultiple({
+                        colors: { primary: e.target.value },
+                        buttons: { backgroundColor: e.target.value },
+                      });
                     }}
                     className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer p-0.5"
                   />
@@ -266,8 +279,10 @@ export function FormStyleCustomizer({
                     type="text"
                     value={theme.colors.primary}
                     onChange={(e) => {
-                      updateSubKey("colors", { primary: e.target.value });
-                      updateSubKey("buttons", { backgroundColor: e.target.value });
+                      updateMultiple({
+                        colors: { primary: e.target.value },
+                        buttons: { backgroundColor: e.target.value },
+                      });
                     }}
                     className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-[#FAF8F5]"
                   />
@@ -303,7 +318,7 @@ export function FormStyleCustomizer({
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
-                    value={theme.container.backgroundColor.startsWith("#") ? theme.container.backgroundColor : "#FFFFFF"}
+                    value={theme.container.backgroundColor?.startsWith("#") ? theme.container.backgroundColor : "#FFFFFF"}
                     onChange={(e) => {
                       updateSubKey("container", { backgroundColor: e.target.value });
                     }}
@@ -311,7 +326,7 @@ export function FormStyleCustomizer({
                   />
                   <input
                     type="text"
-                    value={theme.container.backgroundColor}
+                    value={theme.container.backgroundColor || "#FFFFFF"}
                     onChange={(e) => {
                       updateSubKey("container", { backgroundColor: e.target.value });
                     }}
@@ -320,16 +335,18 @@ export function FormStyleCustomizer({
                 </div>
               </div>
 
-              {/* Text Color */}
+              {/* Main Text Color */}
               <div className="flex items-center justify-between">
-                <span className="text-stone-700">Main Text</span>
+                <span className="text-stone-700">Body Text</span>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
                     value={theme.colors.text}
                     onChange={(e) => {
-                      updateSubKey("colors", { text: e.target.value });
-                      updateSubKey("inputs", { textColor: e.target.value });
+                      updateMultiple({
+                        colors: { text: e.target.value },
+                        inputs: { textColor: e.target.value },
+                      });
                     }}
                     className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer p-0.5"
                   />
@@ -337,8 +354,70 @@ export function FormStyleCustomizer({
                     type="text"
                     value={theme.colors.text}
                     onChange={(e) => {
-                      updateSubKey("colors", { text: e.target.value });
-                      updateSubKey("inputs", { textColor: e.target.value });
+                      updateMultiple({
+                        colors: { text: e.target.value },
+                        inputs: { textColor: e.target.value },
+                      });
+                    }}
+                    className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-[#FAF8F5]"
+                  />
+                </div>
+              </div>
+
+              {/* Form Title Color */}
+              <div className="flex items-center justify-between">
+                <span className="text-stone-700 font-medium">Form Title</span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={
+                      theme.typography.headingColor?.startsWith("#")
+                        ? theme.typography.headingColor
+                        : (theme.colors.text?.startsWith("#") ? theme.colors.text : "#1C1917")
+                    }
+                    onChange={(e) => {
+                      updateSubKey("typography", { headingColor: e.target.value });
+                    }}
+                    className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer p-0.5"
+                  />
+                  <input
+                    type="text"
+                    value={theme.typography.headingColor || theme.colors.text || "#1C1917"}
+                    onChange={(e) => {
+                      updateSubKey("typography", { headingColor: e.target.value });
+                    }}
+                    className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-[#FAF8F5]"
+                  />
+                </div>
+              </div>
+
+              {/* Form Description Color */}
+              <div className="flex items-center justify-between">
+                <span className="text-stone-700 font-medium">Form Description</span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={
+                      theme.typography.descriptionColor?.startsWith("#")
+                        ? theme.typography.descriptionColor
+                        : (theme.colors.mutedText?.startsWith("#") ? theme.colors.mutedText : "#78716C")
+                    }
+                    onChange={(e) => {
+                      updateMultiple({
+                        typography: { descriptionColor: e.target.value },
+                        colors: { mutedText: e.target.value },
+                      });
+                    }}
+                    className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer p-0.5"
+                  />
+                  <input
+                    type="text"
+                    value={theme.typography.descriptionColor || theme.colors.mutedText || "#78716C"}
+                    onChange={(e) => {
+                      updateMultiple({
+                        typography: { descriptionColor: e.target.value },
+                        colors: { mutedText: e.target.value },
+                      });
                     }}
                     className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-[#FAF8F5]"
                   />
@@ -347,23 +426,31 @@ export function FormStyleCustomizer({
 
               {/* Border Color */}
               <div className="flex items-center justify-between">
-                <span className="text-stone-700">Borders</span>
+                <span className="text-stone-700 font-medium">Borders</span>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
-                    value={theme.container.borderColor}
+                    value={theme.container.borderColor || theme.colors.border || "#EAE3D6"}
                     onChange={(e) => {
-                      updateSubKey("container", { borderColor: e.target.value });
-                      updateSubKey("inputs", { borderColor: e.target.value });
+                      updateMultiple({
+                        colors: { border: e.target.value },
+                        container: { borderColor: e.target.value },
+                        fieldCard: { borderColor: e.target.value },
+                        inputs: { borderColor: e.target.value, dropzoneBorderColor: e.target.value },
+                      });
                     }}
                     className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer p-0.5"
                   />
                   <input
                     type="text"
-                    value={theme.container.borderColor}
+                    value={theme.container.borderColor || theme.colors.border || "#EAE3D6"}
                     onChange={(e) => {
-                      updateSubKey("container", { borderColor: e.target.value });
-                      updateSubKey("inputs", { borderColor: e.target.value });
+                      updateMultiple({
+                        colors: { border: e.target.value },
+                        container: { borderColor: e.target.value },
+                        fieldCard: { borderColor: e.target.value },
+                        inputs: { borderColor: e.target.value, dropzoneBorderColor: e.target.value },
+                      });
                     }}
                     className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-[#FAF8F5]"
                   />
@@ -655,6 +742,72 @@ export function FormStyleCustomizer({
                   </select>
                 </div>
               </div>
+
+              {/* Form Title & Description Colors */}
+              <div className="pt-2.5 border-t border-[#F5F2EB] space-y-2">
+                <label className="block text-[11px] font-bold text-[#A8A29E] uppercase tracking-wider">
+                  Text & Description Colors
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <span className="text-[10px] text-[#78716C]">Title Color</span>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <input
+                        type="color"
+                        value={
+                          theme.typography.headingColor?.startsWith("#")
+                            ? theme.typography.headingColor
+                            : (theme.colors.text?.startsWith("#") ? theme.colors.text : "#1C1917")
+                        }
+                        onChange={(e) =>
+                          updateSubKey("typography", { headingColor: e.target.value })
+                        }
+                        className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer p-0.5"
+                      />
+                      <input
+                        type="text"
+                        value={theme.typography.headingColor || theme.colors.text || "#1C1917"}
+                        onChange={(e) =>
+                          updateSubKey("typography", { headingColor: e.target.value })
+                        }
+                        className="w-full px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-[#FAF8F5]"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] text-[#78716C]">Description Color</span>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <input
+                        type="color"
+                        value={
+                          theme.typography.descriptionColor?.startsWith("#")
+                            ? theme.typography.descriptionColor
+                            : (theme.colors.mutedText?.startsWith("#") ? theme.colors.mutedText : "#78716C")
+                        }
+                        onChange={(e) => {
+                          updateMultiple({
+                            typography: { descriptionColor: e.target.value },
+                            colors: { mutedText: e.target.value },
+                          });
+                        }}
+                        className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer p-0.5"
+                      />
+                      <input
+                        type="text"
+                        value={theme.typography.descriptionColor || theme.colors.mutedText || "#78716C"}
+                        onChange={(e) => {
+                          updateMultiple({
+                            typography: { descriptionColor: e.target.value },
+                            colors: { mutedText: e.target.value },
+                          });
+                        }}
+                        className="w-full px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-[#FAF8F5]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -813,7 +966,7 @@ export function FormStyleCustomizer({
                 )}
 
                 {theme.container.backgroundType === "image" && (
-                  <div className="space-y-2 pt-1">
+                  <div className="space-y-3 pt-1">
                     <div>
                       <span className="text-[10px] text-[#78716C]">Image URL</span>
                       <input
@@ -830,7 +983,7 @@ export function FormStyleCustomizer({
                       <label className="flex items-center justify-center gap-2 p-2.5 border border-dashed border-[#EAE3D6] hover:border-[#FF5A36] rounded-xl bg-[#FAF8F5] cursor-pointer transition-colors">
                         <Upload className="w-3.5 h-3.5 text-[#FF5A36]" />
                         <span className="text-[11px] font-semibold text-[#1C1917]">
-                          Upload Card Image
+                          {theme.container.imageUrl ? "Change Card Image" : "Upload Card Image"}
                         </span>
                         <input
                           type="file"
@@ -840,6 +993,130 @@ export function FormStyleCustomizer({
                         />
                       </label>
                     </div>
+
+                    {/* Background Image Blur Slider */}
+                    <div className="p-2.5 bg-[#FAF8F5] rounded-xl border border-[#EAE3D6] space-y-1.5">
+                      <div className="flex justify-between items-center text-[#78716C]">
+                        <span className="text-[10px] font-semibold text-[#1C1917]">Card Background Image Blur</span>
+                        <span className="text-[11px] font-mono font-bold text-[#FF5A36] bg-white px-1.5 py-0.5 rounded border border-[#EAE3D6]">
+                          {(theme.container.imageBlur ?? theme.container.bgBlur ?? 0)}px
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="40"
+                        step="1"
+                        value={theme.container.imageBlur ?? theme.container.bgBlur ?? 0}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          updateSubKey("container", { imageBlur: val, bgBlur: val });
+                        }}
+                        className="w-full accent-[#FF5A36] h-1.5 bg-[#EAE3D6] rounded-lg cursor-pointer"
+                      />
+                      <div className="flex justify-between text-[9px] text-[#A8A29E]">
+                        <span>0px (Crisp)</span>
+                        <span>12px</span>
+                        <span>24px</span>
+                        <span>40px (Heavy)</span>
+                      </div>
+                    </div>
+
+                    {/* Position & Fit */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <span className="text-[10px] text-[#78716C]">Position</span>
+                        <select
+                          value={theme.container.imagePosition || "center"}
+                          onChange={(e) =>
+                            updateSubKey("container", { imagePosition: e.target.value as any })
+                          }
+                          className="w-full px-2 py-1 text-xs rounded-xl border border-[#EAE3D6] bg-[#FAF8F5] mt-0.5"
+                        >
+                          <option value="center">Center</option>
+                          <option value="top">Top</option>
+                          <option value="bottom">Bottom</option>
+                          <option value="left">Left</option>
+                          <option value="right">Right</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <span className="text-[10px] text-[#78716C]">Size Fit</span>
+                        <select
+                          value={theme.container.imageSize || "cover"}
+                          onChange={(e) =>
+                            updateSubKey("container", { imageSize: e.target.value as any })
+                          }
+                          className="w-full px-2 py-1 text-xs rounded-xl border border-[#EAE3D6] bg-[#FAF8F5] mt-0.5"
+                        >
+                          <option value="cover">Cover (Fill)</option>
+                          <option value="contain">Contain</option>
+                          <option value="auto">Original</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Overlay Tint & Opacity */}
+                    <div className="p-2.5 bg-[#FAF8F5] rounded-xl border border-[#EAE3D6] space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-semibold text-[#1C1917]">Overlay Tint Color</span>
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="color"
+                            value={theme.container.overlayColor || "#000000"}
+                            onChange={(e) =>
+                              updateSubKey("container", { overlayColor: e.target.value })
+                            }
+                            className="w-6 h-6 rounded-lg border border-[#EAE3D6] cursor-pointer"
+                          />
+                          <input
+                            type="text"
+                            value={theme.container.overlayColor || "#000000"}
+                            onChange={(e) =>
+                              updateSubKey("container", { overlayColor: e.target.value })
+                            }
+                            className="w-16 px-1.5 py-0.5 text-[10px] font-mono rounded-lg border border-[#EAE3D6] bg-white"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between items-center text-[#78716C] mb-1">
+                          <span className="text-[10px]">Overlay Tint Opacity</span>
+                          <span className="text-[10px] font-mono font-semibold text-[#1C1917]">
+                            {theme.container.overlayOpacity ?? 0}%
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          step="5"
+                          value={theme.container.overlayOpacity ?? 0}
+                          onChange={(e) =>
+                            updateSubKey("container", { overlayOpacity: Number(e.target.value) })
+                          }
+                          className="w-full accent-[#FF5A36] h-1.5 bg-[#EAE3D6] rounded-lg cursor-pointer"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Clear Image Button if image exists */}
+                    {theme.container.imageUrl && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateSubKey("container", {
+                            imageUrl: "",
+                            backgroundType: "solid",
+                          })
+                        }
+                        className="w-full py-1 text-[11px] font-medium text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg border border-rose-200 transition-colors"
+                      >
+                        Remove Card Image
+                      </button>
+                    )}
                   </div>
                 )}
               </div>

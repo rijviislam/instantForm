@@ -28,6 +28,7 @@ import {
   getThemeComputedStyles,
   getComputedFieldStyles,
 } from "@/lib/form-theme";
+import { CardSurfaceBackground } from "@/components/public-form/CardSurfaceBackground";
 import { DynamicFontLoader } from "./DynamicFontLoader";
 import { ViewportMode } from "./BuilderTopBar";
 
@@ -57,7 +58,7 @@ export function BuilderPreview({
   const [previewViewport, setPreviewViewport] = useState<ViewportMode>(initialViewport || "desktop");
 
   const theme = resolveFormTheme(rawTheme, style);
-  const { backgroundStyle, containerStyle, buttonStyle, headingStyle } =
+  const { backgroundStyle, containerStyle, buttonStyle, headingStyle, descriptionStyle } =
     getThemeComputedStyles(theme);
 
   // Close on Escape key
@@ -149,14 +150,32 @@ export function BuilderPreview({
         if (field.max !== undefined && num > field.max) return `Value cannot exceed ${field.max}`;
       }
 
-      if (field.type === "url" && typeof val === "string") {
+      // URL / Link validation (type === 'url' or label/placeholder contains URL/LinkedIn/Portfolio/Website)
+      const isUrlField =
+        field.type === "url" ||
+        (field.type === "short_text" &&
+          /(url|website|portfolio|linkedin|github|link\b)/i.test(
+            `${field.label || ""} ${field.placeholder || ""}`
+          ));
+
+      if (isUrlField && typeof val === "string" && val.trim().length > 0) {
+        const trimmed = val.trim();
+        const urlPattern =
+          /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/.*)?$/i;
+        if (!urlPattern.test(trimmed)) {
+          return "Please enter a valid URL (e.g. https://linkedin.com/in/username)";
+        }
         try {
           const formatted =
-            val.startsWith("http://") || val.startsWith("https://") ? val : `https://${val}`;
-          new URL(formatted);
-          if (!val.includes(".")) return "Please enter a valid website URL (e.g. https://example.com)";
+            trimmed.startsWith("http://") || trimmed.startsWith("https://")
+              ? trimmed
+              : `https://${trimmed}`;
+          const parsed = new URL(formatted);
+          if (!parsed.hostname || !parsed.hostname.includes(".") || parsed.hostname.endsWith(".")) {
+            return "Please enter a valid URL (e.g. https://linkedin.com/in/username)";
+          }
         } catch {
-          return "Please enter a valid website URL (e.g. https://example.com)";
+          return "Please enter a valid URL (e.g. https://linkedin.com/in/username)";
         }
       }
     }
@@ -370,6 +389,9 @@ export function BuilderPreview({
               className="transition-all relative z-10"
               style={containerStyle}
             >
+              {/* Card Background Image & Blur Layer */}
+              <CardSurfaceBackground theme={theme} />
+
               {/* Form Branding Logo (if configured) */}
               {theme.branding.logoUrl && (
                 <div
@@ -483,7 +505,7 @@ export function BuilderPreview({
                         </h3>
 
                         {currentField.description && (
-                          <p className="text-xs text-[#78716C]">
+                          <p className="text-xs" style={descriptionStyle}>
                             {currentField.description}
                           </p>
                         )}
@@ -549,14 +571,17 @@ export function BuilderPreview({
                 /* Classic / Editorial / Multi-Question Form */
                 <div className="space-y-6">
                   {/* Form Header */}
-                  <div className="border-b border-[#F5F2EB] pb-6 space-y-2">
+                  <div
+                    className="border-b pb-6 space-y-2"
+                    style={{ borderBottomColor: theme.container.borderColor || theme.colors.border || "#F5F2EB" }}
+                  >
                     <h1 style={headingStyle} className="tracking-tight text-xl sm:text-2xl font-bold">
                       {title || "Untitled Form"}
                     </h1>
                     {description && (
                       <p
                         className="text-xs sm:text-sm leading-relaxed"
-                        style={{ color: theme.colors.mutedText || "#78716C" }}
+                        style={descriptionStyle}
                       >
                         {description}
                       </p>
@@ -583,10 +608,14 @@ export function BuilderPreview({
                         }
                         if (field.type === "section_heading") {
                           return (
-                            <div key={field.id} className="pt-4 pb-1 border-b border-[#F5F2EB]">
+                            <div
+                              key={field.id}
+                              className="pt-4 pb-1 border-b"
+                              style={{ borderBottomColor: theme.fieldCard.borderColor || theme.container.borderColor || theme.colors.border || "#F5F2EB" }}
+                            >
                               <h3 className="text-base font-bold text-[#1C1917]">{field.label}</h3>
                               {field.description && (
-                                <p className="text-xs text-[#78716C] mt-0.5">{field.description}</p>
+                                <p className="text-xs mt-0.5" style={descriptionStyle}>{field.description}</p>
                               )}
                             </div>
                           );
@@ -643,7 +672,7 @@ export function BuilderPreview({
                             </label>
 
                             {field.description && (
-                              <p className="text-[11px] text-[#78716C]">
+                              <p className="text-[11px]" style={descriptionStyle}>
                                 {field.description}
                               </p>
                             )}
@@ -730,17 +759,58 @@ function FileUploadFieldControl({
 
   const handleFile = (file: File) => {
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const dataUrl = e.target?.result as string;
+
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const rawUrl = e.target?.result as string;
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const maxDim = 160;
+          let width = img.width;
+          let height = img.height;
+          if (width > height) {
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, width, height);
+          const thumbUrl = canvas.toDataURL("image/jpeg", 0.6);
+          onChange({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            dataUrl: thumbUrl,
+          });
+        };
+        img.onerror = () => {
+          onChange({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+          });
+        };
+        img.src = rawUrl;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      // Document / PDF / Resume / Video / Audio: Instant clean metadata (no massive base64 delay)
       onChange({
         name: file.name,
         size: file.size,
         type: file.type,
-        dataUrl: dataUrl,
       });
-    };
-    reader.readAsDataURL(file);
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {

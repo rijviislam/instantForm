@@ -346,6 +346,7 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
       await updateFormApi(form.id, {
         title: form.title,
         description: form.description,
+        slug: form.slug,
         style: form.style,
         theme: form.theme,
         fields: form.fields,
@@ -360,6 +361,7 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
           ...prev,
           status: isCurrentlyPublished ? "DRAFT" : "PUBLISHED",
           isPublished: !isCurrentlyPublished,
+          slug: res.data?.slug || prev.slug,
         }));
       }
     } catch (err) {
@@ -434,6 +436,7 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
             selectedField={selectedField}
             formTitle={form.title}
             formDescription={form.description}
+            formSlug={form.slug}
             formStyle={form.style}
             formTheme={form.theme}
             activeTab={inspectorTab}
@@ -493,6 +496,7 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
                 selectedField={selectedField}
                 formTitle={form.title}
                 formDescription={form.description}
+                formSlug={form.slug}
                 formStyle={form.style}
                 formTheme={form.theme}
                 activeTab={inspectorTab}

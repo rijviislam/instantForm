@@ -29,6 +29,8 @@ export interface FormThemeTypography {
   fontWeight: "normal" | "medium" | "semibold" | "bold";
   lineHeight: "tight" | "normal" | "relaxed" | "loose";
   letterSpacing: "tighter" | "normal" | "wide" | "widest";
+  headingColor?: string;
+  descriptionColor?: string;
 }
 
 export interface FormThemeContainer {
@@ -48,6 +50,7 @@ export interface FormThemeContainer {
   overlayColor?: string;
   overlayOpacity?: number; // 0 - 100
   bgBlur?: number; // 0 - 24px
+  imageBlur?: number; // 0 - 40px
 
   // Sizing
   maxWidth: "sm" | "md" | "lg" | "xl" | "2xl" | "full" | "custom";
@@ -432,6 +435,8 @@ export const DEFAULT_FORM_THEME: FormTheme = {
     fontWeight: "semibold",
     lineHeight: "normal",
     letterSpacing: "normal",
+    headingColor: "#1C1917",
+    descriptionColor: "#78716C",
   },
   container: {
     backgroundType: "solid",
@@ -448,6 +453,7 @@ export const DEFAULT_FORM_THEME: FormTheme = {
     overlayColor: "#000000",
     overlayOpacity: 0,
     bgBlur: 0,
+    imageBlur: 0,
     maxWidth: "2xl",
     customMaxWidth: 672,
     minHeight: "none",
@@ -2182,7 +2188,9 @@ export function getThemeComputedStyles(theme: FormTheme) {
       cardBgCss = `linear-gradient(${c.gradientDirection || "135deg"}, ${c.gradientFrom || "#FFFFFF"} 0%, ${c.gradientVia ? c.gradientVia + " 50%," : ""} ${c.gradientTo || "#FAF8F5"} 100%)`;
     }
   } else if (c.backgroundType === "image" && c.imageUrl) {
-    cardBgImage = `url("${c.imageUrl}")`;
+    // When backgroundType is "image", the card renders an inner background div
+    // layer to allow blur & overlay filters without blurring form inputs and typography
+    cardBgImage = undefined;
     cardBgCss = undefined;
   }
 
@@ -2240,6 +2248,8 @@ export function getThemeComputedStyles(theme: FormTheme) {
     backgroundSize: c.imageSize || "cover",
     backgroundRepeat: c.imageRepeat || "no-repeat",
     borderRadius: computedBorderRadius,
+    position: "relative",
+    overflow: "hidden",
     borderWidth: (c.borderTop === false || c.borderRight === false || c.borderBottom === false || c.borderLeft === false) ? undefined : defaultBorderWidth,
     borderTopWidth: (c.borderTop === false || c.borderRight === false || c.borderBottom === false || c.borderLeft === false) ? (c.borderTop === false ? "0px" : defaultBorderWidth) : undefined,
     borderRightWidth: (c.borderTop === false || c.borderRight === false || c.borderBottom === false || c.borderLeft === false) ? (c.borderRight === false ? "0px" : defaultBorderWidth) : undefined,
@@ -2288,7 +2298,7 @@ export function getThemeComputedStyles(theme: FormTheme) {
     fontFamily: fontFamilyCss,
   };
 
-  // 6. Heading Style
+  // 6. Heading & Description Style
   const headingSizeMap = {
     base: "1.125rem",
     lg: "1.25rem",
@@ -2297,12 +2307,19 @@ export function getThemeComputedStyles(theme: FormTheme) {
     "3xl": "2.25rem",
   };
 
+  const headingColor = theme.typography.headingColor || theme.colors.text || "#1C1917";
+  const descriptionColor = theme.typography.descriptionColor || theme.colors.mutedText || "#78716C";
+
   const headingStyle: React.CSSProperties = {
     fontFamily: headingFontFamilyCss,
     fontSize: headingSizeMap[theme.typography.headingSize] || "1.875rem",
     fontWeight: theme.typography.fontWeight === "bold" ? 700 : theme.typography.fontWeight === "medium" ? 500 : 600,
-    color: theme.colors.text || "#1C1917",
+    color: headingColor,
     letterSpacing: theme.typography.letterSpacing === "tighter" ? "-0.05em" : theme.typography.letterSpacing === "wide" ? "0.05em" : theme.typography.letterSpacing === "widest" ? "0.1em" : "normal",
+  };
+
+  const descriptionStyle: React.CSSProperties = {
+    color: descriptionColor,
   };
 
   return {
@@ -2329,6 +2346,9 @@ export function getThemeComputedStyles(theme: FormTheme) {
     requiredIndicator: fieldCustomStyles.requiredIndicator,
     buttonStyle,
     headingStyle,
+    descriptionStyle,
+    headingColor,
+    descriptionColor,
     fontFamilyCss,
     headingFontFamilyCss,
   };

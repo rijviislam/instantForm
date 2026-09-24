@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { FormField, FormStyle } from "@/lib/api-client";
 import { FormTheme, resolveFormTheme, getThemeComputedStyles, getComputedFieldStyles } from "@/lib/form-theme";
+import { CardSurfaceBackground } from "@/components/public-form/CardSurfaceBackground";
 import { ViewportMode } from "./BuilderTopBar";
 
 interface BuilderCanvasProps {
@@ -72,7 +73,7 @@ export function BuilderCanvas({
   const [dropPosition, setDropPosition] = useState<"before" | "after">("before");
 
   const theme = resolveFormTheme(rawTheme, style);
-  const { backgroundStyle, containerStyle, inputStyle, buttonStyle, headingStyle } =
+  const { backgroundStyle, containerStyle, inputStyle, buttonStyle, headingStyle, descriptionStyle } =
     getThemeComputedStyles(theme);
 
   // Drag & Drop handlers
@@ -174,6 +175,9 @@ export function BuilderCanvas({
           className="transition-all relative z-10"
           style={containerStyle}
         >
+          {/* Card Background Image & Blur Layer */}
+          <CardSurfaceBackground theme={theme} />
+
           {/* Form Branding Logo (if configured) */}
           {theme.branding.logoUrl && (
             <div
@@ -201,7 +205,10 @@ export function BuilderCanvas({
           )}
 
           {/* Form Header */}
-          <div className="border-b border-[#F5F2EB] pb-6 mb-8 space-y-2">
+          <div
+            className="border-b pb-6 mb-8 space-y-2"
+            style={{ borderBottomColor: theme.container.borderColor || theme.colors.border || "#F5F2EB" }}
+          >
             <div className="flex items-center gap-2">
               <span
                 className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold border"
@@ -223,7 +230,7 @@ export function BuilderCanvas({
             {description && (
               <p
                 className="text-xs sm:text-sm leading-relaxed"
-                style={{ color: theme.colors.mutedText || "#78716C" }}
+                style={descriptionStyle}
               >
                 {description}
               </p>
@@ -334,7 +341,7 @@ export function BuilderCanvas({
                         </h3>
                       </div>
                       {field.description && (
-                        <p className="text-xs text-[#78716C] mt-0.5 pl-6">
+                        <p className="text-xs mt-0.5 pl-6" style={descriptionStyle}>
                           {field.description}
                         </p>
                       )}
@@ -493,7 +500,7 @@ export function BuilderCanvas({
                       </div>
 
                       {field.description && (
-                        <p className="text-[11px] text-[#78716C] pl-6">
+                        <p className="text-[11px] pl-6" style={descriptionStyle}>
                           {field.description}
                         </p>
                       )}
@@ -508,7 +515,10 @@ export function BuilderCanvas({
           )}
 
           {/* Submit Button Preview */}
-          <div className="mt-10 pt-6 border-t border-[#F5F2EB] flex justify-end">
+          <div
+            className="mt-10 pt-6 border-t flex justify-end"
+            style={{ borderTopColor: theme.container.borderColor || theme.colors.border || "#F5F2EB" }}
+          >
             <button
               type="button"
               disabled

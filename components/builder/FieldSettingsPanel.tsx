@@ -12,6 +12,7 @@ import {
   FileText,
   Code2,
   BoxSelect,
+  Link2,
 } from "lucide-react";
 import { FormField, FormStyle } from "@/lib/api-client";
 import { FormTheme, INPUT_STYLE_PRESETS, FIELD_CARD_STYLE_PRESETS } from "@/lib/form-theme";
@@ -21,6 +22,7 @@ interface FieldSettingsPanelProps {
   selectedField: FormField | null;
   formTitle: string;
   formDescription: string | null;
+  formSlug?: string;
   formStyle: FormStyle;
   formTheme?: FormTheme;
   activeTab?: "field" | "form" | "style";
@@ -30,6 +32,7 @@ interface FieldSettingsPanelProps {
   onUpdateForm: (updates: {
     title?: string;
     description?: string | null;
+    slug?: string;
     style?: FormStyle;
     theme?: FormTheme;
   }) => void;
@@ -40,6 +43,7 @@ export function FieldSettingsPanel({
   selectedField,
   formTitle,
   formDescription,
+  formSlug,
   formStyle,
   formTheme,
   activeTab: externalActiveTab,
@@ -902,6 +906,36 @@ export function FieldSettingsPanel({
                 rows={3}
                 className="w-full px-3 py-2 text-xs bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917] focus:outline-none focus:ring-2 focus:ring-[#FF5A36]/20 focus:border-[#FF5A36] transition-all resize-none"
               />
+            </div>
+
+            {/* Custom Short URL Slug */}
+            <div className="space-y-1.5 pt-2 border-t border-[#F5F2EB]">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-[#1C1917] flex items-center gap-1.5">
+                  <Link2 className="w-3.5 h-3.5 text-[#FF5A36]" />
+                  <span>Custom Short Link</span>
+                </label>
+                <span className="text-[10px] text-[#A8A29E]">Public URL</span>
+              </div>
+              <div className="flex items-center bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl px-3 py-2 text-xs focus-within:ring-2 focus-within:ring-[#FF5A36]/20 focus-within:border-[#FF5A36] transition-all">
+                <span className="text-[#A8A29E] shrink-0 font-mono select-none">/f/</span>
+                <input
+                  type="text"
+                  value={formSlug || ""}
+                  onChange={(e) => {
+                    const sanitized = e.target.value
+                      .toLowerCase()
+                      .replace(/[^\w-]/g, "")
+                      .replace(/_+/g, "-");
+                    onUpdateForm({ slug: sanitized });
+                  }}
+                  placeholder="job-application"
+                  className="w-full bg-transparent text-[#1C1917] font-mono focus:outline-none ml-1"
+                />
+              </div>
+              <p className="text-[10px] text-[#78716C]">
+                Your form's short shareable URL (e.g. <span className="font-mono text-[#FF5A36]">/f/{formSlug || "job-application"}</span>)
+              </p>
             </div>
 
             {/* Form Style Preset Switcher */}

@@ -3,7 +3,22 @@ import { randomUUID } from "crypto";
 
 export interface TemplateField {
   id: string;
-  type: "short_text" | "long_text" | "email" | "rating" | "multiple_choice" | "number";
+  type:
+    | "short_text"
+    | "long_text"
+    | "email"
+    | "url"
+    | "phone"
+    | "rating"
+    | "multiple_choice"
+    | "checkboxes"
+    | "dropdown"
+    | "file_upload"
+    | "image_upload"
+    | "video_upload"
+    | "audio_upload"
+    | "number"
+    | string;
   label: string;
   placeholder?: string;
   required?: boolean;
@@ -151,7 +166,7 @@ export const INITIAL_TEMPLATES: TemplateDefinition[] = [
       },
       {
         id: "f3",
-        type: "short_text",
+        type: "url",
         label: "LinkedIn / Portfolio URL",
         placeholder: "https://linkedin.com/in/...",
         required: true,
@@ -465,8 +480,8 @@ export class TemplateService {
     if (!template) {
       throw new Error("Template not found");
     }
-
-    const uniqueSlug = `${template.slug}-${Math.random().toString(36).substring(2, 7)}`;
+    const { FormService } = await import("./form.service");
+    const uniqueSlug = await FormService.generateCleanSlug(template.slug || template.title);
 
     if (this.isPrismaAvailable) {
       try {

@@ -17,6 +17,7 @@ import {
   PenTool,
   Loader2,
   RotateCcw,
+  X,
 } from "lucide-react";
 import { PublicFormItem, FormField, submitPublicResponseApi } from "@/lib/api-client";
 import { FormTheme, resolveFormTheme, getThemeComputedStyles, getComputedFieldStyles } from "@/lib/form-theme";
@@ -62,46 +63,111 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
 
   const validateField = (field: FormField): string | null => {
     const val = answers[field.id];
+
+    // 1. Required Check
     if (field.required) {
       if (
         val === undefined ||
         val === null ||
         val === "" ||
-        (Array.isArray(val) && val.length === 0)
+        (Array.isArray(val) && val.length === 0) ||
+        (typeof val === "object" && Object.keys(val).length === 0)
       ) {
         return "This question is required";
       }
+      // Address required sub-fields
+      if (field.type === "address" && typeof val === "object") {
+        if (!val.line1?.trim()) {
+          return "Street address line 1 is required";
+        }
+        if (!val.city?.trim()) {
+          return "City is required";
+        }
+      }
+      // Date range required
+      if (field.type === "date_range" && typeof val === "object") {
+        if (!val.start || !val.end) {
+          return "Both start and end dates are required";
+        }
+      }
+      // Duration required
+      if (field.type === "duration" && typeof val === "object") {
+        if (!val.hours && !val.minutes) {
+          return "Duration is required";
+        }
+      }
+      // Grids required check
+      if (
+        (field.type === "multiple_choice_grid" || field.type === "checkbox_grid") &&
+        field.rows &&
+        field.rows.length > 0
+      ) {
+        const gridState = typeof val === "object" && val !== null ? val : {};
+        const unansweredRow = field.rows.find((row) => {
+          const rowVal = gridState[row];
+          return !rowVal || (Array.isArray(rowVal) && rowVal.length === 0);
+        });
+        if (unansweredRow) {
+          return `Please provide an answer for "${unansweredRow}"`;
+        }
+      }
     }
 
+    // 2. Format & Value Type Validations (if value is provided)
     if (val !== undefined && val !== null && val !== "") {
+      // Email format validation
       if (field.type === "email" && typeof val === "string") {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(val)) {
-          return "Please enter a valid email address";
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(val.trim())) {
+          return "Please enter a valid email address (e.g. name@example.com)";
         }
       }
-      if (field.type === "number" || field.type === "decimal") {
-        if (isNaN(Number(val))) {
+
+      // Phone Number validation (strict digit check, no sentences/words)
+      if (field.type === "phone" && typeof val === "string") {
+        const digitsOnly = val.replace(/\D/g, "");
+        const phoneRegex = /^(\+?\d{1,4}[-.\s]?)?(\(?\d{2,4}\)?[-.\s]?)?\d{3,4}[-.\s]?\d{3,4}$/;
+        if (digitsOnly.length < 7 || digitsOnly.length > 16 || !phoneRegex.test(val.trim())) {
+          return "Please enter a valid phone number (e.g. +1 555-0123)";
+        }
+      }
+
+      // Number & Decimal validation
+      if (field.type === "number" || field.type === "decimal" || field.type === "currency" || field.type === "percentage") {
+        const num = Number(val);
+        if (isNaN(num)) {
           return "Please enter a valid numeric value";
         }
-      }
-      if (field.type === "url" && typeof val === "string") {
-        try {
-          new URL(val.startsWith("http") ? val : `https://${val}`);
-        } catch {
-          return "Please enter a valid URL (e.g. https://example.com)";
+        if (field.min !== undefined && num < field.min) {
+          return `Value must be at least ${field.min}`;
+        }
+        if (field.max !== undefined && num > field.max) {
+          return `Value cannot exceed ${field.max}`;
         }
       }
-      if (field.type === "custom_input") {
-        if (field.customPattern && typeof val === "string") {
-          try {
-            const regex = new RegExp(field.customPattern);
-            if (!regex.test(val)) {
-              return field.customErrorMessage || "Invalid input format";
-            }
-          } catch (e) {
-            // ignore regex parsing error
+
+      // URL validation
+      if (field.type === "url" && typeof val === "string") {
+        try {
+          const formatted = val.startsWith("http://") || val.startsWith("https://") ? val : `https://${val}`;
+          new URL(formatted);
+          if (!val.includes(".")) {
+            return "Please enter a valid website URL (e.g. https://example.com)";
           }
+        } catch {
+          return "Please enter a valid website URL (e.g. https://example.com)";
+        }
+      }
+
+      // Custom Input regex validation
+      if (field.type === "custom_input" && field.customPattern && typeof val === "string") {
+        try {
+          const regex = new RegExp(field.customPattern);
+          if (!regex.test(val)) {
+            return field.customErrorMessage || "Invalid input format";
+          }
+        } catch (e) {
+          // ignore invalid regex parsing
         }
       }
     }
@@ -112,6 +178,7 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
   const validateAll = (): boolean => {
     const newErrors: Record<string, string> = {};
     let isValid = true;
+    let firstInvalidId: string | null = null;
 
     fields.forEach((field) => {
       if (field.type === "divider" || field.type === "section_heading") return;
@@ -119,10 +186,22 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
       if (err) {
         newErrors[field.id] = err;
         isValid = false;
+        if (!firstInvalidId) {
+          firstInvalidId = field.id;
+        }
       }
     });
 
     setErrors(newErrors);
+
+    // Smooth scroll to the first invalid field
+    if (firstInvalidId) {
+      const el = document.getElementById(`field-container-${firstInvalidId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+
     return isValid;
   };
 
@@ -569,11 +648,22 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
             }
 
             const fieldStyles = getComputedFieldStyles(field, theme);
+            const hasError = !!errors[field.id];
 
             return (
-              <div key={field.id} style={fieldStyles.fieldCardStyle} className="space-y-2">
+              <div
+                key={field.id}
+                id={`field-container-${field.id}`}
+                style={{
+                  ...fieldStyles.fieldCardStyle,
+                  borderColor: hasError
+                    ? theme.inputs?.errorBorderColor || "#EF4444"
+                    : fieldStyles.fieldCardStyle.borderColor,
+                }}
+                className="space-y-2.5 transition-all"
+              >
                 <label
-                  className="block text-xs sm:text-sm"
+                  className="block text-xs sm:text-sm font-semibold"
                   style={fieldStyles.inputLabelStyle}
                 >
                   {idx + 1}. {field.label}
@@ -607,7 +697,10 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
                   )}
                 </label>
                 {field.description && (
-                  <p className="text-[11px] text-[#78716C]">
+                  <p
+                    className="text-[11px]"
+                    style={{ color: theme.colors.mutedText || "#78716C" }}
+                  >
                     {field.description}
                   </p>
                 )}
@@ -622,10 +715,11 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
 
                 {errors[field.id] && (
                   <p
-                    className="text-xs font-semibold animate-in fade-in"
+                    className="text-xs font-semibold flex items-center gap-1 mt-1 animate-in fade-in"
                     style={{ color: theme.inputs?.errorTextColor || "#EF4444" }}
                   >
-                    {errors[field.id]}
+                    <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span>{errors[field.id]}</span>
                   </p>
                 )}
               </div>
@@ -653,6 +747,197 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+interface FileUploadFieldControlProps {
+  field: FormField;
+  value: any;
+  onChange: (val: any) => void;
+  fieldStyles: any;
+  hasError?: boolean | string;
+  errorBorderColor?: string;
+}
+
+function FileUploadFieldControl({
+  field,
+  value,
+  onChange,
+  fieldStyles,
+  hasError,
+  errorBorderColor,
+}: FileUploadFieldControlProps) {
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const isImage = field.type === "image_upload";
+  const isVideo = field.type === "video_upload";
+  const isAudio = field.type === "audio_upload";
+
+  const accept = isImage
+    ? "image/*"
+    : isVideo
+    ? "video/*"
+    : isAudio
+    ? "audio/*"
+    : ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.png,.jpg,.jpeg";
+
+  const Icon = isImage ? ImageIcon : isVideo ? Video : isAudio ? Mic : Upload;
+
+  const handleFile = (file: File) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      onChange({
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        dataUrl: dataUrl,
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const fileInfo =
+    typeof value === "object" && value !== null
+      ? value
+      : typeof value === "string" && value
+      ? { name: value }
+      : null;
+
+  return (
+    <div className="space-y-2">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={accept}
+        className="hidden"
+        onChange={(e) => {
+          if (e.target.files && e.target.files.length > 0) {
+            handleFile(e.target.files[0]);
+          }
+        }}
+      />
+      {fileInfo ? (
+        <div
+          style={{
+            ...fieldStyles.dropzoneStyle,
+            borderColor: hasError ? errorBorderColor : fieldStyles.dropzoneStyle.borderColor,
+            backgroundColor: `${fieldStyles.accentColor}08`,
+          }}
+          className="p-4 rounded-xl flex items-center justify-between gap-3 border transition-all"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            {fileInfo.dataUrl && (fileInfo.type?.startsWith("image/") || isImage) ? (
+              <img
+                src={fileInfo.dataUrl}
+                alt={fileInfo.name}
+                className="w-12 h-12 object-cover rounded-lg border border-[#EAE3D6] shrink-0"
+              />
+            ) : (
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs"
+                style={{
+                  backgroundColor: "rgba(255,255,255,0.9)",
+                  color: fieldStyles.accentColor,
+                  border: `1px solid ${fieldStyles.dropzoneStyle.borderColor}`,
+                }}
+              >
+                <Icon className="w-5 h-5" />
+              </div>
+            )}
+            <div className="min-w-0">
+              <p
+                className="text-xs font-semibold truncate"
+                style={{ color: fieldStyles.inputStyle.color }}
+              >
+                {fileInfo.name}
+              </p>
+              {fileInfo.size && (
+                <p className="text-[10px] opacity-70">
+                  {(fileInfo.size / (1024 * 1024)).toFixed(2)} MB
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="px-2.5 py-1 text-xs font-semibold rounded-lg border hover:bg-black/5 transition-all cursor-pointer"
+              style={{
+                borderColor: fieldStyles.dropzoneStyle.borderColor,
+                color: fieldStyles.accentColor,
+              }}
+            >
+              Change
+            </button>
+            <button
+              type="button"
+              onClick={() => onChange(null)}
+              className="p-1 text-xs text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all cursor-pointer"
+              title="Remove file"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={handleDrop}
+          style={{
+            ...fieldStyles.dropzoneStyle,
+            borderColor: hasError
+              ? errorBorderColor
+              : isDragging
+              ? fieldStyles.accentColor
+              : fieldStyles.dropzoneStyle.borderColor,
+            backgroundColor: isDragging
+              ? `${fieldStyles.accentColor}10`
+              : fieldStyles.dropzoneStyle.backgroundColor,
+          }}
+          className="p-6 text-center flex flex-col items-center justify-center space-y-2 cursor-pointer transition-all hover:opacity-90"
+        >
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center shadow-xs transition-transform hover:scale-110"
+            style={{
+              backgroundColor: "rgba(255,255,255,0.8)",
+              color: fieldStyles.accentColor,
+              border: `1px solid ${fieldStyles.dropzoneStyle.borderColor}`,
+            }}
+          >
+            <Icon className="w-5 h-5" />
+          </div>
+          <div className="text-xs font-semibold" style={{ color: fieldStyles.inputStyle.color }}>
+            {field.placeholder || "Click to browse or drag & drop file here"}
+          </div>
+          <div className="text-[10px] opacity-70">
+            {isImage
+              ? "PNG, JPG, WEBP, SVG up to 10MB"
+              : isVideo
+              ? "MP4, WebM, MOV up to 50MB"
+              : isAudio
+              ? "MP3, WAV, M4A up to 25MB"
+              : "PDF, DOCX, XLSX, TXT, ZIP up to 25MB"}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1141,52 +1426,22 @@ function renderPublicInput(
     );
   }
 
-  // 12. File Upload / Image / Video / Audio
+  // 12. File Upload / Image / Video / Audio (Real File Dialog & Storage)
   if (
     field.type === "file_upload" ||
     field.type === "image_upload" ||
     field.type === "video_upload" ||
     field.type === "audio_upload"
   ) {
-    const Icon =
-      field.type === "image_upload"
-        ? ImageIcon
-        : field.type === "video_upload"
-        ? Video
-        : field.type === "audio_upload"
-        ? Mic
-        : Upload;
-
     return (
-      <div
-        onClick={() => onChange("uploaded_document.pdf")}
-        style={{
-          ...fieldStyles.dropzoneStyle,
-          borderColor: hasError ? errorBorderColor : fieldStyles.dropzoneStyle.borderColor,
-        }}
-        className="p-6 text-center flex flex-col items-center justify-center space-y-2 cursor-pointer transition-all"
-      >
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center shadow-xs"
-          style={{
-            backgroundColor: "rgba(255,255,255,0.8)",
-            color: fieldStyles.accentColor,
-            border: `1px solid ${fieldStyles.dropzoneStyle.borderColor}`,
-          }}
-        >
-          <Icon className="w-5 h-5" />
-        </div>
-        <div className="text-xs font-semibold">
-          {value ? `Attached: ${value}` : "Click to select or drag & drop"}
-        </div>
-        <div className="text-[10px] opacity-70">
-          {field.type === "image_upload"
-            ? "PNG, JPG, SVG up to 10MB"
-            : field.type === "video_upload"
-            ? "MP4, WebM up to 50MB"
-            : "Files up to 25MB supported"}
-        </div>
-      </div>
+      <FileUploadFieldControl
+        field={field}
+        value={value}
+        onChange={onChange}
+        fieldStyles={fieldStyles}
+        hasError={hasError}
+        errorBorderColor={errorBorderColor}
+      />
     );
   }
 
@@ -1374,6 +1629,45 @@ function renderPublicInput(
     );
   }
 
+  // 19. Phone Number input (Strict digit & phone format filtering)
+  if (field.type === "phone") {
+    return (
+      <input
+        type="tel"
+        inputMode="tel"
+        value={value || ""}
+        onChange={(e) => {
+          // Strictly reject sentences and letter characters: allow digits, +, -, (, ), spaces, .
+          const cleaned = e.target.value.replace(/[^0-9+\s()\-.]/g, "");
+          onChange(cleaned);
+        }}
+        onKeyDown={(e) => {
+          const allowedKeys = [
+            "Backspace",
+            "Delete",
+            "ArrowLeft",
+            "ArrowRight",
+            "Tab",
+            "Enter",
+            "Home",
+            "End",
+          ];
+          if (
+            !allowedKeys.includes(e.key) &&
+            !e.ctrlKey &&
+            !e.metaKey &&
+            !/^[0-9+\s()\-.]*$/.test(e.key)
+          ) {
+            e.preventDefault();
+          }
+        }}
+        placeholder={field.placeholder || "+1 (555) 000-0000"}
+        style={currentInputStyle}
+        className="w-full focus:outline-none"
+      />
+    );
+  }
+
   // Custom Input Field
   if (field.type === "custom_input") {
     const inputType = field.customInputType || "text";
@@ -1457,8 +1751,6 @@ function renderPublicInput(
           ? "name@example.com"
           : field.type === "url"
           ? "https://..."
-          : field.type === "phone"
-          ? "+1 (555) 000-0000"
           : "Enter your answer...")
       }
       style={currentInputStyle}

@@ -2,30 +2,34 @@ import { z } from "zod";
 
 export const registerSchema = z.object({
   name: z
-    .string({ required_error: "Full name is required" })
+    .string()
     .trim()
-    .min(2, "Name must be at least 2 characters")
-    .max(60, "Name must be less than 60 characters"),
+    .min(1, { message: "Full name is required" })
+    .min(2, { message: "Name must be at least 2 characters" })
+    .max(60, { message: "Name must be less than 60 characters" }),
   email: z
-    .string({ required_error: "Email address is required" })
+    .string()
     .trim()
     .toLowerCase()
-    .email("Please provide a valid email address"),
+    .min(1, { message: "Email address is required" })
+    .email({ message: "Please provide a valid email address" }),
   password: z
-    .string({ required_error: "Password is required" })
-    .min(6, "Password must be at least 6 characters")
-    .max(100, "Password must be less than 100 characters"),
+    .string()
+    .min(1, { message: "Password is required" })
+    .min(6, { message: "Password must be at least 6 characters" })
+    .max(100, { message: "Password must be less than 100 characters" }),
 });
 
 export const loginSchema = z.object({
   email: z
-    .string({ required_error: "Email address is required" })
+    .string()
     .trim()
     .toLowerCase()
-    .email("Please provide a valid email address"),
+    .min(1, { message: "Email address is required" })
+    .email({ message: "Please provide a valid email address" }),
   password: z
-    .string({ required_error: "Password is required" })
-    .min(1, "Password is required"),
+    .string()
+    .min(1, { message: "Password is required" }),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;

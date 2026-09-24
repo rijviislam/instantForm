@@ -107,7 +107,7 @@ router.patch("/:id", async (req: AuthenticatedRequest, res: Response): Promise<v
     const userId = req.user!.id;
     const rawId = req.params.id;
     const formId = Array.isArray(rawId) ? rawId[0] : rawId;
-    const { title, description, status, isPublished, style, fields } = req.body;
+    const { title, description, status, isPublished, style, theme, fields } = req.body;
 
     const updated = await FormService.updateForm(formId, userId, {
       title,
@@ -115,6 +115,7 @@ router.patch("/:id", async (req: AuthenticatedRequest, res: Response): Promise<v
       status,
       isPublished,
       style,
+      theme,
       fields,
     });
 

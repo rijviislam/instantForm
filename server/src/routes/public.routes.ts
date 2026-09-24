@@ -30,6 +30,7 @@ router.get("/forms/:slug", async (req: Request, res: Response): Promise<void> =>
         title: form.title,
         description: form.description,
         style: form.style || "classic",
+        theme: form.theme || null,
         fields: form.fields || [],
         createdAt: form.createdAt,
       },

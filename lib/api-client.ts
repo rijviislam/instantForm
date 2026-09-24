@@ -17,6 +17,52 @@ export interface ApiResponse<T = unknown> {
   data?: T;
 }
 
+let cachedClientToken: string | null = null;
+let sessionFetchPromise: Promise<string | null> | null = null;
+
+export function setClientAuthToken(token: string | null) {
+  cachedClientToken = token;
+}
+
+export async function getClientAuthToken(): Promise<string | null> {
+  if (cachedClientToken) return cachedClientToken;
+  if (typeof window !== "undefined") {
+    if (!sessionFetchPromise) {
+      sessionFetchPromise = (async () => {
+        try {
+          const res = await fetch("/api/auth/session");
+          if (res.ok) {
+            const session = await res.json();
+            const token = session?.apiToken || (session?.user as { token?: string })?.token;
+            if (token) {
+              cachedClientToken = token;
+              return token;
+            }
+          }
+        } catch (e) {
+          console.warn("Could not retrieve client auth session:", e);
+        } finally {
+          sessionFetchPromise = null;
+        }
+        return null;
+      })();
+    }
+    return sessionFetchPromise;
+  }
+  return null;
+}
+
+async function getAuthHeaders(explicitToken?: string): Promise<Record<string, string>> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  const token = explicitToken || (await getClientAuthToken());
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return headers;
+}
+
 export async function registerApi(data: {
   name: string;
   email: string;
@@ -32,6 +78,9 @@ export async function registerApi(data: {
     });
 
     const result = await res.json();
+    if (result.token) {
+      setClientAuthToken(result.token);
+    }
     return result;
   } catch (error) {
     console.error("API register network error:", error);
@@ -57,6 +106,9 @@ export async function loginApi(data: {
     });
 
     const result = await res.json();
+    if (result.token) {
+      setClientAuthToken(result.token);
+    }
     return result;
   } catch (error) {
     console.error("API login network error:", error);
@@ -96,12 +148,7 @@ export async function getDashboardOverviewApi(
   }>;
 }>> {
   try {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
+    const headers = await getAuthHeaders(token);
 
     const res = await fetch(`${API_BASE_URL}/api/dashboard/overview`, {
       method: "GET",
@@ -135,26 +182,73 @@ export type FormStyle =
   | string;
 
 export type FormFieldType =
+  // Standard & Text
   | "short_text"
   | "long_text"
   | "email"
   | "phone"
   | "number"
   | "url"
-  | "date"
-  | "time"
+  | "password"
+  // Choice & Select
   | "single_choice"
   | "multiple_choice"
   | "dropdown"
-  | "rating"
   | "yes_no"
-  | "file_upload";
+  | "multiple_choice_grid"
+  | "checkbox_grid"
+  // Rating & Scales
+  | "rating"
+  | "linear_scale"
+  | "nps"
+  // Date, Time & Duration
+  | "date"
+  | "time"
+  | "date_range"
+  | "duration"
+  // Media & Recording
+  | "file_upload"
+  | "image_upload"
+  | "video_upload"
+  | "audio_upload"
+  | "camera_capture"
+  | "voice_recording"
+  | "signature"
+  // Location & Address
+  | "address"
+  | "country"
+  | "state"
+  | "city"
+  | "postal_code"
+  | "gps_location"
+  // Numbers & Currency
+  | "currency"
+  | "percentage"
+  | "decimal"
+  | "quantity"
+  // Special & Visual
+  | "color_picker"
+  | "section_heading"
+  | "divider"
+  // Custom & Dynamic Fields
+  | "custom_input"
+  // Hidden & System Metadata
+  | "hidden_input"
+  | "auto_id"
+  | "utm_source"
+  | "utm_medium"
+  | "utm_campaign"
+  | "referrer"
+  | "timestamp"
+  | "user_id";
 
 export interface FormFieldValidation {
   minLength?: number;
   maxLength?: number;
   min?: number;
   max?: number;
+  pattern?: string;
+  errorMessage?: string;
   minDate?: string;
   maxDate?: string;
 }
@@ -167,7 +261,27 @@ export interface FormField {
   placeholder?: string;
   required?: boolean;
   options?: string[];
+  rows?: string[];
+  columns?: string[];
   scale?: number;
+  min?: number;
+  max?: number;
+  step?: number;
+  minLabel?: string;
+  maxLabel?: string;
+  currencySymbol?: string;
+  defaultValue?: string;
+  hiddenValue?: string;
+  customInputType?: "text" | "number" | "email" | "password" | "tel" | "url" | "color" | "range" | "date" | "time" | string;
+  customFieldName?: string;
+  customPattern?: string;
+  customErrorMessage?: string;
+  helpText?: string;
+  customClass?: string;
+  useGlobalStyle?: boolean;
+  customStyle?: any;
+  useGlobalFieldCardStyle?: boolean;
+  customFieldCardStyle?: any;
   validation?: FormFieldValidation;
 }
 
@@ -211,12 +325,7 @@ export async function getFormsApi(
     if (params.page) query.set("page", params.page.toString());
     if (params.limit) query.set("limit", params.limit.toString());
 
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
+    const headers = await getAuthHeaders(token);
 
     const res = await fetch(`${API_BASE_URL}/api/forms?${query.toString()}`, {
       method: "GET",
@@ -241,12 +350,7 @@ export async function getFormByIdApi(
   token?: string
 ): Promise<ApiResponse<FormItem>> {
   try {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
+    const headers = await getAuthHeaders(token);
 
     const res = await fetch(`${API_BASE_URL}/api/forms/${id}`, {
       method: "GET",
@@ -276,12 +380,7 @@ export async function createFormApi(
   token?: string
 ): Promise<ApiResponse<FormItem>> {
   try {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
+    const headers = await getAuthHeaders(token);
 
     const res = await fetch(`${API_BASE_URL}/api/forms`, {
       method: "POST",
@@ -307,12 +406,7 @@ export async function updateFormApi(
   token?: string
 ): Promise<ApiResponse<FormItem>> {
   try {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
+    const headers = await getAuthHeaders(token);
 
     const res = await fetch(`${API_BASE_URL}/api/forms/${id}`, {
       method: "PATCH",
@@ -337,12 +431,7 @@ export async function duplicateFormApi(
   token?: string
 ): Promise<ApiResponse<FormItem>> {
   try {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
+    const headers = await getAuthHeaders(token);
 
     const res = await fetch(`${API_BASE_URL}/api/forms/${id}/duplicate`, {
       method: "POST",
@@ -366,12 +455,7 @@ export async function publishFormApi(
   token?: string
 ): Promise<ApiResponse<FormItem>> {
   try {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
+    const headers = await getAuthHeaders(token);
 
     const res = await fetch(`${API_BASE_URL}/api/forms/${id}/publish`, {
       method: "POST",
@@ -395,12 +479,7 @@ export async function unpublishFormApi(
   token?: string
 ): Promise<ApiResponse<FormItem>> {
   try {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
+    const headers = await getAuthHeaders(token);
 
     const res = await fetch(`${API_BASE_URL}/api/forms/${id}/unpublish`, {
       method: "POST",
@@ -424,12 +503,7 @@ export async function deleteFormApi(
   token?: string
 ): Promise<ApiResponse<null>> {
   try {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
+    const headers = await getAuthHeaders(token);
 
     const res = await fetch(`${API_BASE_URL}/api/forms/${id}`, {
       method: "DELETE",
@@ -502,12 +576,7 @@ export async function getTemplatesApi(
       query.set("category", category);
     }
 
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
+    const headers = await getAuthHeaders(token);
 
     const res = await fetch(`${API_BASE_URL}/api/templates?${query.toString()}`, {
       method: "GET",
@@ -532,12 +601,7 @@ export async function getTemplateByIdApi(
   token?: string
 ): Promise<ApiResponse<TemplateItem>> {
   try {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
+    const headers = await getAuthHeaders(token);
 
     const res = await fetch(`${API_BASE_URL}/api/templates/${id}`, {
       method: "GET",
@@ -561,12 +625,7 @@ export async function useTemplateApi(
   token?: string
 ): Promise<ApiResponse<FormItem>> {
   try {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
+    const headers = await getAuthHeaders(token);
 
     const res = await fetch(`${API_BASE_URL}/api/templates/${templateId}/use`, {
       method: "POST",
@@ -595,6 +654,7 @@ export interface PublicFormItem {
   title: string;
   description: string | null;
   style: FormStyle;
+  theme?: any;
   fields: FormField[];
   createdAt: string;
 }
@@ -704,12 +764,7 @@ export async function getFormResponsesApi(
     if (options.page) query.set("page", options.page.toString());
     if (options.limit) query.set("limit", options.limit.toString());
 
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
+    const headers = await getAuthHeaders(token);
 
     const res = await fetch(
       `${API_BASE_URL}/api/forms/${formId}/responses?${query.toString()}`,
@@ -744,12 +799,7 @@ export async function getResponseDetailApi(
   }>
 > {
   try {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
+    const headers = await getAuthHeaders(token);
 
     const res = await fetch(
       `${API_BASE_URL}/api/forms/${formId}/responses/${responseId}`,
@@ -785,12 +835,7 @@ export async function getUserAllResponsesApi(
   >
 > {
   try {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
+    const headers = await getAuthHeaders(token);
 
     const res = await fetch(`${API_BASE_URL}/api/responses`, {
       method: "GET",

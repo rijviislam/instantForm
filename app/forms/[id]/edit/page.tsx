@@ -21,7 +21,8 @@ export default async function EditFormPage({ params }: EditFormPageProps) {
   }
 
   const { id } = await params;
-  const res = await getFormByIdApi(id);
+  const apiToken = (session as unknown as { apiToken?: string })?.apiToken;
+  const res = await getFormByIdApi(id, apiToken);
 
   if (!res.success || !res.data) {
     // If not found or API down, render a fallback default form with user's ID

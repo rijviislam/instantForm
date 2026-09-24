@@ -106,18 +106,48 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
-        token.apiToken = (user as unknown as { token?: string }).token;
+        if ((user as unknown as { token?: string }).token) {
+          token.apiToken = (user as unknown as { token?: string }).token;
+        }
       }
+
+      if (account && (account.provider === "google" || account.provider === "github")) {
+        try {
+          const apiBaseUrl =
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
+
+          const res = await fetch(`${apiBaseUrl}/api/auth/oauth-sync`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: user?.name || token.name,
+              email: user?.email || token.email,
+              image: user?.image || token.picture,
+              provider: account.provider,
+              providerAccountId: account.providerAccountId,
+            }),
+          });
+
+          const data = await res.json();
+          if (data.success && data.user) {
+            token.id = data.user.id;
+            token.apiToken = data.token;
+          }
+        } catch (error) {
+          console.error("OAuth sync in jwt error:", error);
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        (session as unknown as { apiToken?: string }).apiToken = token.apiToken as string;
+        session.user.id = (token.id || token.sub) as string;
       }
+      (session as unknown as { apiToken?: string }).apiToken = token.apiToken as string;
       return session;
     },
   },

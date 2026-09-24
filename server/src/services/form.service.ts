@@ -9,6 +9,7 @@ export interface FormItem {
   status: "DRAFT" | "PUBLISHED" | "ARCHIVED" | string;
   isPublished: boolean;
   style: string | null;
+  theme?: any;
   fields: any;
   userId: string;
   responsesCount: number;
@@ -162,6 +163,7 @@ export class FormService {
             status: form.status || (form.isPublished ? "PUBLISHED" : "DRAFT"),
             isPublished: form.isPublished,
             style: form.style || "classic",
+            theme: form.theme || null,
             fields: form.fields || [],
             userId: form.userId,
             responsesCount: form._count.responses,
@@ -203,6 +205,7 @@ export class FormService {
             status: form.status || (form.isPublished ? "PUBLISHED" : "DRAFT"),
             isPublished: form.isPublished,
             style: form.style || "classic",
+            theme: form.theme || null,
             fields: form.fields || [],
             userId: form.userId,
             responsesCount: form._count.responses,
@@ -237,6 +240,7 @@ export class FormService {
     const style = options.style || "classic";
     const fields = options.fields || [];
     const description = options.description || null;
+    const theme = options.theme || null;
 
     if (this.isPrismaAvailable) {
       try {
@@ -247,6 +251,7 @@ export class FormService {
             status: "DRAFT",
             isPublished: false,
             style,
+            theme: theme as any,
             slug,
             fields: fields as any,
             userId,
@@ -264,6 +269,7 @@ export class FormService {
           status: form.status,
           isPublished: form.isPublished,
           style: form.style,
+          theme: form.theme || null,
           fields: form.fields || [],
           userId: form.userId,
           responsesCount: form._count.responses,
@@ -284,6 +290,7 @@ export class FormService {
       status: "DRAFT",
       isPublished: false,
       style,
+      theme,
       fields,
       userId,
       responsesCount: 0,
@@ -304,6 +311,7 @@ export class FormService {
       status?: string;
       isPublished?: boolean;
       style?: string;
+      theme?: any;
       fields?: any;
     }
   ): Promise<FormItem> {
@@ -328,6 +336,7 @@ export class FormService {
           status: form.status,
           isPublished: form.isPublished,
           style: form.style,
+          theme: form.theme || null,
           fields: form.fields || [],
           userId: form.userId,
           responsesCount: form._count.responses,
@@ -371,8 +380,9 @@ export class FormService {
             status: "DRAFT",
             isPublished: false,
             style: original.style,
-            slug: newSlug,
+            theme: original.theme as any,
             fields: original.fields as any,
+            slug: newSlug,
             userId,
           },
           include: {
@@ -388,6 +398,7 @@ export class FormService {
           status: duplicated.status,
           isPublished: duplicated.isPublished,
           style: duplicated.style,
+          theme: duplicated.theme || null,
           fields: duplicated.fields || [],
           userId: duplicated.userId,
           responsesCount: 0,
@@ -408,6 +419,7 @@ export class FormService {
       status: "DRAFT",
       isPublished: false,
       style: original.style,
+      theme: original.theme || null,
       fields: original.fields,
       userId,
       responsesCount: 0,

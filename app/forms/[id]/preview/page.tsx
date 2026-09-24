@@ -28,11 +28,11 @@ export default async function PreviewFormPage({ params }: PreviewFormPageProps) 
     <AppShell user={session.user}>
       <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-300">
         {/* Navigation Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#E7E2D8] dark:border-[#2E2824]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#EAE3D6]">
           <div className="flex items-center gap-3">
             <Link
               href="/forms"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#57534E] hover:text-[#1C1917] dark:text-[#A8A29E] dark:hover:text-[#FBF9F5] px-3.5 py-1.5 rounded-full bg-white dark:bg-[#1C1917] border border-[#E7E2D8] dark:border-[#2E2824] hover:bg-[#FAF8F5] dark:hover:bg-[#24201D] transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#57534E] hover:text-[#1C1917] px-3.5 py-1.5 rounded-full bg-white border border-[#EAE3D6] hover:bg-[#FAF8F5] transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Forms</span>
@@ -54,21 +54,21 @@ export default async function PreviewFormPage({ params }: PreviewFormPageProps) 
         </div>
 
         {/* Preview Shell Container */}
-        <div className="max-w-xl mx-auto rounded-3xl bg-white dark:bg-[#1C1917] border border-[#E7E2D8] dark:border-[#2E2824] p-8 sm:p-12 shadow-md space-y-6">
-          <div className="text-center space-y-2 border-b border-[#F5F2EB] dark:border-[#2E2824] pb-6">
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FFF0EB] text-[#FF5A36] border border-[#FFD8CC] dark:bg-[#2A1B17] dark:border-[#522920]">
+        <div className="max-w-xl mx-auto rounded-3xl bg-white border border-[#EAE3D6] p-8 sm:p-12 card-shadow space-y-6">
+          <div className="text-center space-y-2 border-b border-[#F5F2EB] pb-6">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FFF0EB] text-[#FF5A36] border border-[#FFD8CC]">
               <Sparkles className="w-3 h-3" /> Live Preview
             </span>
-            <h1 className="font-serif-editorial text-2xl sm:text-3xl font-normal text-[#1C1917] dark:text-[#FBF9F5] tracking-tight">
+            <h1 className="font-semibold text-2xl sm:text-3xl text-[#1C1917] tracking-tight">
               Preview Mode
             </h1>
-            <p className="text-xs text-[#78716C] dark:text-[#A8A29E]">
+            <p className="text-xs text-[#78716C]">
               This is a live preview shell for form ID <code className="font-mono text-[11px]">{id}</code>.
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-[#FAF8F5] dark:bg-[#141210] border border-[#E7E2D8] dark:border-[#2E2824] text-center space-y-3">
-            <p className="text-xs text-[#57534E] dark:text-[#A8A29E]">
+          <div className="p-6 rounded-2xl bg-[#FAF8F5] border border-[#EAE3D6] text-center space-y-3">
+            <p className="text-xs text-[#57534E]">
               Public response submission engine and standalone form rendering will be activated when the form builder and public sharing are connected.
             </p>
           </div>

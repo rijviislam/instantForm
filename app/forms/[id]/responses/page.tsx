@@ -24,7 +24,8 @@ export default async function FormResponsesPage({
   }
 
   const { id } = await params;
-  const res = await getFormByIdApi(id);
+  const apiToken = (session as unknown as { apiToken?: string })?.apiToken;
+  const res = await getFormByIdApi(id, apiToken);
 
   const formTitle = res.data?.title || "Form Responses";
   const formSlug = res.data?.slug || id;

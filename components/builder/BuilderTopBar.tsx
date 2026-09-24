@@ -4,53 +4,62 @@ import React, { useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
-  CheckCircle2,
-  Loader2,
-  AlertCircle,
   Eye,
   Globe,
-  Monitor,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
   Smartphone,
+  Tablet,
+  Monitor,
+  ExternalLink,
   Copy,
   Check,
-  ExternalLink,
+  Undo2,
+  Redo2,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { FormStatus, FormStyle } from "@/lib/api-client";
 
-export type SaveState = "saved" | "saving" | "unsaved" | "error";
 export type ViewportMode = "desktop" | "mobile";
+export type SaveState = "saved" | "saving" | "unsaved" | "error";
 
 interface BuilderTopBarProps {
   formId: string;
   slug: string;
   title: string;
-  status: FormStatus;
+  status: string;
   saveState: SaveState;
   viewport: ViewportMode;
   isPreview: boolean;
+  canUndo?: boolean;
+  canRedo?: boolean;
+  onUndo?: () => void;
+  onRedo?: () => void;
   onTitleChange: (newTitle: string) => void;
-  onViewportChange: (viewport: ViewportMode) => void;
+  onViewportChange: (mode: ViewportMode) => void;
   onTogglePreview: () => void;
   onPublishToggle: () => void;
   onManualSave: () => void;
-  isPublishing: boolean;
+  isPublishing?: boolean;
 }
 
 export function BuilderTopBar({
-  formId,
   slug,
   title,
   status,
   saveState,
   viewport,
   isPreview,
+  canUndo = false,
+  canRedo = false,
+  onUndo,
+  onRedo,
   onTitleChange,
   onViewportChange,
   onTogglePreview,
   onPublishToggle,
   onManualSave,
-  isPublishing,
+  isPublishing = false,
 }: BuilderTopBarProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [tempTitle, setTempTitle] = useState(title);
@@ -79,12 +88,12 @@ export function BuilderTopBar({
   };
 
   return (
-    <header className="h-16 border-b border-[#E7E2D8] dark:border-[#2E2824] bg-white dark:bg-[#1C1917] px-4 sm:px-6 flex items-center justify-between gap-3 sticky top-0 z-30 select-none">
-      {/* Left: Back Link & Form Title */}
+    <header className="h-16 border-b border-[#EAE3D6] bg-white px-4 sm:px-6 flex items-center justify-between gap-3 sticky top-0 z-30 select-none">
+      {/* Left: Back Link, Form Title & Undo/Redo */}
       <div className="flex items-center gap-3 min-w-0">
         <Link
           href="/forms"
-          className="w-9 h-9 rounded-xl border border-[#E7E2D8] dark:border-[#2E2824] flex items-center justify-center text-[#78716C] hover:text-[#1C1917] dark:text-[#A8A29E] dark:hover:text-[#FBF9F5] hover:bg-[#FAF8F5] dark:hover:bg-[#24201D] transition-colors flex-shrink-0"
+          className="w-9 h-9 rounded-xl border border-[#EAE3D6] flex items-center justify-center text-[#78716C] hover:text-[#1C1917] hover:bg-[#FAF8F5] transition-colors flex-shrink-0"
           title="Back to My Forms"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -105,7 +114,7 @@ export function BuilderTopBar({
                   setIsEditingTitle(false);
                 }
               }}
-              className="text-sm sm:text-base font-semibold text-[#1C1917] dark:text-[#FBF9F5] bg-[#FAF8F5] dark:bg-[#24201D] px-2.5 py-1 rounded-lg border border-[#FF5A36] focus:outline-none max-w-xs sm:max-w-md"
+              className="text-sm sm:text-base font-semibold text-[#1C1917] bg-[#FAF8F5] px-2.5 py-1 rounded-lg border border-[#FF5A36] focus:outline-none max-w-xs sm:max-w-md"
             />
           ) : (
             <button
@@ -115,7 +124,7 @@ export function BuilderTopBar({
                 setIsEditingTitle(true);
               }}
               title="Click to rename form"
-              className="text-sm sm:text-base font-semibold text-[#1C1917] dark:text-[#FBF9F5] hover:text-[#FF5A36] dark:hover:text-[#FF5A36] truncate max-w-[140px] sm:max-w-xs md:max-w-md text-left px-1.5 py-0.5 rounded-md hover:bg-[#FAF8F5] dark:hover:bg-[#24201D] transition-colors"
+              className="text-sm sm:text-base font-semibold text-[#1C1917] hover:text-[#FF5A36] truncate max-w-[140px] sm:max-w-xs md:max-w-md text-left px-1.5 py-0.5 rounded-md hover:bg-[#FAF8F5] transition-colors cursor-pointer"
             >
               {title || "Untitled Form"}
             </button>
@@ -123,22 +132,48 @@ export function BuilderTopBar({
 
           {/* Status Badge */}
           {isPublished ? (
-            <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+            <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               Published
             </span>
           ) : (
-            <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+            <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
               Draft
             </span>
           )}
         </div>
+
+        {/* Undo / Redo history actions */}
+        {!isPreview && (
+          <div className="hidden md:flex items-center gap-0.5 border-l border-[#EAE3D6] pl-2.5 ml-1">
+            <button
+              type="button"
+              onClick={onUndo}
+              disabled={!canUndo}
+              aria-label="Undo (Cmd+Z)"
+              title="Undo (Cmd+Z)"
+              className="p-1.5 rounded-lg text-[#78716C] hover:text-[#1C1917] hover:bg-[#FAF8F5] disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            >
+              <Undo2 className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={onRedo}
+              disabled={!canRedo}
+              aria-label="Redo (Cmd+Shift+Z)"
+              title="Redo (Cmd+Shift+Z)"
+              className="p-1.5 rounded-lg text-[#78716C] hover:text-[#1C1917] hover:bg-[#FAF8F5] disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            >
+              <Redo2 className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Center: Save Status & Viewport Toggle */}
       <div className="flex items-center gap-3">
         {/* Autosave Status Indicator */}
-        <div className="hidden md:flex items-center gap-1.5 text-xs text-[#78716C] dark:text-[#A8A29E]">
+        <div className="hidden md:flex items-center gap-1.5 text-xs text-[#78716C]">
           {saveState === "saving" && (
             <>
               <Loader2 className="w-3.5 h-3.5 animate-spin text-[#FF5A36]" />
@@ -171,15 +206,16 @@ export function BuilderTopBar({
 
         {/* Desktop / Mobile Viewport Switcher */}
         {!isPreview && (
-          <div className="hidden sm:inline-flex items-center p-0.5 bg-[#F5F2EB] dark:bg-[#24201D] rounded-xl border border-[#E7E2D8] dark:border-[#2E2824]">
+          <div className="hidden sm:inline-flex items-center p-0.5 bg-[#F5F2EB] rounded-xl border border-[#EAE3D6]">
             <button
               type="button"
               onClick={() => onViewportChange("desktop")}
-              aria-label="Desktop viewport preview"
+              aria-label="Desktop viewport"
+              title="Desktop View"
               className={`p-1.5 rounded-lg text-xs font-medium transition-colors ${
                 viewport === "desktop"
-                  ? "bg-white dark:bg-[#1C1917] text-[#1C1917] dark:text-[#FBF9F5] shadow-2xs"
-                  : "text-[#78716C] dark:text-[#A8A29E] hover:text-[#1C1917]"
+                  ? "bg-white text-[#1C1917] shadow-2xs"
+                  : "text-[#78716C] hover:text-[#1C1917]"
               }`}
             >
               <Monitor className="w-4 h-4" />
@@ -187,11 +223,12 @@ export function BuilderTopBar({
             <button
               type="button"
               onClick={() => onViewportChange("mobile")}
-              aria-label="Mobile viewport preview"
+              aria-label="Mobile viewport"
+              title="Mobile View"
               className={`p-1.5 rounded-lg text-xs font-medium transition-colors ${
                 viewport === "mobile"
-                  ? "bg-white dark:bg-[#1C1917] text-[#1C1917] dark:text-[#FBF9F5] shadow-2xs"
-                  : "text-[#78716C] dark:text-[#A8A29E] hover:text-[#1C1917]"
+                  ? "bg-white text-[#1C1917] shadow-2xs"
+                  : "text-[#78716C] hover:text-[#1C1917]"
               }`}
             >
               <Smartphone className="w-4 h-4" />
@@ -208,7 +245,7 @@ export function BuilderTopBar({
             <button
               type="button"
               onClick={handleCopyPublicUrl}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#57534E] dark:text-[#A8A29E] hover:text-[#1C1917] dark:hover:text-[#FBF9F5] bg-[#FAF8F5] dark:bg-[#24201D] border border-[#E7E2D8] dark:border-[#2E2824] rounded-xl transition-colors"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#57534E] hover:text-[#1C1917] bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl transition-colors cursor-pointer"
               title="Copy public form link"
             >
               {copiedUrl ? (
@@ -228,7 +265,7 @@ export function BuilderTopBar({
               href={`/f/${slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-1.5 text-[#78716C] hover:text-[#1C1917] dark:text-[#A8A29E] dark:hover:text-[#FBF9F5] rounded-lg transition-colors"
+              className="p-1.5 text-[#78716C] hover:text-[#1C1917] rounded-lg transition-colors"
               title="Open public form in new tab"
             >
               <ExternalLink className="w-4 h-4" />
@@ -242,7 +279,6 @@ export function BuilderTopBar({
           size="sm"
           onClick={onTogglePreview}
           iconLeft={<Eye className="w-3.5 h-3.5" />}
-          className="dark:border-[#2E2824] dark:text-[#E7E2D8]"
         >
           <span className="hidden xs:inline">{isPreview ? "Exit Preview" : "Preview"}</span>
         </Button>
@@ -260,7 +296,7 @@ export function BuilderTopBar({
               <Globe className="w-3.5 h-3.5" />
             )
           }
-          className={!isPublished ? "shadow-md shadow-[#FF5A36]/20" : "dark:border-[#2E2824] dark:text-[#E7E2D8]"}
+          className={!isPublished ? "shadow-md shadow-[#FF5A36]/20" : ""}
         >
           {isPublishing ? "Updating..." : isPublished ? "Unpublish" : "Publish"}
         </Button>

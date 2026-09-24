@@ -36,7 +36,23 @@ app.use(
 
 app.use(express.json());
 
-// Health check
+// Root & Health check
+app.get("/", (_req: Request, res: Response) => {
+  res.status(200).json({
+    status: "ok",
+    message: "InstantForm Express Backend API is running",
+    endpoints: {
+      health: "/api/health",
+      templates: "/api/templates",
+      auth: "/api/auth",
+      forms: "/api/forms",
+      responses: "/api/responses",
+      public: "/api/public",
+      dashboard: "/api/dashboard",
+    },
+  });
+});
+
 app.get("/api/health", (_req: Request, res: Response) => {
   res.status(200).json({
     status: "ok",

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { randomUUID } from "crypto";
 import {
   FormItem,
   FormField,
@@ -11,23 +10,36 @@ import {
   publishFormApi,
   unpublishFormApi,
 } from "@/lib/api-client";
+import { FormTheme, resolveFormTheme } from "@/lib/form-theme";
 import { BuilderTopBar, SaveState, ViewportMode } from "./BuilderTopBar";
 import { FieldLibrary, FIELD_DEFINITIONS } from "./FieldLibrary";
 import { BuilderCanvas } from "./BuilderCanvas";
 import { FieldSettingsPanel } from "./FieldSettingsPanel";
 import { BuilderPreview } from "./BuilderPreview";
-import { Plus, Sliders, Layers } from "lucide-react";
+import { DynamicFontLoader } from "./DynamicFontLoader";
+import { Plus, Sliders } from "lucide-react";
 
 interface FormBuilderProps {
   initialForm: FormItem;
 }
 
 export function FormBuilder({ initialForm }: FormBuilderProps) {
-  const [form, setForm] = useState<FormItem>(initialForm);
+  const initialResolved = {
+    ...initialForm,
+    theme: resolveFormTheme(initialForm.theme, initialForm.style as any),
+  };
+
+  const [form, setForm] = useState<FormItem>(initialResolved);
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(
     initialForm.fields && initialForm.fields.length > 0
       ? initialForm.fields[0].id
       : null
+  );
+  const [selectedElement, setSelectedElement] = useState<
+    "form" | "container" | "button" | "style" | null
+  >(null);
+  const [inspectorTab, setInspectorTab] = useState<"field" | "form" | "style">(
+    initialForm.fields && initialForm.fields.length > 0 ? "field" : "style"
   );
 
   const [saveState, setSaveState] = useState<SaveState>("saved");
@@ -39,10 +51,80 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
   const [showLeftDrawer, setShowLeftDrawer] = useState(false);
   const [showRightDrawer, setShowRightDrawer] = useState(false);
 
+  // Undo / Redo History Stack
+  const [history, setHistory] = useState<FormItem[]>([initialResolved]);
+  const [historyIndex, setHistoryIndex] = useState<number>(0);
+  const isUndoRedoAction = useRef(false);
+
   // Autosave reference
   const isDirtyRef = useRef(false);
   const formRef = useRef(form);
   formRef.current = form;
+
+  const pushHistory = useCallback((nextForm: FormItem) => {
+    if (isUndoRedoAction.current) {
+      isUndoRedoAction.current = false;
+      return;
+    }
+    setHistory((prev) => {
+      const sliced = prev.slice(0, historyIndex + 1);
+      const nextStack = [...sliced, nextForm];
+      if (nextStack.length > 30) nextStack.shift();
+      return nextStack;
+    });
+    setHistoryIndex((prev) => Math.min(prev + 1, 29));
+  }, [historyIndex]);
+
+  const handleUndo = useCallback(() => {
+    if (historyIndex > 0) {
+      isUndoRedoAction.current = true;
+      const targetState = history[historyIndex - 1];
+      setHistoryIndex((idx) => idx - 1);
+      setForm(targetState);
+      isDirtyRef.current = true;
+    }
+  }, [historyIndex, history]);
+
+  const handleRedo = useCallback(() => {
+    if (historyIndex < history.length - 1) {
+      isUndoRedoAction.current = true;
+      const targetState = history[historyIndex + 1];
+      setHistoryIndex((idx) => idx + 1);
+      setForm(targetState);
+      isDirtyRef.current = true;
+    }
+  }, [historyIndex, history]);
+
+  // Global Undo / Redo keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't intercept if user is typing in an input or textarea
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        if (e.shiftKey) {
+          handleRedo();
+        } else {
+          handleUndo();
+        }
+      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "y") {
+        e.preventDefault();
+        handleRedo();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleUndo, handleRedo]);
 
   // Debounced auto-sync to backend
   useEffect(() => {
@@ -57,6 +139,7 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
           title: current.title,
           description: current.description,
           style: current.style,
+          theme: current.theme,
           fields: current.fields,
         });
 
@@ -86,6 +169,7 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
         title: form.title,
         description: form.description,
         style: form.style,
+        theme: form.theme,
         fields: form.fields,
       });
 
@@ -101,7 +185,7 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
   };
 
   // Add field to form
-  const handleAddField = (type: FormFieldType) => {
+  const handleAddField = (type: FormFieldType, defaultProps?: Record<string, any>) => {
     const def = FIELD_DEFINITIONS.find((d) => d.type === type);
     const newFieldId = `field_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`;
 
@@ -114,35 +198,41 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
         type === "single_choice" || type === "multiple_choice" || type === "dropdown"
           ? ["Option 1", "Option 2", "Option 3"]
           : undefined,
+      ...(defaultProps || {}),
     };
 
-    setForm((prev) => {
-      const currentFields = prev.fields || [];
-      return {
-        ...prev,
-        fields: [...currentFields, newField],
-      };
-    });
+    const currentFields = form.fields || [];
+    const updated: FormItem = {
+      ...form,
+      fields: [...currentFields, newField],
+    };
+    setForm(updated);
+    pushHistory(updated);
 
     setSelectedFieldId(newFieldId);
+    setSelectedElement(null);
+    setInspectorTab("field");
     setShowLeftDrawer(false);
     markDirty();
   };
 
   // Update field configuration
   const handleUpdateField = (fieldId: string, updates: Partial<FormField>) => {
-    setForm((prev) => ({
-      ...prev,
-      fields: (prev.fields || []).map((f) =>
+    const updated: FormItem = {
+      ...formRef.current,
+      fields: (formRef.current.fields || []).map((f) =>
         f.id === fieldId ? { ...f, ...updates } : f
       ),
-    }));
+    };
+    setForm(updated);
+    pushHistory(updated);
     markDirty();
   };
 
   // Duplicate a field
   const handleDuplicateField = (fieldId: string) => {
-    const target = form.fields.find((f) => f.id === fieldId);
+    const current = formRef.current;
+    const target = current.fields.find((f) => f.id === fieldId);
     if (!target) return;
 
     const newId = `field_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`;
@@ -152,34 +242,42 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
       label: `${target.label} (Copy)`,
     };
 
-    setForm((prev) => {
-      const idx = prev.fields.findIndex((f) => f.id === fieldId);
-      const nextFields = [...prev.fields];
-      nextFields.splice(idx + 1, 0, clonedField);
-      return { ...prev, fields: nextFields };
-    });
+    const idx = current.fields.findIndex((f) => f.id === fieldId);
+    const nextFields = [...current.fields];
+    nextFields.splice(idx + 1, 0, clonedField);
+    const updated: FormItem = { ...current, fields: nextFields };
 
+    setForm(updated);
+    pushHistory(updated);
     setSelectedFieldId(newId);
+    setSelectedElement(null);
+    setInspectorTab("field");
     markDirty();
   };
 
   // Delete a field
   const handleDeleteField = (fieldId: string) => {
-    setForm((prev) => {
-      const nextFields = prev.fields.filter((f) => f.id !== fieldId);
-      return { ...prev, fields: nextFields };
-    });
+    const current = formRef.current;
+    const nextFields = current.fields.filter((f) => f.id !== fieldId);
+    const updated: FormItem = { ...current, fields: nextFields };
+
+    setForm(updated);
+    pushHistory(updated);
 
     if (selectedFieldId === fieldId) {
-      const remaining = form.fields.filter((f) => f.id !== fieldId);
+      const remaining = current.fields.filter((f) => f.id !== fieldId);
       setSelectedFieldId(remaining.length > 0 ? remaining[0].id : null);
+      if (remaining.length === 0) {
+        setInspectorTab("style");
+      }
     }
     markDirty();
   };
 
   // Move field order up or down
   const handleMoveField = (fieldId: string, direction: "up" | "down") => {
-    const fields = [...form.fields];
+    const current = formRef.current;
+    const fields = [...current.fields];
     const index = fields.findIndex((f) => f.id === fieldId);
     if (index === -1) return;
 
@@ -190,21 +288,53 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
     fields[index] = fields[targetIndex];
     fields[targetIndex] = temp;
 
-    setForm((prev) => ({ ...prev, fields }));
+    const updated: FormItem = { ...current, fields };
+    setForm(updated);
+    pushHistory(updated);
     markDirty();
   };
 
-  // Update form settings (title, description, style)
+  // Reorder fields directly via drag and drop
+  const handleReorderFields = (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) return;
+    const current = formRef.current;
+    const fields = [...current.fields];
+    const [moved] = fields.splice(fromIndex, 1);
+    fields.splice(toIndex, 0, moved);
+
+    const updated: FormItem = { ...current, fields };
+    setForm(updated);
+    pushHistory(updated);
+    markDirty();
+  };
+
+  // Update form settings (title, description, style, theme)
   const handleUpdateForm = (updates: {
     title?: string;
     description?: string | null;
     style?: FormStyle;
+    theme?: FormTheme;
   }) => {
-    setForm((prev) => ({
-      ...prev,
+    const updated: FormItem = {
+      ...formRef.current,
       ...updates,
-    }));
+    };
+    setForm(updated);
+    pushHistory(updated);
     markDirty();
+  };
+
+  // Visual element selection in canvas
+  const handleSelectElement = (element: "form" | "container" | "button" | "style") => {
+    setSelectedElement(element);
+    if (element === "form") {
+      setInspectorTab("form");
+    } else if (element === "container" || element === "button" || element === "style") {
+      setInspectorTab("style");
+    }
+    if (window.innerWidth < 1024) {
+      setShowRightDrawer(true);
+    }
   };
 
   // Publish / Unpublish Toggle
@@ -213,11 +343,11 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
     const isCurrentlyPublished = form.status === "PUBLISHED" || form.isPublished;
 
     try {
-      // First ensure latest changes are saved
       await updateFormApi(form.id, {
         title: form.title,
         description: form.description,
         style: form.style,
+        theme: form.theme,
         fields: form.fields,
       });
 
@@ -242,7 +372,10 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
     form.fields.find((f) => f.id === selectedFieldId) || null;
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-white dark:bg-[#1C1917]">
+    <div className="flex flex-col h-screen overflow-hidden bg-[#FAF8F5]" data-lenis-prevent="true">
+      {/* Dynamic Font Loader */}
+      <DynamicFontLoader theme={form.theme} />
+
       {/* Top Bar */}
       <BuilderTopBar
         formId={form.id}
@@ -252,6 +385,10 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
         saveState={saveState}
         viewport={viewport}
         isPreview={isPreview}
+        canUndo={historyIndex > 0}
+        canRedo={historyIndex < history.length - 1}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
         onTitleChange={(title) => handleUpdateForm({ title })}
         onViewportChange={setViewport}
         onTogglePreview={() => setIsPreview(!isPreview)}
@@ -261,9 +398,9 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
       />
 
       {/* Main 3-Column Working Layout */}
-      <div className="flex flex-1 overflow-hidden relative">
+      <div className="flex flex-1 min-h-0 overflow-hidden relative" data-lenis-prevent="true">
         {/* Left: Field Library */}
-        <div className="hidden lg:block h-full">
+        <div className="hidden lg:flex flex-col h-full w-80 shrink-0 min-h-0" data-lenis-prevent="true">
           <FieldLibrary onAddField={handleAddField} />
         </div>
 
@@ -272,12 +409,13 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
           title={form.title}
           description={form.description}
           style={form.style}
+          theme={form.theme}
           fields={form.fields}
           selectedFieldId={selectedFieldId}
           viewport={viewport}
           onSelectField={(id) => {
             setSelectedFieldId(id);
-            // On mobile open settings drawer
+            setInspectorTab("field");
             if (window.innerWidth < 1024) {
               setShowRightDrawer(true);
             }
@@ -286,52 +424,58 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
           onDuplicateField={handleDuplicateField}
           onDeleteField={handleDeleteField}
           onMoveField={handleMoveField}
+          onReorderFields={handleReorderFields}
           onOpenFieldLibrary={() => setShowLeftDrawer(true)}
         />
 
-        {/* Right: Field Settings Panel */}
-        <div className="hidden lg:block h-full">
+        {/* Right: Field & Visual Style Settings Panel */}
+        <div className="hidden lg:flex flex-col h-full w-80 shrink-0 min-h-0" data-lenis-prevent="true">
           <FieldSettingsPanel
             selectedField={selectedField}
             formTitle={form.title}
             formDescription={form.description}
             formStyle={form.style}
+            formTheme={form.theme}
+            activeTab={inspectorTab}
+            selectedElement={selectedElement}
+            onTabChange={setInspectorTab}
             onUpdateField={handleUpdateField}
             onUpdateForm={handleUpdateForm}
+            onUpdateTheme={(theme) => handleUpdateForm({ theme })}
           />
         </div>
 
         {/* Mobile Floating Drawer Toggles */}
-        <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-[#1C1917] dark:bg-white text-white dark:text-[#1C1917] p-1.5 rounded-2xl shadow-xl border border-white/10">
+        <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-[#1C1917] text-white p-1.5 rounded-2xl shadow-xl border border-white/10">
           <button
             type="button"
             onClick={() => setShowLeftDrawer(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold hover:bg-white/10 dark:hover:bg-black/10 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold hover:bg-white/10 transition-colors"
           >
             <Plus className="w-3.5 h-3.5 text-[#FF5A36]" />
             <span>Add Field</span>
           </button>
 
-          <div className="h-4 w-px bg-white/20 dark:bg-black/20" />
+          <div className="h-4 w-px bg-white/20" />
 
           <button
             type="button"
             onClick={() => setShowRightDrawer(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold hover:bg-white/10 dark:hover:bg-black/10 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold hover:bg-white/10 transition-colors"
           >
             <Sliders className="w-3.5 h-3.5" />
-            <span>Settings</span>
+            <span>Settings & Style</span>
           </button>
         </div>
 
         {/* Mobile Left Drawer (Field Library) */}
         {showLeftDrawer && (
-          <div className="lg:hidden fixed inset-0 z-50 flex">
+          <div className="lg:hidden fixed inset-0 z-50 flex" data-lenis-prevent="true">
             <div
-              className="fixed inset-0 bg-black/50 backdrop-blur-xs"
+              className="fixed inset-0 bg-black/40 backdrop-blur-xs"
               onClick={() => setShowLeftDrawer(false)}
             />
-            <div className="relative w-4/5 max-w-sm bg-white dark:bg-[#1C1917] h-full shadow-2xl z-10 animate-in slide-in-from-left duration-200">
+            <div className="relative w-4/5 max-w-sm bg-white h-full shadow-2xl z-10 animate-in slide-in-from-left duration-200 min-h-0 flex flex-col">
               <FieldLibrary onAddField={handleAddField} />
             </div>
           </div>
@@ -339,19 +483,24 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
 
         {/* Mobile Right Drawer (Field Settings) */}
         {showRightDrawer && (
-          <div className="lg:hidden fixed inset-0 z-50 flex justify-end">
+          <div className="lg:hidden fixed inset-0 z-50 flex justify-end" data-lenis-prevent="true">
             <div
-              className="fixed inset-0 bg-black/50 backdrop-blur-xs"
+              className="fixed inset-0 bg-black/40 backdrop-blur-xs"
               onClick={() => setShowRightDrawer(false)}
             />
-            <div className="relative w-4/5 max-w-sm bg-white dark:bg-[#1C1917] h-full shadow-2xl z-10 animate-in slide-in-from-right duration-200">
+            <div className="relative w-4/5 max-w-sm bg-white h-full shadow-2xl z-10 animate-in slide-in-from-right duration-200 min-h-0 flex flex-col">
               <FieldSettingsPanel
                 selectedField={selectedField}
                 formTitle={form.title}
                 formDescription={form.description}
                 formStyle={form.style}
+                formTheme={form.theme}
+                activeTab={inspectorTab}
+                selectedElement={selectedElement}
+                onTabChange={setInspectorTab}
                 onUpdateField={handleUpdateField}
                 onUpdateForm={handleUpdateForm}
+                onUpdateTheme={(theme) => handleUpdateForm({ theme })}
               />
             </div>
           </div>
@@ -364,6 +513,7 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
           title={form.title}
           description={form.description}
           style={form.style}
+          theme={form.theme}
           fields={form.fields}
           viewport={viewport}
           onClose={() => setIsPreview(false)}

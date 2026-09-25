@@ -1,42 +1,80 @@
 @import "tailwindcss";
+@import "lenis/dist/lenis.css";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, .dark, .dark *));
 
 @layer base {
   :root {
-    --bg-warm: #fbfbfb;
-    --bg-cream: #e8f9ff;
+    --bg-warm: #faf8f5;
+    --bg-cream: #fffaf5;
     --bg-card: #ffffff;
 
-    --coral-500: #c4d9ff;
-    --coral-600: #c5baff;
-    --coral-50: #e8f9ff;
-    --coral-100: #c4d9ff;
+    --coral-500: #ff5a36;
+    --coral-600: #e44825;
+    --coral-50: #fff0eb;
+    --coral-100: #ffe5de;
 
     --stone-900: #1c1917;
     --stone-800: #292524;
     --stone-600: #57534e;
     --stone-400: #a8a29e;
-    --stone-200: #c4d9ff;
-    --stone-100: #fbfbfb;
+    --stone-200: #eae3d6;
+    --stone-100: #faf8f5;
+
+    color-scheme: light;
+  }
+
+  html.dark,
+  [data-theme="dark"] {
+    --bg-warm: #0b0f17;
+    --bg-cream: #111827;
+    --bg-card: #161f30;
+
+    --coral-500: #ff6b4a;
+    --coral-600: #ff5a36;
+    --coral-50: #2a1b18;
+    --coral-100: #3d231d;
+
+    --stone-900: #f8fafc;
+    --stone-800: #e2e8f0;
+    --stone-600: #94a3b8;
+    --stone-400: #64748b;
+    --stone-200: #293548;
+    --stone-100: #161f30;
+
+    color-scheme: dark;
   }
 
   html {
-    scroll-behavior: smooth;
-    background-color: #e8f9ff;
-    color: #c4d9ff;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  html.lenis,
+  html.lenis-smooth {
+    scroll-behavior: auto !important;
   }
 
   body {
     background-color: #faf8f5;
     color: #1c1917;
     overflow-x: hidden;
-    selection-background-color: #ffe5de;
-    selection-color: #c5baff;
+  }
+
+  html.dark body,
+  [data-theme="dark"] body {
+    background-color: #0b0f17;
+    color: #f8fafc;
   }
 
   ::selection {
-    background: #faf8f5;
-    color: #c5baff;
+    background: #ffe5de;
+    color: #e44825;
+  }
+
+  html.dark ::selection,
+  [data-theme="dark"] ::selection {
+    background: #ff5a36;
+    color: #ffffff;
   }
 }
 
@@ -80,8 +118,22 @@
     #faf8f5;
 }
 
+html.dark .warm-mesh-bg,
+[data-theme="dark"] .warm-mesh-bg {
+  background:
+    radial-gradient(at 10% 20%, rgba(255, 90, 54, 0.08) 0px, transparent 50%),
+    radial-gradient(at 90% 10%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+    radial-gradient(at 50% 80%, rgba(255, 90, 54, 0.05) 0px, transparent 50%),
+    #0b0f17;
+}
+
 .subtle-border {
   border-color: rgba(231, 226, 216, 0.85);
+}
+
+html.dark .subtle-border,
+[data-theme="dark"] .subtle-border {
+  border-color: rgba(41, 53, 72, 0.85);
 }
 
 .card-shadow {
@@ -90,16 +142,38 @@
     0 2px 6px -1px rgba(28, 25, 23, 0.02);
 }
 
+html.dark .card-shadow,
+[data-theme="dark"] .card-shadow {
+  box-shadow:
+    0 4px 20px -2px rgba(0, 0, 0, 0.4),
+    0 2px 6px -1px rgba(0, 0, 0, 0.25);
+}
+
 .card-shadow-hover {
   box-shadow:
     0 20px 35px -8px rgba(28, 25, 23, 0.08),
     0 8px 16px -4px rgba(28, 25, 23, 0.04);
 }
 
+html.dark .card-shadow-hover,
+[data-theme="dark"] .card-shadow-hover {
+  box-shadow:
+    0 20px 35px -8px rgba(0, 0, 0, 0.6),
+    0 8px 16px -4px rgba(0, 0, 0, 0.35);
+}
+
 .glass-nav {
   background: rgba(250, 248, 245, 0.82);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+}
+
+html.dark .glass-nav,
+[data-theme="dark"] .glass-nav {
+  background: rgba(11, 15, 23, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-color: rgba(41, 53, 72, 0.85);
 }
 
 /* Custom scrollbar */
@@ -116,4 +190,17 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #bcb5a6;
+}
+
+html.dark ::-webkit-scrollbar-track,
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: #0b0f17;
+}
+html.dark ::-webkit-scrollbar-thumb,
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #293548;
+}
+html.dark ::-webkit-scrollbar-thumb:hover,
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: #3d4f6b;
 }

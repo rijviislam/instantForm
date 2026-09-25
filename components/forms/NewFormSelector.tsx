@@ -126,29 +126,29 @@ export function NewFormSelector() {
         </div> */}
 
         {errorMessage && (
-          <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm flex items-center gap-2">
+          <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 text-red-700 dark:text-red-400 text-xs sm:text-sm flex items-center gap-2">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             <span>{errorMessage}</span>
           </div>
         )}
 
-        <div className="rounded-3xl bg-white border border-[#EAE3D6] p-6 sm:p-10 card-shadow space-y-6">
+        <div className="rounded-3xl bg-white dark:bg-[#111827] border border-[#EAE3D6] dark:border-[#1F2937] p-6 sm:p-10 card-shadow space-y-6">
           <div>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF0EB] text-[#FF5A36] text-xs font-semibold uppercase tracking-wider border border-[#FFD8CC]">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF0EB] dark:bg-[#FF5A36]/10 text-[#FF5A36] text-xs font-semibold uppercase tracking-wider border border-[#FFD8CC] dark:border-[#FF5A36]/20">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Create New Form</span>
             </span>
-            <h1 className="font-serif-editorial text-2xl sm:text-3xl font-normal text-[#1C1917] mt-3">
+            <h1 className="font-serif-editorial text-2xl sm:text-3xl font-normal text-[#1C1917] dark:text-[#F8FAFC] mt-3">
               Set up your form
             </h1>
-            <p className="text-xs sm:text-sm text-[#57534E] mt-1">
+            <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#94A3B8] mt-1">
               Configure basic details and starter questions before entering the builder.
             </p>
           </div>
 
           {/* Title */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-[#1C1917]">
+            <label className="block text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
               Form Title <span className="text-[#FF5A36]">*</span>
             </label>
             <input
@@ -156,13 +156,13 @@ export function NewFormSelector() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Customer Feedback Survey"
-              className="w-full px-4 py-2.5 text-xs sm:text-sm bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917] focus:outline-none focus:ring-2 focus:ring-[#FF5A36]/20 focus:border-[#FF5A36] transition-all"
+              className="w-full px-4 py-2.5 text-xs sm:text-sm bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl text-[#1C1917] dark:text-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#FF5A36]/20 focus:border-[#FF5A36] transition-all"
             />
           </div>
 
           {/* Description */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-[#1C1917]">
+            <label className="block text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
               Description (Optional)
             </label>
             <textarea
@@ -170,13 +170,13 @@ export function NewFormSelector() {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Tell respondents the purpose of this form..."
               rows={2}
-              className="w-full px-4 py-2.5 text-xs sm:text-sm bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917] focus:outline-none focus:ring-2 focus:ring-[#FF5A36]/20 focus:border-[#FF5A36] transition-all resize-none"
+              className="w-full px-4 py-2.5 text-xs sm:text-sm bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl text-[#1C1917] dark:text-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#FF5A36]/20 focus:border-[#FF5A36] transition-all resize-none"
             />
           </div>
 
           {/* Style Selector */}
           <div className="space-y-2">
-            <label className="block text-xs font-semibold text-[#1C1917]">
+            <label className="block text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
               Initial Visual Style
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
@@ -185,10 +185,11 @@ export function NewFormSelector() {
                   key={st.id}
                   type="button"
                   onClick={() => setStyle(st.id)}
-                  className={`py-2 px-3 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${style === st.id
-                    ? "bg-[#FFF0EB] border-[#FF5A36] text-[#FF5A36]"
-                    : "bg-[#FAF8F5] border-[#EAE3D6] text-[#78716C] hover:border-[#D6D3D1]"
-                    }`}
+                  className={`py-2 px-3 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                    style === st.id
+                      ? "bg-[#FFF0EB] dark:bg-[#FF5A36]/15 border-[#FF5A36] text-[#FF5A36]"
+                      : "bg-[#FAF8F5] dark:bg-[#161F30] border-[#EAE3D6] dark:border-[#293548] text-[#78716C] dark:text-[#94A3B8] hover:border-[#D6D3D1] dark:hover:border-[#374151]"
+                  }`}
                 >
                   {st.name}
                 </button>
@@ -197,8 +198,8 @@ export function NewFormSelector() {
           </div>
 
           {/* Initial Starter Fields Checklist */}
-          <div className="space-y-2.5 pt-2 border-t border-[#EAE3D6]">
-            <label className="block text-xs font-semibold text-[#1C1917]">
+          <div className="space-y-2.5 pt-2 border-t border-[#EAE3D6] dark:border-[#1F2937]">
+            <label className="block text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
               Add Starter Questions (Optional)
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -208,16 +209,18 @@ export function NewFormSelector() {
                   <label
                     key={preset.id}
                     onClick={() => togglePreset(preset.id)}
-                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${isChecked
-                      ? "bg-[#FFF0EB] border-[#FF5A36] text-[#1C1917]"
-                      : "bg-[#FAF8F5] border-[#EAE3D6] text-[#78716C]"
-                      }`}
+                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                      isChecked
+                        ? "bg-[#FFF0EB] dark:bg-[#FF5A36]/15 border-[#FF5A36] text-[#1C1917] dark:text-[#F8FAFC]"
+                        : "bg-[#FAF8F5] dark:bg-[#161F30] border-[#EAE3D6] dark:border-[#293548] text-[#78716C] dark:text-[#94A3B8]"
+                    }`}
                   >
                     <div
-                      className={`w-4 h-4 rounded-md border flex items-center justify-center ${isChecked
-                        ? "bg-[#FF5A36] border-[#FF5A36] text-white"
-                        : "border-[#D6D3D1]"
-                        }`}
+                      className={`w-4 h-4 rounded-md border flex items-center justify-center ${
+                        isChecked
+                          ? "bg-[#FF5A36] border-[#FF5A36] text-white"
+                          : "border-[#D6D3D1] dark:border-[#374151]"
+                      }`}
                     >
                       {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
                     </div>
@@ -229,11 +232,11 @@ export function NewFormSelector() {
           </div>
 
           {/* Submit */}
-          <div className="pt-4 border-t border-[#EAE3D6] flex items-center justify-end gap-3">
+          <div className="pt-4 border-t border-[#EAE3D6] dark:border-[#1F2937] flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={() => setMode("choose")}
-              className="px-4 py-2 text-xs font-semibold text-[#78716C] hover:text-[#1C1917] cursor-pointer"
+              className="px-4 py-2 text-xs font-semibold text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] cursor-pointer"
             >
               Cancel
             </button>
@@ -262,28 +265,17 @@ export function NewFormSelector() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-300">
-      {/* Back Link & Header */}
-      {/* <div className="flex items-center gap-3">
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#57534E] hover:text-[#1C1917] px-3.5 py-1.5 rounded-full bg-white border border-[#EAE3D6] hover:bg-[#FAF8F5] transition-colors"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to Dashboard</span>
-        </Link>
-      </div> */}
-
       <div className="text-center max-w-xl mx-auto space-y-3">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFF0EB] text-[#FF5A36] text-xs font-semibold uppercase tracking-wider border border-[#FFD8CC]">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFF0EB] dark:bg-[#FF5A36]/10 text-[#FF5A36] text-xs font-semibold uppercase tracking-wider border border-[#FFD8CC] dark:border-[#FF5A36]/20">
           <Sparkles className="w-3.5 h-3.5" />
           <span>Form Creator</span>
         </div>
 
-        <h1 className="font-serif-editorial text-3xl sm:text-5xl font-normal text-[#1C1917] tracking-tight">
+        <h1 className="font-serif-editorial text-3xl sm:text-5xl font-normal text-[#1C1917] dark:text-[#F8FAFC] tracking-tight">
           How would you like to start?
         </h1>
 
-        <p className="text-sm sm:text-base text-[#57534E]">
+        <p className="text-sm sm:text-base text-[#57534E] dark:text-[#94A3B8]">
           Choose a starting point for your next form.
         </p>
       </div>
@@ -293,16 +285,16 @@ export function NewFormSelector() {
         {/* 1. Start from Scratch */}
         <div
           onClick={() => setMode("scratch")}
-          className="rounded-3xl bg-white border border-[#EAE3D6] p-6 sm:p-8 card-shadow hover:card-shadow-hover hover:-translate-y-1.5 transition-all flex flex-col justify-between group cursor-pointer"
+          className="rounded-3xl bg-white dark:bg-[#111827] border border-[#EAE3D6] dark:border-[#1F2937] p-6 sm:p-8 card-shadow hover:card-shadow-hover hover:-translate-y-1.5 transition-all flex flex-col justify-between group cursor-pointer"
         >
           <div>
-            <div className="w-12 h-12 rounded-2xl bg-[#FFF0EB] border border-[#FFD8CC] text-[#FF5A36] flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+            <div className="w-12 h-12 rounded-2xl bg-[#FFF0EB] dark:bg-[#FF5A36]/15 border border-[#FFD8CC] dark:border-[#FF5A36]/30 text-[#FF5A36] dark:text-[#FF6B4A] flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
               <Layers className="w-6 h-6" />
             </div>
-            <h2 className="text-base font-bold text-[#1C1917]">
+            <h2 className="text-base font-bold text-[#1C1917] dark:text-[#F8FAFC]">
               Start from scratch
             </h2>
-            <p className="text-xs sm:text-sm text-[#57534E] mt-2 leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#94A3B8] mt-2 leading-relaxed">
               Build your custom form block by block with complete creative freedom.
             </p>
           </div>
@@ -319,15 +311,15 @@ export function NewFormSelector() {
         </div>
 
         {/* 2. Choose Template */}
-        <div className="rounded-3xl bg-white border border-[#EAE3D6] p-6 sm:p-8 card-shadow hover:card-shadow-hover hover:-translate-y-1.5 transition-all flex flex-col justify-between group cursor-pointer">
+        <div className="rounded-3xl bg-white dark:bg-[#111827] border border-[#EAE3D6] dark:border-[#1F2937] p-6 sm:p-8 card-shadow hover:card-shadow-hover hover:-translate-y-1.5 transition-all flex flex-col justify-between group cursor-pointer">
           <div>
-            <div className="w-12 h-12 rounded-2xl bg-[#EFF6FF] border border-[#DBEAFE] text-[#3B82F6] flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+            <div className="w-12 h-12 rounded-2xl bg-[#EFF6FF] dark:bg-blue-950/30 border border-[#DBEAFE] dark:border-blue-900/40 text-[#3B82F6] flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
               <LayoutTemplate className="w-6 h-6" />
             </div>
-            <h2 className="text-base font-bold text-[#1C1917]">
+            <h2 className="text-base font-bold text-[#1C1917] dark:text-[#F8FAFC]">
               Use a template
             </h2>
-            <p className="text-xs sm:text-sm text-[#57534E] mt-2 leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#94A3B8] mt-2 leading-relaxed">
               Pick from our library of designer templates tailored for feedback, leads, and events.
             </p>
           </div>
@@ -346,20 +338,20 @@ export function NewFormSelector() {
         </div>
 
         {/* 3. AI Generated */}
-        <div className="rounded-3xl bg-white border border-[#EAE3D6] p-6 sm:p-8 card-shadow transition-all flex flex-col justify-between group relative overflow-hidden">
+        <div className="rounded-3xl bg-white dark:bg-[#111827] border border-[#EAE3D6] dark:border-[#1F2937] p-6 sm:p-8 card-shadow transition-all flex flex-col justify-between group relative overflow-hidden">
           <div>
-            <div className="w-12 h-12 rounded-2xl bg-[#FAF5FF] border border-[#F3E8FF] text-[#9333EA] flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+            <div className="w-12 h-12 rounded-2xl bg-[#FAF5FF] dark:bg-purple-950/30 border border-[#F3E8FF] dark:border-purple-900/40 text-[#9333EA] dark:text-purple-400 flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
               <Wand2 className="w-6 h-6" />
             </div>
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-bold text-[#1C1917]">
+              <h2 className="text-base font-bold text-[#1C1917] dark:text-[#F8FAFC]">
                 Generate with AI
               </h2>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FAF5FF] text-[#9333EA] border border-[#F3E8FF]">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FAF5FF] dark:bg-purple-950/40 text-[#9333EA] dark:text-purple-400 border border-[#F3E8FF] dark:border-purple-800/40">
                 Coming Soon
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-[#57534E] mt-2 leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#94A3B8] mt-2 leading-relaxed">
               Describe what you want to collect and let InstantForm compose the questions.
             </p>
           </div>

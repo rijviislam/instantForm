@@ -31,7 +31,7 @@ export function AppShell({ children, user }: AppShellProps) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-[#1C1917] flex flex-col warm-mesh-bg font-sans-modern selection:bg-[#FFE5DE] selection:text-[#E44825]">
+    <div className="min-h-screen bg-[#FAF8F5] dark:bg-[#0B0F17] text-[#1C1917] dark:text-[#F8FAFC] flex flex-col warm-mesh-bg font-sans-modern selection:bg-[#FFE5DE] selection:text-[#E44825] transition-colors duration-200">
       {/* 1. Desktop Interactive Collapsible Sidebar */}
       <Sidebar
         user={user}

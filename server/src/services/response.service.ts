@@ -94,19 +94,122 @@ export class ResponseService {
       }
 
       if (val !== undefined && val !== null && val !== "") {
+        // Email validation
         if (field.type === "email" && typeof val === "string") {
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-          if (!emailRegex.test(val)) {
+          if (!emailRegex.test(val.trim())) {
             throw new Error(`Invalid email address provided for "${field.label}".`);
           }
         }
-        if (field.type === "number" && isNaN(Number(val))) {
+
+        // Phone validation
+        if (field.type === "phone" && typeof val === "string") {
+          const digitsOnly = val.replace(/\D/g, "");
+          const phoneRegex = /^(\+?\d{1,4}[-.\s]?)?(\(?\d{2,4}\)?[-.\s]?)?\d{3,4}[-.\s]?\d{3,4}$/;
+          if (digitsOnly.length < 7 || digitsOnly.length > 16 || !phoneRegex.test(val.trim())) {
+            throw new Error(`Invalid phone number provided for "${field.label}".`);
+          }
+        }
+
+        // URL / Link validation
+        const isUrlField =
+          field.type === "url" ||
+          ((field.type === "short_text" || field.type === "text" || !field.type) &&
+            /(url|website|portfolio|linkedin|github|link\b)/i.test(
+              `${field.label || ""} ${field.placeholder || ""}`
+            ));
+
+        if (isUrlField && typeof val === "string" && val.trim().length > 0) {
+          const trimmed = val.trim();
+          const urlPattern =
+            /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/.*)?$/i;
+          if (!urlPattern.test(trimmed)) {
+            throw new Error(
+              `Please provide a valid website or profile URL for "${field.label}".`
+            );
+          }
+          try {
+            const formatted =
+              trimmed.startsWith("http://") || trimmed.startsWith("https://")
+                ? trimmed
+                : `https://${trimmed}`;
+            const parsed = new URL(formatted);
+            if (!parsed.hostname || !parsed.hostname.includes(".") || parsed.hostname.endsWith(".")) {
+              throw new Error(
+                `Please provide a valid website or profile URL for "${field.label}".`
+              );
+            }
+          } catch {
+            throw new Error(
+              `Please provide a valid website or profile URL for "${field.label}".`
+            );
+          }
+        }
+
+        // Number validation
+        if (
+          (field.type === "number" || field.type === "decimal" || field.type === "currency" || field.type === "percentage") &&
+          isNaN(Number(val))
+        ) {
           throw new Error(`Field "${field.label}" must be a valid number.`);
         }
       }
     }
 
-    // 3. Save Response & ResponseAnswers
+    // 3. One-Submission-Per-User Check (Enforce single submission per respondent email)
+    let respondentEmail: string | null = null;
+    for (const field of fields) {
+      if (field.type === "email" && typeof answers[field.id] === "string" && answers[field.id].trim()) {
+        respondentEmail = answers[field.id].trim().toLowerCase();
+        break;
+      }
+    }
+    if (!respondentEmail && metadata?.respondentEmail) {
+      respondentEmail = String(metadata.respondentEmail).trim().toLowerCase();
+    }
+
+    if (respondentEmail) {
+      if (this.isPrismaAvailable) {
+        try {
+          // Fast single-indexed lookup on responseAnswer
+          const existing = await prisma.responseAnswer.findFirst({
+            where: {
+              response: { formId: form.id },
+              valueText: respondentEmail,
+            },
+            select: { id: true },
+          });
+
+          if (existing) {
+            throw new Error(
+              `You have already submitted this application. Each user can only submit once.`
+            );
+          }
+        } catch (err: any) {
+          if (err.message?.includes("already submitted")) {
+            throw err;
+          }
+          console.warn("⚠️ Prisma duplicate check query error:", err);
+        }
+      }
+
+      // In-memory duplicate check
+      const existing = inMemoryResponses.get(form.id) || [];
+      const hasDuplicate = existing.some((r) => {
+        const d = r.data;
+        if (!d) return false;
+        return Object.values(d).some(
+          (v) => typeof v === "string" && v.trim().toLowerCase() === respondentEmail
+        );
+      });
+      if (hasDuplicate) {
+        throw new Error(
+          `You have already submitted this application. Each user can only submit once.`
+        );
+      }
+    }
+
+    // 4. Save Response & ResponseAnswers
     if (this.isPrismaAvailable) {
       try {
         const result = await prisma.$transaction(async (tx) => {

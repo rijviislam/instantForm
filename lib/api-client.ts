@@ -554,6 +554,7 @@ export interface TemplateItem {
   description: string;
   category: TemplateCategory;
   style: TemplateStyle;
+  theme?: any;
   fields: Array<{
     id: string;
     type: string;

@@ -28,13 +28,13 @@ export function Button({
     primary:
       "bg-[#FF5A36] text-white hover:bg-[#E44825] active:scale-[0.98] border border-[#FF5A36] shadow-sm hover:shadow-md hover:shadow-[#FF5A36]/20 transition-all duration-200 cursor-pointer",
     secondary:
-      "bg-[#F4EFE6] text-[#1C1917] hover:bg-[#ECE5D9] active:scale-[0.98] border border-[#E7E2D8] hover:border-[#D8D0C0] transition-all duration-200 cursor-pointer",
+      "bg-[#F4EFE6] dark:bg-[#1E293B] text-[#1C1917] dark:text-[#F8FAFC] hover:bg-[#ECE5D9] dark:hover:bg-[#2A374D] active:scale-[0.98] border border-[#E7E2D8] dark:border-[#334155] hover:border-[#D8D0C0] dark:hover:border-[#475569] transition-all duration-200 cursor-pointer",
     outline:
-      "bg-white/80 backdrop-blur-xs text-[#1C1917] hover:bg-white hover:border-[#D0C8B8] active:scale-[0.98] border border-[#E7E2D8] transition-all duration-200 cursor-pointer",
+      "bg-white/80 dark:bg-[#111827]/80 backdrop-blur-xs text-[#1C1917] dark:text-[#F8FAFC] hover:bg-white dark:hover:bg-[#1E293B] hover:border-[#D0C8B8] dark:hover:border-[#334155] active:scale-[0.98] border border-[#E7E2D8] dark:border-[#1F2937] transition-all duration-200 cursor-pointer",
     ghost:
-      "bg-transparent text-[#57534E] hover:text-[#1C1917] hover:bg-[#F4EFE6]/60 transition-all duration-200 cursor-pointer",
+      "bg-transparent text-[#57534E] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] hover:bg-[#F4EFE6]/60 dark:hover:bg-[#1E293B]/60 transition-all duration-200 cursor-pointer",
     dark:
-      "bg-[#1C1917] text-white hover:bg-[#292524] active:scale-[0.98] border border-[#292524] shadow-sm transition-all duration-200 cursor-pointer",
+      "bg-[#1C1917] dark:bg-[#0B0F17] text-white hover:bg-[#292524] dark:hover:bg-[#161F30] active:scale-[0.98] border border-[#292524] dark:border-[#1F2937] shadow-sm transition-all duration-200 cursor-pointer",
   };
 
   return (

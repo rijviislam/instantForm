@@ -226,6 +226,67 @@ export class FormService {
     return null;
   }
 
+  /**
+   * Generates a clean, short human-readable URL slug (e.g. "job-application", "customer-feedback")
+   * without random hashes unless duplicate.
+   */
+  static async generateCleanSlug(baseText: string, currentFormId?: string): Promise<string> {
+    const clean = baseText
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    const candidate = clean || "form";
+
+    if (this.isPrismaAvailable) {
+      try {
+        const existing = await prisma.form.findFirst({
+          where: {
+            slug: candidate,
+            ...(currentFormId ? { NOT: { id: currentFormId } } : {}),
+          },
+        });
+        if (!existing) {
+          return candidate;
+        }
+
+        // Try candidate-2, candidate-3, etc.
+        let counter = 2;
+        while (counter <= 100) {
+          const testSlug = `${candidate}-${counter}`;
+          const match = await prisma.form.findFirst({
+            where: {
+              slug: testSlug,
+              ...(currentFormId ? { NOT: { id: currentFormId } } : {}),
+            },
+          });
+          if (!match) {
+            return testSlug;
+          }
+          counter++;
+        }
+      } catch {
+        this.isPrismaAvailable = false;
+      }
+    }
+
+    // In-memory fallback check
+    let candidateSlug = candidate;
+    let counter = 2;
+    while (
+      Array.from(inMemoryForms.values()).some(
+        (f) => f.slug === candidateSlug && f.id !== currentFormId
+      )
+    ) {
+      candidateSlug = `${candidate}-${counter}`;
+      counter++;
+    }
+
+    return candidateSlug;
+  }
+
   static async createBlankForm(
     userId: string,
     title = "Untitled Form",
@@ -234,9 +295,10 @@ export class FormService {
       style?: string;
       fields?: any[];
       theme?: any;
+      slug?: string;
     } = {}
   ): Promise<FormItem> {
-    const slug = `form-${Math.random().toString(36).substring(2, 8)}`;
+    const slug = await this.generateCleanSlug(options.slug || title || "form");
     const style = options.style || "classic";
     const fields = options.fields || [];
     const description = options.description || null;
@@ -313,14 +375,20 @@ export class FormService {
       style?: string;
       theme?: any;
       fields?: any;
+      slug?: string;
     }
   ): Promise<FormItem> {
+    const updateData: any = { ...data };
+    if (data.slug) {
+      updateData.slug = await this.generateCleanSlug(data.slug, id);
+    }
+
     if (this.isPrismaAvailable) {
       try {
         const form = await prisma.form.update({
           where: { id },
           data: {
-            ...data,
+            ...updateData,
             updatedAt: new Date(),
           },
           include: {
@@ -355,7 +423,7 @@ export class FormService {
 
     const updated: FormItem = {
       ...existing,
-      ...data,
+      ...updateData,
       updatedAt: new Date(),
     };
     inMemoryForms.set(id, updated);
@@ -369,7 +437,7 @@ export class FormService {
     }
 
     const newTitle = `${original.title} (Copy)`;
-    const newSlug = `form-${Math.random().toString(36).substring(2, 8)}`;
+    const newSlug = await this.generateCleanSlug(newTitle);
 
     if (this.isPrismaAvailable) {
       try {

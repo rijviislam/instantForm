@@ -54,7 +54,7 @@ export function Logo({ className, isDark = false }: LogoProps) {
         <span
           className={clsx(
             "text-xl font-bold tracking-tight",
-            isDark ? "text-white" : "text-[#1C1917]"
+            isDark ? "text-white" : "text-[#1C1917] dark:text-[#F8FAFC]"
           )}
         >
           Instant<span className="text-[#FF5A36]">Form</span>

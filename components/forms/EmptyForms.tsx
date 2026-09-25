@@ -13,16 +13,16 @@ interface EmptyFormsProps {
 export function EmptyForms({ type, onClearFilters }: EmptyFormsProps) {
   if (type === "search-empty") {
     return (
-      <div className="rounded-3xl bg-white border border-[#EAE3D6] p-12 sm:p-16 text-center card-shadow flex flex-col items-center justify-center animate-in fade-in duration-200">
-        <div className="w-14 h-14 rounded-2xl bg-[#FAF8F5] border border-[#EAE3D6] text-[#78716C] flex items-center justify-center mb-4">
+      <div className="rounded-3xl bg-white dark:bg-[#111827] border border-[#EAE3D6] dark:border-[#1F2937] p-12 sm:p-16 text-center card-shadow flex flex-col items-center justify-center animate-in fade-in duration-200">
+        <div className="w-14 h-14 rounded-2xl bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] text-[#78716C] dark:text-[#94A3B8] flex items-center justify-center mb-4">
           <SearchX className="w-7 h-7" />
         </div>
 
-        <h3 className="font-serif-editorial text-2xl font-normal text-[#1C1917] tracking-tight">
+        <h3 className="font-serif-editorial text-2xl font-normal text-[#1C1917] dark:text-[#F8FAFC] tracking-tight">
           No forms found
         </h3>
 
-        <p className="text-xs sm:text-sm text-[#57534E] max-w-sm mt-2 mb-6 leading-relaxed">
+        <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#94A3B8] max-w-sm mt-2 mb-6 leading-relaxed">
           We couldn&apos;t find any forms matching your search or active filter.
         </p>
 
@@ -41,16 +41,16 @@ export function EmptyForms({ type, onClearFilters }: EmptyFormsProps) {
   }
 
   return (
-    <div className="rounded-3xl bg-white border border-[#EAE3D6] p-12 sm:p-16 text-center card-shadow flex flex-col items-center justify-center animate-in fade-in duration-200">
-      <div className="w-14 h-14 rounded-2xl bg-[#FFF0EB] border border-[#FFD8CC] text-[#FF5A36] flex items-center justify-center mb-4">
+    <div className="rounded-3xl bg-white dark:bg-[#111827] border border-[#EAE3D6] dark:border-[#1F2937] p-12 sm:p-16 text-center card-shadow flex flex-col items-center justify-center animate-in fade-in duration-200">
+      <div className="w-14 h-14 rounded-2xl bg-[#FFF0EB] dark:bg-[#FF5A36]/15 border border-[#FFD8CC] dark:border-[#FF5A36]/30 text-[#FF5A36] dark:text-[#FF6B4A] flex items-center justify-center mb-4">
         <FileText className="w-7 h-7" />
       </div>
 
-      <h3 className="font-serif-editorial text-2xl sm:text-3xl font-normal text-[#1C1917] tracking-tight">
+      <h3 className="font-serif-editorial text-2xl sm:text-3xl font-normal text-[#1C1917] dark:text-[#F8FAFC] tracking-tight">
         No forms yet
       </h3>
 
-      <p className="text-xs sm:text-sm text-[#57534E] max-w-md mt-2 mb-6 leading-relaxed">
+      <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#94A3B8] max-w-md mt-2 mb-6 leading-relaxed">
         Create your first form and start collecting responses with InstantForm&apos;s design-first builder, or choose from our curated templates.
       </p>
 
@@ -80,4 +80,3 @@ export function EmptyForms({ type, onClearFilters }: EmptyFormsProps) {
     </div>
   );
 }
-

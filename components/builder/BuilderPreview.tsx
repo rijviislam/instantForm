@@ -57,7 +57,20 @@ export function BuilderPreview({
   const [submitted, setSubmitted] = useState(false);
   const [previewViewport, setPreviewViewport] = useState<ViewportMode>(initialViewport || "desktop");
 
-  const theme = resolveFormTheme(rawTheme, style);
+  const baseResolvedTheme = resolveFormTheme(rawTheme, style);
+  const configuredMood = baseResolvedTheme.colorMood || "light";
+
+  const [activeMood, setActiveMood] = useState<"light" | "dark">(() => {
+    if (configuredMood === "dark") return "dark";
+    if (configuredMood === "light") return "light";
+    return "light";
+  });
+
+  const theme =
+    activeMood === "dark"
+      ? resolveFormTheme({ ...baseResolvedTheme, ...getThemeComputedStyles(baseResolvedTheme), colorMood: "dark" }, style)
+      : baseResolvedTheme;
+
   const { backgroundStyle, containerStyle, buttonStyle, headingStyle, descriptionStyle } =
     getThemeComputedStyles(theme);
 
@@ -255,32 +268,32 @@ export function BuilderPreview({
 
       {/* Modal Dialog Window */}
       <div
-        className="relative w-full max-w-5xl h-[92vh] max-h-[95vh] bg-[#FAF8F5] rounded-2xl sm:rounded-3xl shadow-2xl border border-[#EAE3D6] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+        className="relative w-full max-w-5xl h-[92vh] max-h-[95vh] bg-[#FAF8F5] dark:bg-[#0B0F17] rounded-2xl sm:rounded-3xl shadow-2xl border border-[#EAE3D6] dark:border-[#1F2937] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="h-14 border-b border-[#EAE3D6] bg-white px-4 sm:px-6 flex items-center justify-between shrink-0 shadow-xs z-30">
+        <div className="h-14 border-b border-[#EAE3D6] dark:border-[#1F2937] bg-white dark:bg-[#111827] px-4 sm:px-6 flex items-center justify-between shrink-0 shadow-xs z-30">
           {/* Left: Mode Badge & Title */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FFF0EB] text-[#FF5A36] border border-[#FFD8CC] shrink-0">
+            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FFF0EB] dark:bg-[#FF5A36]/10 text-[#FF5A36] border border-[#FFD8CC] dark:border-[#FF5A36]/20 shrink-0">
               <Sparkles className="w-3.5 h-3.5" />
               Live Preview
             </span>
-            <span className="text-xs font-semibold text-[#1C1917] truncate hidden sm:inline">
+            <span className="text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC] truncate hidden sm:inline">
               {title || "Untitled Form"}
             </span>
           </div>
 
           {/* Center: Interactive Device Viewport Toggle */}
-          <div className="flex items-center p-1 bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl">
+          <div className="flex items-center p-1 bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl">
             <button
               type="button"
               onClick={() => setPreviewViewport("desktop")}
               title="Desktop view"
               className={`p-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 previewViewport === "desktop"
-                  ? "bg-white text-[#1C1917] shadow-xs"
-                  : "text-[#78716C] hover:text-[#1C1917]"
+                  ? "bg-white dark:bg-[#1E293B] text-[#1C1917] dark:text-[#F8FAFC] shadow-xs"
+                  : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
               }`}
             >
               <Monitor className="w-3.5 h-3.5" />
@@ -292,8 +305,8 @@ export function BuilderPreview({
               title="Tablet view"
               className={`p-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 previewViewport === "tablet"
-                  ? "bg-white text-[#1C1917] shadow-xs"
-                  : "text-[#78716C] hover:text-[#1C1917]"
+                  ? "bg-white dark:bg-[#1E293B] text-[#1C1917] dark:text-[#F8FAFC] shadow-xs"
+                  : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
               }`}
             >
               <Tablet className="w-3.5 h-3.5" />
@@ -305,8 +318,8 @@ export function BuilderPreview({
               title="Mobile view"
               className={`p-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 previewViewport === "mobile"
-                  ? "bg-white text-[#1C1917] shadow-xs"
-                  : "text-[#78716C] hover:text-[#1C1917]"
+                  ? "bg-white dark:bg-[#1E293B] text-[#1C1917] dark:text-[#F8FAFC] shadow-xs"
+                  : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
               }`}
             >
               <Smartphone className="w-3.5 h-3.5" />
@@ -324,7 +337,7 @@ export function BuilderPreview({
                   setAnswers({});
                   setCurrentStep(0);
                 }}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-[#78716C] hover:text-[#1C1917] hover:bg-[#FAF8F5] transition-colors cursor-pointer"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] hover:bg-[#FAF8F5] dark:hover:bg-[#161F30] transition-colors cursor-pointer"
                 title="Restart simulation"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -335,11 +348,11 @@ export function BuilderPreview({
             <button
               type="button"
               onClick={onClose}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#1C1917] bg-[#FAF8F5] hover:bg-[#F5F2EB] border border-[#EAE3D6] transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC] bg-[#FAF8F5] dark:bg-[#161F30] hover:bg-[#F5F2EB] dark:hover:bg-[#1E293B] border border-[#EAE3D6] dark:border-[#293548] transition-colors cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
               <span>Close</span>
-              <kbd className="hidden sm:inline-block text-[10px] text-[#A8A29E] bg-white border border-[#EAE3D6] px-1 py-0.5 rounded ml-0.5">
+              <kbd className="hidden sm:inline-block text-[10px] text-[#A8A29E] dark:text-[#64748B] bg-white dark:bg-[#111827] border border-[#EAE3D6] dark:border-[#293548] px-1 py-0.5 rounded ml-0.5">
                 ESC
               </kbd>
             </button>
@@ -365,14 +378,23 @@ export function BuilderPreview({
             {/* Form Header Banner (if configured) */}
             {theme.branding.headerImageUrl && (
               <div
-                className="w-full rounded-t-3xl overflow-hidden mb-[-1.5rem] relative z-0 border border-b-0 border-[#EAE3D6] shadow-sm"
+                className="w-full overflow-hidden relative z-0 shadow-sm transition-all"
                 style={{
                   height:
                     theme.branding.headerImageHeight === "sm"
-                      ? "120px"
+                      ? "130px"
                       : theme.branding.headerImageHeight === "lg"
                       ? "240px"
                       : "180px",
+                  borderTopLeftRadius: containerStyle.borderBottomLeftRadius || containerStyle.borderRadius || "1.5rem",
+                  borderTopRightRadius: containerStyle.borderBottomRightRadius || containerStyle.borderRadius || "1.5rem",
+                  borderLeftWidth: containerStyle.borderLeftWidth || containerStyle.borderWidth || "1px",
+                  borderRightWidth: containerStyle.borderRightWidth || containerStyle.borderWidth || "1px",
+                  borderTopWidth: containerStyle.borderWidth || "1px",
+                  borderBottomWidth: "0px",
+                  borderStyle: containerStyle.borderStyle || "solid",
+                  borderColor: containerStyle.borderColor || "#EAE3D6",
+                  marginBottom: theme.branding.logoUrl && theme.branding.logoPosition !== "center-bottom" ? "-2.25rem" : "0px",
                 }}
               >
                 <img
@@ -381,6 +403,7 @@ export function BuilderPreview({
                   className="w-full h-full"
                   style={{ objectFit: theme.branding.headerImageFit || "cover" }}
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
               </div>
             )}
 
@@ -395,33 +418,55 @@ export function BuilderPreview({
               {/* Form Branding Logo (if configured) */}
               {theme.branding.logoUrl && (
                 <div
-                  className={`mb-6 flex ${
-                    theme.branding.logoPosition === "center"
-                      ? "justify-center"
+                  className={`flex relative z-20 ${
+                    theme.branding.logoPosition === "left"
+                      ? `justify-start ${theme.branding.headerImageUrl ? "-mt-8 sm:-mt-10 mb-6 pl-4 sm:pl-6" : "mb-6"}`
                       : theme.branding.logoPosition === "right"
-                      ? "justify-end"
-                      : "justify-start"
+                        ? `justify-end ${theme.branding.headerImageUrl ? "-mt-8 sm:-mt-10 mb-6 pr-4 sm:pr-6" : "mb-6"}`
+                        : theme.branding.logoPosition === "center-top"
+                          ? `justify-center ${theme.branding.headerImageUrl ? "-mt-24 sm:-mt-28 mb-12" : "-mt-6 sm:-mt-8 mb-6"}`
+                          : theme.branding.logoPosition === "center-bottom"
+                            ? `justify-center ${theme.branding.headerImageUrl ? "mt-4 mb-6" : "mt-2 mb-6"}`
+                            : `justify-center ${theme.branding.headerImageUrl ? "-mt-8 sm:-mt-10 mb-6" : "mb-6"}`
                   }`}
                 >
-                  <img
-                    src={theme.branding.logoUrl}
-                    alt="Form logo"
-                    className="rounded-xl object-contain"
-                    style={{
-                      height:
-                        theme.branding.logoSize === "sm"
-                          ? "32px"
-                          : theme.branding.logoSize === "lg"
-                          ? "64px"
-                          : "48px",
-                    }}
-                  />
+                  <div
+                    className={`inline-flex items-center justify-center transition-all select-none ${
+                      theme.branding.logoFrame === "circle"
+                        ? "rounded-full p-2 bg-black/5 dark:bg-white/10"
+                        : theme.branding.logoFrame === "badge"
+                          ? "rounded-2xl p-2 bg-black/5 dark:bg-white/10"
+                          : "p-0 bg-transparent shadow-none border-0 ring-0"
+                    }`}
+                  >
+                    <img
+                      src={theme.branding.logoUrl}
+                      alt="Form logo"
+                      className={`object-contain border-0 shadow-none ring-0 ${
+                        theme.branding.logoFrame === "circle" ? "rounded-full" : "rounded-xl"
+                      }`}
+                      style={{
+                        height:
+                          theme.branding.logoSize === "sm"
+                            ? "36px"
+                            : theme.branding.logoSize === "lg"
+                            ? "64px"
+                            : "48px",
+                        maxWidth:
+                          theme.branding.logoSize === "sm"
+                            ? "110px"
+                            : theme.branding.logoSize === "lg"
+                            ? "200px"
+                            : "150px",
+                      }}
+                    />
+                  </div>
                 </div>
               )}
 
               {submitted ? (
                 /* Success Screen Simulation */
-                <div className="py-8 text-center space-y-4">
+                <div className="py-8 text-center space-y-4 relative z-10">
                   <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto mb-2 shadow-xs animate-in zoom-in-95 duration-200">
                     <CheckCircle2 className="w-9 h-9" />
                   </div>
@@ -449,7 +494,7 @@ export function BuilderPreview({
                 </div>
               ) : style.toLowerCase() === "conversation" ? (
                 /* Conversational Mode: Step by Step */
-                <div className="space-y-6 min-h-[320px] flex flex-col justify-between">
+                <div className="space-y-6 min-h-[320px] flex flex-col justify-between relative z-10">
                   <div>
                     {/* Progress Indicator */}
                     <div className="flex items-center justify-between text-xs font-semibold text-[#78716C] mb-4">
@@ -569,10 +614,10 @@ export function BuilderPreview({
                 </div>
               ) : (
                 /* Classic / Editorial / Multi-Question Form */
-                <div className="space-y-6">
+                <div className="space-y-6 relative z-10">
                   {/* Form Header */}
                   <div
-                    className="border-b pb-6 space-y-2"
+                    className="border-b pb-6 space-y-2 relative z-10"
                     style={{ borderBottomColor: theme.container.borderColor || theme.colors.border || "#F5F2EB" }}
                   >
                     <h1 style={headingStyle} className="tracking-tight text-xl sm:text-2xl font-bold">
@@ -590,7 +635,7 @@ export function BuilderPreview({
 
                   {/* Form Fields List */}
                   <div
-                    className="space-y-4"
+                    className="space-y-4 relative z-10"
                     style={{
                       gap: theme.inputs.customFieldSpacing
                         ? `${theme.inputs.customFieldSpacing}px`

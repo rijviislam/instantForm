@@ -18,9 +18,11 @@ import {
   Loader2,
   RotateCcw,
   X,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { PublicFormItem, FormField, submitPublicResponseApi } from "@/lib/api-client";
-import { FormTheme, resolveFormTheme, getThemeComputedStyles, getComputedFieldStyles } from "@/lib/form-theme";
+import { FormTheme, resolveFormTheme, applyThemeMood, getThemeComputedStyles, getComputedFieldStyles } from "@/lib/form-theme";
 import { DynamicFontLoader } from "@/components/builder/DynamicFontLoader";
 import { CardSurfaceBackground } from "./CardSurfaceBackground";
 
@@ -37,23 +39,25 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
   const [previouslySubmittedAt, setPreviouslySubmittedAt] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
 
-  // Check if respondent on this device has already submitted this form
-  useEffect(() => {
-    try {
-      const keyId = `instantform_sub_${form.id}`;
-      const keySlug = `instantform_sub_${form.slug}`;
-      const recorded = localStorage.getItem(keyId) || localStorage.getItem(keySlug);
-      if (recorded) {
-        setHasPreviouslySubmitted(true);
-        setPreviouslySubmittedAt(recorded);
-      }
-    } catch (e) {
-      // ignore localStorage
-    }
-  }, [form.id, form.slug]);
+  // Theme & Publishing Mood resolution (Light / Dark / Auto / Interactive)
+  const baseResolvedTheme = resolveFormTheme(form.theme, form.style);
+  const configuredMood = baseResolvedTheme.colorMood || "light";
 
-  // Theme resolution
-  const theme = resolveFormTheme(form.theme, form.style);
+  const [activeMood, setActiveMood] = useState<"light" | "dark">(() => {
+    if (configuredMood === "dark") return "dark";
+    if (configuredMood === "light") return "light";
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      return "dark";
+    }
+    return "light";
+  });
+
+  // Effective theme computed based on active mood
+  const theme =
+    activeMood === "dark"
+      ? applyThemeMood(baseResolvedTheme, "dark")
+      : applyThemeMood(baseResolvedTheme, "light");
+
   const { backgroundStyle, containerStyle, inputStyle, buttonStyle, headingStyle, descriptionStyle } =
     getThemeComputedStyles(theme);
 
@@ -361,28 +365,46 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
     return (
       <div className="w-full flex items-center justify-center p-4">
         <DynamicFontLoader theme={theme} />
+
+        {/* Respondent Mood Toggle Floating Button */}
+        {theme.allowRespondentMoodToggle !== false && (
+          <button
+            type="button"
+            onClick={() => setActiveMood((prev) => (prev === "dark" ? "light" : "dark"))}
+            aria-label="Toggle dark and light theme"
+            title={`Switch to ${activeMood === "dark" ? "Light" : "Dark"} mode`}
+            className="fixed top-4 right-4 z-50 p-2.5 rounded-full bg-white/90 dark:bg-[#111827]/90 backdrop-blur-md border border-[#EAE3D6] dark:border-[#1F2937] text-[#1C1917] dark:text-[#F8FAFC] shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
+          >
+            {activeMood === "dark" ? (
+              <Sun className="w-4 h-4 text-amber-400" />
+            ) : (
+              <Moon className="w-4 h-4 text-[#78716C]" />
+            )}
+          </button>
+        )}
+
         <div
-          className="w-full max-w-md text-center animate-in zoom-in-95 duration-200 space-y-4"
+          className="w-full max-w-md text-center animate-in zoom-in-95 duration-200 space-y-4 relative z-10"
           style={containerStyle}
         >
           <CardSurfaceBackground theme={theme} />
-          <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto mb-2 animate-in zoom-in-50 duration-300">
+          <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto mb-2 animate-in zoom-in-50 duration-300 relative z-10">
             <CheckCircle2 className="w-9 h-9" />
           </div>
 
-          <h2 style={headingStyle} className="tracking-tight text-xl font-bold">
+          <h2 style={headingStyle} className="tracking-tight text-xl font-bold relative z-10">
             Application Already Submitted
           </h2>
 
           <p
-            className="text-xs sm:text-sm leading-relaxed max-w-xs mx-auto"
+            className="text-xs sm:text-sm leading-relaxed max-w-xs mx-auto relative z-10"
             style={{ color: theme.colors.mutedText || "#78716C" }}
           >
             You have already submitted this application. Each user is permitted to submit only once.
           </p>
 
           {previouslySubmittedAt && (
-            <p className="text-[11px] text-[#A8A29E]">
+            <p className="text-[11px] text-[#A8A29E] relative z-10">
               Recorded on {new Date(previouslySubmittedAt).toLocaleDateString()} at {new Date(previouslySubmittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </p>
           )}
@@ -396,27 +418,45 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
     return (
       <div className="w-full flex items-center justify-center p-4">
         <DynamicFontLoader theme={theme} />
+
+        {/* Respondent Mood Toggle Floating Button */}
+        {theme.allowRespondentMoodToggle !== false && (
+          <button
+            type="button"
+            onClick={() => setActiveMood((prev) => (prev === "dark" ? "light" : "dark"))}
+            aria-label="Toggle dark and light theme"
+            title={`Switch to ${activeMood === "dark" ? "Light" : "Dark"} mode`}
+            className="fixed top-4 right-4 z-50 p-2.5 rounded-full bg-white/90 dark:bg-[#111827]/90 backdrop-blur-md border border-[#EAE3D6] dark:border-[#1F2937] text-[#1C1917] dark:text-[#F8FAFC] shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
+          >
+            {activeMood === "dark" ? (
+              <Sun className="w-4 h-4 text-amber-400" />
+            ) : (
+              <Moon className="w-4 h-4 text-[#78716C]" />
+            )}
+          </button>
+        )}
+
         <div
-          className="w-full max-w-md text-center animate-in zoom-in-95 duration-200 space-y-4"
+          className="w-full max-w-md text-center animate-in zoom-in-95 duration-200 space-y-4 relative z-10"
           style={containerStyle}
         >
           <CardSurfaceBackground theme={theme} />
-          <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto mb-2 animate-in zoom-in-50 duration-300">
+          <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto mb-2 animate-in zoom-in-50 duration-300 relative z-10">
             <CheckCircle2 className="w-9 h-9" />
           </div>
 
-          <h2 style={headingStyle} className="tracking-tight text-xl font-bold">
+          <h2 style={headingStyle} className="tracking-tight text-xl font-bold relative z-10">
             Thank you!
           </h2>
 
           <p
-            className="text-xs sm:text-sm leading-relaxed max-w-xs mx-auto"
+            className="text-xs sm:text-sm leading-relaxed max-w-xs mx-auto relative z-10"
             style={{ color: theme.colors.mutedText || "#78716C" }}
           >
             Your response has been submitted successfully.
           </p>
 
-          <p className="text-[11px] text-[#A8A29E]">
+          <p className="text-[11px] text-[#A8A29E] relative z-10">
             Your submission has been recorded.
           </p>
         </div>
@@ -424,7 +464,7 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
     );
   }
 
-  // 2. Conversation Style (One Question at a Time)
+  // 3. Conversation Style (One Question at a Time)
   if (style === "conversation") {
     const progressPercent = Math.round(
       ((currentStep + 1) / (fields.length || 1)) * 100
@@ -434,39 +474,78 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
       <div className="w-full flex flex-col items-center justify-center p-4 relative">
         <DynamicFontLoader theme={theme} />
 
+        {/* Respondent Mood Toggle Floating Button */}
+        {theme.allowRespondentMoodToggle !== false && (
+          <button
+            type="button"
+            onClick={() => setActiveMood((prev) => (prev === "dark" ? "light" : "dark"))}
+            aria-label="Toggle dark and light theme"
+            title={`Switch to ${activeMood === "dark" ? "Light" : "Dark"} mode`}
+            className="fixed top-4 right-4 z-50 p-2.5 rounded-full bg-white/90 dark:bg-[#111827]/90 backdrop-blur-md border border-[#EAE3D6] dark:border-[#1F2937] text-[#1C1917] dark:text-[#F8FAFC] shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
+          >
+            {activeMood === "dark" ? (
+              <Sun className="w-4 h-4 text-amber-400" />
+            ) : (
+              <Moon className="w-4 h-4 text-[#78716C]" />
+            )}
+          </button>
+        )}
+
         {/* Branding Logo */}
         {theme.branding.logoUrl && (
           <div
-            className={`w-full max-w-2xl mb-4 flex ${
-              theme.branding.logoPosition === "center"
-                ? "justify-center"
+            className={`w-full max-w-2xl mb-4 flex relative z-20 ${
+              theme.branding.logoPosition === "left"
+                ? "justify-start pl-2"
                 : theme.branding.logoPosition === "right"
-                ? "justify-end"
-                : "justify-start"
+                ? "justify-end pr-2"
+                : theme.branding.logoPosition === "center-top"
+                ? "justify-center -mt-2"
+                : theme.branding.logoPosition === "center-bottom"
+                ? "justify-center mt-2"
+                : "justify-center"
             }`}
           >
-            <img
-              src={theme.branding.logoUrl}
-              alt="Form logo"
-              className="object-contain"
-              style={{
-                height:
-                  theme.branding.logoSize === "sm"
-                    ? "32px"
-                    : theme.branding.logoSize === "lg"
-                    ? "64px"
-                    : "48px",
-              }}
-            />
+            <div
+              className={`inline-flex items-center justify-center transition-all select-none ${
+                theme.branding.logoFrame === "circle"
+                  ? "rounded-full p-2 bg-black/5 dark:bg-white/10"
+                  : theme.branding.logoFrame === "badge"
+                    ? "rounded-2xl p-2 bg-black/5 dark:bg-white/10"
+                    : "p-0 bg-transparent shadow-none border-0 ring-0"
+              }`}
+            >
+              <img
+                src={theme.branding.logoUrl}
+                alt="Form logo"
+                className={`object-contain border-0 shadow-none ring-0 ${
+                  theme.branding.logoFrame === "circle" ? "rounded-full" : "rounded-xl"
+                }`}
+                style={{
+                  height:
+                    theme.branding.logoSize === "sm"
+                      ? "36px"
+                      : theme.branding.logoSize === "lg"
+                      ? "64px"
+                      : "48px",
+                  maxWidth:
+                    theme.branding.logoSize === "sm"
+                      ? "110px"
+                      : theme.branding.logoSize === "lg"
+                      ? "200px"
+                      : "150px",
+                }}
+              />
+            </div>
           </div>
         )}
 
         <div
-          className="w-full min-h-[420px] flex flex-col justify-between relative"
+          className="w-full min-h-[420px] flex flex-col justify-between relative z-10"
           style={containerStyle}
         >
           <CardSurfaceBackground theme={theme} />
-          <div>
+          <div className="relative z-10 flex flex-col justify-between flex-1">
             {/* Progress Bar */}
             <div className="flex items-center justify-between text-xs font-semibold text-[#78716C] mb-3">
               <span>
@@ -563,7 +642,7 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
           </div>
 
           {/* Footer Navigation Controls */}
-          <div className="flex items-center justify-between pt-6 border-t border-[#F5F2EB]">
+          <div className="flex items-center justify-between pt-6 border-t border-[#F5F2EB] relative z-10">
             <button
               type="button"
               onClick={() => setCurrentStep((s) => Math.max(0, s - 1))}
@@ -612,18 +691,44 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
     <div className="w-full flex flex-col items-center justify-center p-4 relative">
       <DynamicFontLoader theme={theme} />
 
+      {/* Respondent Mood Toggle Floating Button */}
+      {theme.allowRespondentMoodToggle !== false && (
+        <button
+          type="button"
+          onClick={() => setActiveMood((prev) => (prev === "dark" ? "light" : "dark"))}
+          aria-label="Toggle dark and light theme"
+          title={`Switch to ${activeMood === "dark" ? "Light" : "Dark"} mode`}
+          className="fixed top-4 right-4 z-50 p-2.5 rounded-full bg-white/90 dark:bg-[#111827]/90 backdrop-blur-md border border-[#EAE3D6] dark:border-[#1F2937] text-[#1C1917] dark:text-[#F8FAFC] shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
+        >
+          {activeMood === "dark" ? (
+            <Sun className="w-4 h-4 text-amber-400" />
+          ) : (
+            <Moon className="w-4 h-4 text-[#78716C]" />
+          )}
+        </button>
+      )}
+
       {/* Header Banner Image */}
       {theme.branding.headerImageUrl && (
         <div
-          className="w-full rounded-t-3xl overflow-hidden mb-[-1.5rem] relative z-0 border border-b-0 border-[#EAE3D6] shadow-sm"
+          className="w-full overflow-hidden relative z-0 shadow-sm transition-all"
           style={{
             maxWidth: containerStyle.maxWidth,
             height:
               theme.branding.headerImageHeight === "sm"
-                ? "120px"
+                ? "130px"
                 : theme.branding.headerImageHeight === "lg"
                 ? "240px"
                 : "180px",
+            borderTopLeftRadius: containerStyle.borderBottomLeftRadius || containerStyle.borderRadius || "1.5rem",
+            borderTopRightRadius: containerStyle.borderBottomRightRadius || containerStyle.borderRadius || "1.5rem",
+            borderLeftWidth: containerStyle.borderLeftWidth || containerStyle.borderWidth || "1px",
+            borderRightWidth: containerStyle.borderRightWidth || containerStyle.borderWidth || "1px",
+            borderTopWidth: containerStyle.borderWidth || "1px",
+            borderBottomWidth: "0px",
+            borderStyle: containerStyle.borderStyle || "solid",
+            borderColor: containerStyle.borderColor || "#EAE3D6",
+            marginBottom: theme.branding.logoUrl && theme.branding.logoPosition !== "center-bottom" ? "-2.25rem" : "0px",
           }}
         >
           <img
@@ -632,6 +737,7 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
             className="w-full h-full"
             style={{ objectFit: theme.branding.headerImageFit || "cover" }}
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
         </div>
       )}
 
@@ -643,33 +749,55 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
         {/* Form Logo */}
         {theme.branding.logoUrl && (
           <div
-            className={`mb-4 flex ${
-              theme.branding.logoPosition === "center"
-                ? "justify-center"
+            className={`flex relative z-20 ${
+              theme.branding.logoPosition === "left"
+                ? `justify-start ${theme.branding.headerImageUrl ? "-mt-8 sm:-mt-10 mb-6 pl-4 sm:pl-6" : "mb-4"}`
                 : theme.branding.logoPosition === "right"
-                ? "justify-end"
-                : "justify-start"
+                ? `justify-end ${theme.branding.headerImageUrl ? "-mt-8 sm:-mt-10 mb-6 pr-4 sm:pr-6" : "mb-4"}`
+                : theme.branding.logoPosition === "center-top"
+                ? `justify-center ${theme.branding.headerImageUrl ? "-mt-24 sm:-mt-28 mb-12" : "-mt-6 sm:-mt-8 mb-4"}`
+                : theme.branding.logoPosition === "center-bottom"
+                ? `justify-center ${theme.branding.headerImageUrl ? "mt-4 mb-6" : "mt-2 mb-4"}`
+                : `justify-center ${theme.branding.headerImageUrl ? "-mt-8 sm:-mt-10 mb-6" : "mb-4"}`
             }`}
           >
-            <img
-              src={theme.branding.logoUrl}
-              alt="Form logo"
-              className="object-contain"
-              style={{
-                height:
-                  theme.branding.logoSize === "sm"
-                    ? "32px"
-                    : theme.branding.logoSize === "lg"
-                    ? "64px"
-                    : "48px",
-              }}
-            />
+            <div
+              className={`inline-flex items-center justify-center transition-all select-none ${
+                theme.branding.logoFrame === "circle"
+                  ? "rounded-full p-2 bg-black/5 dark:bg-white/10"
+                  : theme.branding.logoFrame === "badge"
+                    ? "rounded-2xl p-2 bg-black/5 dark:bg-white/10"
+                    : "p-0 bg-transparent shadow-none border-0 ring-0"
+              }`}
+            >
+              <img
+                src={theme.branding.logoUrl}
+                alt="Form logo"
+                className={`object-contain border-0 shadow-none ring-0 ${
+                  theme.branding.logoFrame === "circle" ? "rounded-full" : "rounded-xl"
+                }`}
+                style={{
+                  height:
+                    theme.branding.logoSize === "sm"
+                      ? "36px"
+                      : theme.branding.logoSize === "lg"
+                      ? "64px"
+                      : "48px",
+                  maxWidth:
+                    theme.branding.logoSize === "sm"
+                      ? "110px"
+                      : theme.branding.logoSize === "lg"
+                      ? "200px"
+                      : "150px",
+                }}
+              />
+            </div>
           </div>
         )}
 
         {/* Header */}
         <div
-          className="border-b pb-6 space-y-2"
+          className="border-b pb-6 space-y-2 relative z-10"
           style={{ borderBottomColor: theme.container.borderColor || theme.colors.border || "#F5F2EB" }}
         >
           <h1 style={headingStyle} className="tracking-tight">
@@ -686,7 +814,7 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
         </div>
 
         {serverError && (
-          <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+          <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2 relative z-10">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             <span>{serverError}</span>
           </div>
@@ -694,7 +822,7 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
 
         {/* Questions Stack */}
         <div
-          className="space-y-6"
+          className="space-y-6 relative z-10"
           style={{
             gap:
               theme.inputs?.fieldSpacing === "compact"
@@ -814,7 +942,7 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
         </div>
 
         {/* Submit Button */}
-        <div className="pt-6 border-t border-[#F5F2EB] flex justify-end">
+        <div className="pt-6 border-t border-[#F5F2EB] flex justify-end relative z-10">
           <button
             type="button"
             onClick={handleSubmit}

@@ -74,43 +74,43 @@ export function FinalCTA() {
   return (
     <section
       ref={sectionRef}
-      className="py-20 md:py-28 bg-[#FAF8F5] relative overflow-hidden"
+      className="py-20 md:py-28 bg-[#FAF8F5] dark:bg-[#0B0F17] relative overflow-hidden transition-colors duration-200"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main CTA Canvas Box */}
         <div
           id="cta-inner-card"
-          className="relative rounded-3xl bg-gradient-to-br from-[#FFF5F0] via-[#FFFDF9] to-[#FDF4EC] border border-[#FFD8CC] p-8 sm:p-14 md:p-16 text-center shadow-xl shadow-[#FF5A36]/5 overflow-hidden"
+          className="relative rounded-3xl bg-gradient-to-br from-[#FFF5F0] via-[#FFFDF9] to-[#FDF4EC] dark:from-[#1A1215] dark:via-[#161F30] dark:to-[#111827] border border-[#FFD8CC] dark:border-[#FF5A36]/30 p-8 sm:p-14 md:p-16 text-center shadow-xl shadow-[#FF5A36]/5 overflow-hidden"
         >
           {/* Ambient coral glow circles */}
           <div className="absolute -top-24 -left-24 w-72 h-72 bg-[#FF5A36]/15 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-[#FFA07A]/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-[#FFA07A]/20 dark:bg-[#FFA07A]/10 rounded-full blur-3xl pointer-events-none" />
 
           {/* Floating decorative chip 1: top right */}
-          <div className="cta-floating-chip-1 hidden sm:flex absolute top-8 right-8 z-10 items-center gap-2 bg-white px-3.5 py-2 rounded-2xl border border-[#FFD8CC] shadow-md text-xs font-semibold text-[#1C1917]">
+          <div className="cta-floating-chip-1 hidden sm:flex absolute top-8 right-8 z-10 items-center gap-2 bg-white dark:bg-[#1E293B] px-3.5 py-2 rounded-2xl border border-[#FFD8CC] dark:border-[#FF5A36]/30 shadow-md text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
             <span className="w-2 h-2 rounded-full bg-[#22C55E]" />
             <span>60s to Publish</span>
           </div>
 
           {/* Floating decorative chip 2: bottom left */}
-          <div className="cta-floating-chip-2 hidden sm:flex absolute bottom-8 left-8 z-10 items-center gap-2 bg-white px-3.5 py-2 rounded-2xl border border-[#FFD8CC] shadow-md text-xs font-semibold text-[#1C1917]">
+          <div className="cta-floating-chip-2 hidden sm:flex absolute bottom-8 left-8 z-10 items-center gap-2 bg-white dark:bg-[#1E293B] px-3.5 py-2 rounded-2xl border border-[#FFD8CC] dark:border-[#FF5A36]/30 shadow-md text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
             <Smile className="w-4 h-4 text-[#FF5A36]" />
             <span>Zero Boring Forms</span>
           </div>
 
           {/* Badge */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF0EB] text-[#FF5A36] text-xs font-semibold uppercase tracking-wider border border-[#FFD8CC] mb-6">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF0EB] dark:bg-[#FF5A36]/20 text-[#FF5A36] text-xs font-semibold uppercase tracking-wider border border-[#FFD8CC] dark:border-[#FF5A36]/30 mb-6">
             <Sparkles className="w-3.5 h-3.5" /> Start Free Today
           </div>
 
           {/* Main Headline */}
-          <h2 className="font-serif-editorial text-3xl sm:text-5xl md:text-6xl text-[#1C1917] tracking-tight font-normal max-w-2xl mx-auto leading-[1.08]">
+          <h2 className="font-serif-editorial text-3xl sm:text-5xl md:text-6xl text-[#1C1917] dark:text-[#F8FAFC] tracking-tight font-normal max-w-2xl mx-auto leading-[1.08]">
             Ready to build your{" "}
             <span className="italic font-medium text-[#FF5A36]">first form</span>?
           </h2>
 
           {/* Supporting text */}
-          <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-[#57534E] max-w-xl mx-auto font-normal leading-relaxed">
+          <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-[#57534E] dark:text-[#94A3B8] max-w-xl mx-auto font-normal leading-relaxed">
             Turn your next survey, application, signup, or feedback form into something people actually enjoy using.
           </p>
 
@@ -130,7 +130,7 @@ export function FinalCTA() {
           </div>
 
           {/* Secondary subtle guarantee */}
-          <p className="mt-5 text-xs text-[#78716C] font-medium tracking-wide flex items-center justify-center gap-2">
+          <p className="mt-5 text-xs text-[#78716C] dark:text-[#94A3B8] font-medium tracking-wide flex items-center justify-center gap-2">
             <ShieldCheck className="w-4 h-4 text-[#FF5A36]" />
             No code. No boring templates. Free forever on start.
           </p>

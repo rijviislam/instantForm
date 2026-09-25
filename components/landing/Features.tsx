@@ -142,7 +142,7 @@ export function Features() {
     <section
       ref={sectionRef}
       id="features"
-      className="py-24 md:py-32 bg-white relative border-y border-[#EAE3D6]"
+      className="py-24 md:py-32 bg-white dark:bg-[#0B0F17] relative border-y border-[#EAE3D6] dark:border-[#1F2937] transition-colors duration-200"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
@@ -154,11 +154,11 @@ export function Features() {
           >
             Built for Better Forms
           </Badge>
-          <h2 className="font-serif-editorial text-3xl sm:text-5xl md:text-6xl text-[#1C1917] tracking-tight font-normal leading-[1.1]">
+          <h2 className="font-serif-editorial text-3xl sm:text-5xl md:text-6xl text-[#1C1917] dark:text-[#F8FAFC] tracking-tight font-normal leading-[1.1]">
             Everything you need.{" "}
             <span className="italic font-medium text-[#FF5A36]">Nothing</span> getting in the way.
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-[#57534E] leading-relaxed">
+          <p className="mt-4 text-base sm:text-lg text-[#57534E] dark:text-[#94A3B8] leading-relaxed">
             Every feature has been meticulously crafted to save hours of setup while giving respondents an unforgettable, responsive experience.
           </p>
         </div>
@@ -166,35 +166,35 @@ export function Features() {
         {/* 6 Feature Cards Grid with Interactive UI Mockups */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* FEATURE 01: Drag & Drop */}
-          <div className="feature-box flex flex-col justify-between bg-[#FAF8F5] rounded-3xl p-6 sm:p-7 border border-[#EAE3D6] hover:border-[#D9CFBE] hover:bg-white card-shadow transition-all duration-300">
+          <div className="feature-box flex flex-col justify-between bg-[#FAF8F5] dark:bg-[#111827] rounded-3xl p-6 sm:p-7 border border-[#EAE3D6] dark:border-[#1F2937] hover:border-[#D9CFBE] dark:hover:border-[#334155] hover:bg-white dark:hover:bg-[#161F30] card-shadow transition-all duration-300">
             <div>
-              <div className="w-10 h-10 rounded-2xl bg-white border border-[#EAE3D6] text-[#FF5A36] flex items-center justify-center mb-4 shadow-xs">
+              <div className="w-10 h-10 rounded-2xl bg-white dark:bg-[#1E293B] border border-[#EAE3D6] dark:border-[#293548] text-[#FF5A36] flex items-center justify-center mb-4 shadow-xs">
                 <GripVertical className="w-5 h-5" />
               </div>
-              <h3 className="font-serif-editorial text-2xl text-[#1C1917] font-medium">
+              <h3 className="font-serif-editorial text-2xl text-[#1C1917] dark:text-[#F8FAFC] font-medium">
                 Drag & Drop
               </h3>
-              <p className="text-xs sm:text-sm text-[#57534E] mt-1.5 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#94A3B8] mt-1.5 leading-relaxed">
                 Build forms visually by arranging fields exactly where you want them. Instant reordering with smooth tactile feedback.
               </p>
             </div>
 
             {/* Interactive Mockup 01 */}
-            <div className="mt-6 pt-4 border-t border-[#EAE3D6]/70">
-              <div className="bg-white rounded-2xl p-3 border border-[#EAE3D6] space-y-2">
-                <p className="text-[10px] font-semibold text-[#78716C] uppercase tracking-wider px-1">
+            <div className="mt-6 pt-4 border-t border-[#EAE3D6]/70 dark:border-[#1F2937]">
+              <div className="bg-white dark:bg-[#161F30] rounded-2xl p-3 border border-[#EAE3D6] dark:border-[#293548] space-y-2">
+                <p className="text-[10px] font-semibold text-[#78716C] dark:text-[#94A3B8] uppercase tracking-wider px-1">
                   Reorder Playground
                 </p>
                 {fieldsList.map((item, idx) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between p-2 rounded-xl bg-[#FAF8F5] border border-[#EAE3D6] text-xs"
+                    className="flex items-center justify-between p-2 rounded-xl bg-[#FAF8F5] dark:bg-[#1E293B] border border-[#EAE3D6] dark:border-[#293548] text-xs"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-[#A8A29E]">
+                      <span className="text-[#A8A29E] dark:text-[#64748B]">
                         <GripVertical className="w-3.5 h-3.5" />
                       </span>
-                      <span className="font-medium text-[#1C1917]">
+                      <span className="font-medium text-[#1C1917] dark:text-[#F8FAFC]">
                         {item.name}
                       </span>
                     </div>
@@ -203,7 +203,7 @@ export function Features() {
                         type="button"
                         onClick={() => moveField(idx, "up")}
                         disabled={idx === 0}
-                        className="p-1 rounded-md bg-white border border-[#EAE3D6] text-[10px] text-[#57534E] disabled:opacity-30 hover:bg-[#FFF0EB] cursor-pointer"
+                        className="p-1 rounded-md bg-white dark:bg-[#111827] border border-[#EAE3D6] dark:border-[#293548] text-[10px] text-[#57534E] dark:text-[#94A3B8] disabled:opacity-30 hover:bg-[#FFF0EB] dark:hover:bg-[#FF5A36]/20 cursor-pointer"
                         title="Move Up"
                       >
                         ▲
@@ -212,7 +212,7 @@ export function Features() {
                         type="button"
                         onClick={() => moveField(idx, "down")}
                         disabled={idx === fieldsList.length - 1}
-                        className="p-1 rounded-md bg-white border border-[#EAE3D6] text-[10px] text-[#57534E] disabled:opacity-30 hover:bg-[#FFF0EB] cursor-pointer"
+                        className="p-1 rounded-md bg-white dark:bg-[#111827] border border-[#EAE3D6] dark:border-[#293548] text-[10px] text-[#57534E] dark:text-[#94A3B8] disabled:opacity-30 hover:bg-[#FFF0EB] dark:hover:bg-[#FF5A36]/20 cursor-pointer"
                         title="Move Down"
                       >
                         ▼
@@ -225,23 +225,23 @@ export function Features() {
           </div>
 
           {/* FEATURE 02: 20+ Field Types */}
-          <div className="feature-box flex flex-col justify-between bg-[#FAF8F5] rounded-3xl p-6 sm:p-7 border border-[#EAE3D6] hover:border-[#D9CFBE] hover:bg-white card-shadow transition-all duration-300">
+          <div className="feature-box flex flex-col justify-between bg-[#FAF8F5] dark:bg-[#111827] rounded-3xl p-6 sm:p-7 border border-[#EAE3D6] dark:border-[#1F2937] hover:border-[#D9CFBE] dark:hover:border-[#334155] hover:bg-white dark:hover:bg-[#161F30] card-shadow transition-all duration-300">
             <div>
-              <div className="w-10 h-10 rounded-2xl bg-white border border-[#EAE3D6] text-[#FF5A36] flex items-center justify-center mb-4 shadow-xs">
+              <div className="w-10 h-10 rounded-2xl bg-white dark:bg-[#1E293B] border border-[#EAE3D6] dark:border-[#293548] text-[#FF5A36] flex items-center justify-center mb-4 shadow-xs">
                 <Sliders className="w-5 h-5" />
               </div>
-              <h3 className="font-serif-editorial text-2xl text-[#1C1917] font-medium">
+              <h3 className="font-serif-editorial text-2xl text-[#1C1917] dark:text-[#F8FAFC] font-medium">
                 20+ Field Types
               </h3>
-              <p className="text-xs sm:text-sm text-[#57534E] mt-1.5 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#94A3B8] mt-1.5 leading-relaxed">
                 Text, email, phone, rating, choice, date, time, dropdown, matrix and signature—all available out of the box.
               </p>
             </div>
 
             {/* Interactive Mockup 02 */}
-            <div className="mt-6 pt-4 border-t border-[#EAE3D6]/70">
-              <div className="bg-white rounded-2xl p-3 border border-[#EAE3D6] space-y-2">
-                <p className="text-[10px] font-semibold text-[#78716C] uppercase tracking-wider px-1">
+            <div className="mt-6 pt-4 border-t border-[#EAE3D6]/70 dark:border-[#1F2937]">
+              <div className="bg-white dark:bg-[#161F30] rounded-2xl p-3 border border-[#EAE3D6] dark:border-[#293548] space-y-2">
+                <p className="text-[10px] font-semibold text-[#78716C] dark:text-[#94A3B8] uppercase tracking-wider px-1">
                   Click to inspect field
                 </p>
                 <div className="grid grid-cols-2 gap-1.5">
@@ -252,8 +252,8 @@ export function Features() {
                       onClick={() => setActiveFieldType(type.name)}
                       className={`p-2 rounded-xl border text-[11px] font-medium flex items-center gap-1.5 transition-all text-left cursor-pointer ${
                         activeFieldType === type.name
-                          ? "bg-[#FFF0EB] border-[#FF5A36] text-[#FF5A36] shadow-xs"
-                          : "bg-[#FAF8F5] border-[#EAE3D6] text-[#57534E] hover:bg-white"
+                          ? "bg-[#FFF0EB] dark:bg-[#FF5A36]/20 border-[#FF5A36] text-[#FF5A36] shadow-xs"
+                          : "bg-[#FAF8F5] dark:bg-[#1E293B] border-[#EAE3D6] dark:border-[#293548] text-[#57534E] dark:text-[#94A3B8] hover:bg-white dark:hover:bg-[#243248]"
                       }`}
                     >
                       {type.icon}
@@ -266,22 +266,22 @@ export function Features() {
           </div>
 
           {/* FEATURE 03: Beautiful Themes */}
-          <div className="feature-box flex flex-col justify-between bg-[#FAF8F5] rounded-3xl p-6 sm:p-7 border border-[#EAE3D6] hover:border-[#D9CFBE] hover:bg-white card-shadow transition-all duration-300">
+          <div className="feature-box flex flex-col justify-between bg-[#FAF8F5] dark:bg-[#111827] rounded-3xl p-6 sm:p-7 border border-[#EAE3D6] dark:border-[#1F2937] hover:border-[#D9CFBE] dark:hover:border-[#334155] hover:bg-white dark:hover:bg-[#161F30] card-shadow transition-all duration-300">
             <div>
-              <div className="w-10 h-10 rounded-2xl bg-white border border-[#EAE3D6] text-[#FF5A36] flex items-center justify-center mb-4 shadow-xs">
+              <div className="w-10 h-10 rounded-2xl bg-white dark:bg-[#1E293B] border border-[#EAE3D6] dark:border-[#293548] text-[#FF5A36] flex items-center justify-center mb-4 shadow-xs">
                 <Palette className="w-5 h-5" />
               </div>
-              <h3 className="font-serif-editorial text-2xl text-[#1C1917] font-medium">
+              <h3 className="font-serif-editorial text-2xl text-[#1C1917] dark:text-[#F8FAFC] font-medium">
                 Beautiful Themes
               </h3>
-              <p className="text-xs sm:text-sm text-[#57534E] mt-1.5 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#94A3B8] mt-1.5 leading-relaxed">
                 Choose visual styles that match your brand, event, survey, or use case. Instant palette swapping in 1 click.
               </p>
             </div>
 
             {/* Interactive Mockup 03 */}
-            <div className="mt-6 pt-4 border-t border-[#EAE3D6]/70">
-              <div className="bg-white rounded-2xl p-3 border border-[#EAE3D6] space-y-2.5">
+            <div className="mt-6 pt-4 border-t border-[#EAE3D6]/70 dark:border-[#1F2937]">
+              <div className="bg-white dark:bg-[#161F30] rounded-2xl p-3 border border-[#EAE3D6] dark:border-[#293548] space-y-2.5">
                 {/* Theme Switcher buttons */}
                 <div className="flex items-center gap-1.5 justify-between">
                   {themes.map((t) => (
@@ -291,8 +291,8 @@ export function Features() {
                       onClick={() => setActiveTheme(t.id)}
                       className={`px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-all cursor-pointer ${
                         activeTheme === t.id
-                          ? "bg-[#1C1917] text-white border-[#1C1917]"
-                          : "bg-[#FAF8F5] text-[#57534E] border-[#EAE3D6] hover:border-[#D6CEC1]"
+                          ? "bg-[#1C1917] dark:bg-[#FF5A36] text-white border-[#1C1917] dark:border-[#FF5A36]"
+                          : "bg-[#FAF8F5] dark:bg-[#1E293B] text-[#57534E] dark:text-[#94A3B8] border-[#EAE3D6] dark:border-[#293548] hover:border-[#D6CEC1] dark:hover:border-[#475569]"
                       }`}
                     >
                       {t.name.split(" ")[0]}
@@ -326,37 +326,37 @@ export function Features() {
           </div>
 
           {/* FEATURE 04: Instant Sharing */}
-          <div className="feature-box flex flex-col justify-between bg-[#FAF8F5] rounded-3xl p-6 sm:p-7 border border-[#EAE3D6] hover:border-[#D9CFBE] hover:bg-white card-shadow transition-all duration-300">
+          <div className="feature-box flex flex-col justify-between bg-[#FAF8F5] dark:bg-[#111827] rounded-3xl p-6 sm:p-7 border border-[#EAE3D6] dark:border-[#1F2937] hover:border-[#D9CFBE] dark:hover:border-[#334155] hover:bg-white dark:hover:bg-[#161F30] card-shadow transition-all duration-300">
             <div>
-              <div className="w-10 h-10 rounded-2xl bg-white border border-[#EAE3D6] text-[#FF5A36] flex items-center justify-center mb-4 shadow-xs">
+              <div className="w-10 h-10 rounded-2xl bg-white dark:bg-[#1E293B] border border-[#EAE3D6] dark:border-[#293548] text-[#FF5A36] flex items-center justify-center mb-4 shadow-xs">
                 <Share2 className="w-5 h-5" />
               </div>
-              <h3 className="font-serif-editorial text-2xl text-[#1C1917] font-medium">
+              <h3 className="font-serif-editorial text-2xl text-[#1C1917] dark:text-[#F8FAFC] font-medium">
                 Instant Sharing
               </h3>
-              <p className="text-xs sm:text-sm text-[#57534E] mt-1.5 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#94A3B8] mt-1.5 leading-relaxed">
                 Publish your form and share a clean public link. Embed anywhere with a lightweight script or iframe.
               </p>
             </div>
 
             {/* Interactive Mockup 04 */}
-            <div className="mt-6 pt-4 border-t border-[#EAE3D6]/70">
-              <div className="bg-white rounded-2xl p-3 border border-[#EAE3D6] space-y-2">
-                <div className="flex items-center justify-between text-[10px] font-semibold text-[#78716C] uppercase px-1">
+            <div className="mt-6 pt-4 border-t border-[#EAE3D6]/70 dark:border-[#1F2937]">
+              <div className="bg-white dark:bg-[#161F30] rounded-2xl p-3 border border-[#EAE3D6] dark:border-[#293548] space-y-2">
+                <div className="flex items-center justify-between text-[10px] font-semibold text-[#78716C] dark:text-[#94A3B8] uppercase px-1">
                   <span>Clean Shortlink</span>
                   <span className="text-[#22C55E] flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" /> Active
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1.5 bg-[#FAF8F5] p-2 rounded-xl border border-[#EAE3D6]">
-                  <span className="text-xs font-mono text-[#292524] truncate flex-1">
+                <div className="flex items-center gap-1.5 bg-[#FAF8F5] dark:bg-[#1E293B] p-2 rounded-xl border border-[#EAE3D6] dark:border-[#293548]">
+                  <span className="text-xs font-mono text-[#292524] dark:text-[#F8FAFC] truncate flex-1">
                     instantform.io/f/user-research
                   </span>
                   <button
                     type="button"
                     onClick={handleCopyLink}
-                    className="px-2.5 py-1 rounded-lg bg-white border border-[#EAE3D6] text-xs font-medium text-[#1C1917] hover:bg-[#FFF0EB] hover:text-[#FF5A36] transition-colors flex items-center gap-1 cursor-pointer"
+                    className="px-2.5 py-1 rounded-lg bg-white dark:bg-[#111827] border border-[#EAE3D6] dark:border-[#293548] text-xs font-medium text-[#1C1917] dark:text-[#F8FAFC] hover:bg-[#FFF0EB] dark:hover:bg-[#FF5A36]/20 hover:text-[#FF5A36] transition-colors flex items-center gap-1 cursor-pointer"
                   >
                     {copiedLink ? (
                       <>
@@ -375,23 +375,23 @@ export function Features() {
           </div>
 
           {/* FEATURE 05: Smart Validation */}
-          <div className="feature-box flex flex-col justify-between bg-[#FAF8F5] rounded-3xl p-6 sm:p-7 border border-[#EAE3D6] hover:border-[#D9CFBE] hover:bg-white card-shadow transition-all duration-300">
+          <div className="feature-box flex flex-col justify-between bg-[#FAF8F5] dark:bg-[#111827] rounded-3xl p-6 sm:p-7 border border-[#EAE3D6] dark:border-[#1F2937] hover:border-[#D9CFBE] dark:hover:border-[#334155] hover:bg-white dark:hover:bg-[#161F30] card-shadow transition-all duration-300">
             <div>
-              <div className="w-10 h-10 rounded-2xl bg-white border border-[#EAE3D6] text-[#FF5A36] flex items-center justify-center mb-4 shadow-xs">
+              <div className="w-10 h-10 rounded-2xl bg-white dark:bg-[#1E293B] border border-[#EAE3D6] dark:border-[#293548] text-[#FF5A36] flex items-center justify-center mb-4 shadow-xs">
                 <CheckCircle2 className="w-5 h-5" />
               </div>
-              <h3 className="font-serif-editorial text-2xl text-[#1C1917] font-medium">
+              <h3 className="font-serif-editorial text-2xl text-[#1C1917] dark:text-[#F8FAFC] font-medium">
                 Smart Validation
               </h3>
-              <p className="text-xs sm:text-sm text-[#57534E] mt-1.5 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#94A3B8] mt-1.5 leading-relaxed">
                 Make sure respondents provide the information you actually need with gentle, real-time inline validation.
               </p>
             </div>
 
             {/* Interactive Mockup 05 */}
-            <div className="mt-6 pt-4 border-t border-[#EAE3D6]/70">
-              <div className="bg-white rounded-2xl p-3 border border-[#EAE3D6] space-y-2">
-                <div className="flex items-center justify-between text-[10px] font-semibold text-[#78716C] uppercase px-1">
+            <div className="mt-6 pt-4 border-t border-[#EAE3D6]/70 dark:border-[#1F2937]">
+              <div className="bg-white dark:bg-[#161F30] rounded-2xl p-3 border border-[#EAE3D6] dark:border-[#293548] space-y-2">
+                <div className="flex items-center justify-between text-[10px] font-semibold text-[#78716C] dark:text-[#94A3B8] uppercase px-1">
                   <span>Live Input Validator</span>
                   {isValidEmail(testEmail) ? (
                     <span className="text-[#22C55E] flex items-center gap-1 font-semibold">
@@ -411,8 +411,8 @@ export function Features() {
                     onChange={(e) => setTestEmail(e.target.value)}
                     className={`w-full text-xs p-2.5 rounded-xl border transition-all focus:outline-hidden ${
                       isValidEmail(testEmail)
-                        ? "bg-[#FAF8F5] border-[#22C55E]/60 text-[#1C1917] focus:ring-1 focus:ring-[#22C55E]"
-                        : "bg-[#FFF5F5] border-[#EF4444] text-[#B91C1C] focus:ring-1 focus:ring-[#EF4444]"
+                        ? "bg-[#FAF8F5] dark:bg-[#1E293B] border-[#22C55E]/60 text-[#1C1917] dark:text-[#F8FAFC] focus:ring-1 focus:ring-[#22C55E]"
+                        : "bg-[#FFF5F5] dark:bg-[#2A1515] border-[#EF4444] text-[#B91C1C] dark:text-[#FCA5A5] focus:ring-1 focus:ring-[#EF4444]"
                     }`}
                     placeholder="Type an email..."
                   />
@@ -429,35 +429,35 @@ export function Features() {
           </div>
 
           {/* FEATURE 06: Live Responses */}
-          <div className="feature-box flex flex-col justify-between bg-[#FAF8F5] rounded-3xl p-6 sm:p-7 border border-[#EAE3D6] hover:border-[#D9CFBE] hover:bg-white card-shadow transition-all duration-300">
+          <div className="feature-box flex flex-col justify-between bg-[#FAF8F5] dark:bg-[#111827] rounded-3xl p-6 sm:p-7 border border-[#EAE3D6] dark:border-[#1F2937] hover:border-[#D9CFBE] dark:hover:border-[#334155] hover:bg-white dark:hover:bg-[#161F30] card-shadow transition-all duration-300">
             <div>
-              <div className="w-10 h-10 rounded-2xl bg-white border border-[#EAE3D6] text-[#FF5A36] flex items-center justify-center mb-4 shadow-xs">
+              <div className="w-10 h-10 rounded-2xl bg-white dark:bg-[#1E293B] border border-[#EAE3D6] dark:border-[#293548] text-[#FF5A36] flex items-center justify-center mb-4 shadow-xs">
                 <BarChart3 className="w-5 h-5" />
               </div>
-              <h3 className="font-serif-editorial text-2xl text-[#1C1917] font-medium">
+              <h3 className="font-serif-editorial text-2xl text-[#1C1917] dark:text-[#F8FAFC] font-medium">
                 Live Responses
               </h3>
-              <p className="text-xs sm:text-sm text-[#57534E] mt-1.5 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#94A3B8] mt-1.5 leading-relaxed">
                 See responses clearly without fighting through a spreadsheet. Instant visual metrics, export, and trends.
               </p>
             </div>
 
             {/* Interactive Mockup 06 */}
-            <div className="mt-6 pt-4 border-t border-[#EAE3D6]/70">
-              <div className="bg-white rounded-2xl p-3 border border-[#EAE3D6] space-y-2">
-                <div className="flex items-center justify-between text-[10px] font-semibold text-[#78716C] uppercase px-1">
+            <div className="mt-6 pt-4 border-t border-[#EAE3D6]/70 dark:border-[#1F2937]">
+              <div className="bg-white dark:bg-[#161F30] rounded-2xl p-3 border border-[#EAE3D6] dark:border-[#293548] space-y-2">
+                <div className="flex items-center justify-between text-[10px] font-semibold text-[#78716C] dark:text-[#94A3B8] uppercase px-1">
                   <span>Stream Monitor</span>
                   <span className="flex items-center gap-1 text-[#FF5A36]">
                     <Flame className="w-3 h-3" /> Live
                   </span>
                 </div>
 
-                <div className="p-2.5 bg-[#FAF8F5] rounded-xl border border-[#EAE3D6] flex items-center justify-between">
+                <div className="p-2.5 bg-[#FAF8F5] dark:bg-[#1E293B] rounded-xl border border-[#EAE3D6] dark:border-[#293548] flex items-center justify-between">
                   <div>
-                    <div className="font-serif-editorial text-xl font-bold text-[#1C1917] leading-none">
+                    <div className="font-serif-editorial text-xl font-bold text-[#1C1917] dark:text-[#F8FAFC] leading-none">
                       {liveCounter.toLocaleString()}
                     </div>
-                    <p className="text-[10px] text-[#78716C] mt-1">
+                    <p className="text-[10px] text-[#78716C] dark:text-[#94A3B8] mt-1">
                       {recentLive}
                     </p>
                   </div>

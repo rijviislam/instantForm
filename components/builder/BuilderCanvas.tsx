@@ -26,6 +26,7 @@ import {
   Hourglass,
   EyeOff,
   GripVertical,
+  X,
 } from "lucide-react";
 import { FormField, FormStyle } from "@/lib/api-client";
 import { FormTheme, resolveFormTheme, getThemeComputedStyles, getComputedFieldStyles } from "@/lib/form-theme";
@@ -47,6 +48,7 @@ interface BuilderCanvasProps {
   onMoveField: (fieldId: string, direction: "up" | "down") => void;
   onReorderFields?: (fromIndex: number, toIndex: number) => void;
   onOpenFieldLibrary?: () => void;
+  onUpdateTheme?: (theme: FormTheme) => void;
 }
 
 export function BuilderCanvas({
@@ -64,6 +66,7 @@ export function BuilderCanvas({
   onMoveField,
   onReorderFields,
   onOpenFieldLibrary,
+  onUpdateTheme,
 }: BuilderCanvasProps) {
   const [editingLabelId, setEditingLabelId] = useState<string | null>(null);
 
@@ -73,7 +76,7 @@ export function BuilderCanvas({
   const [dropPosition, setDropPosition] = useState<"before" | "after">("before");
 
   const theme = resolveFormTheme(rawTheme, style);
-  const { backgroundStyle, containerStyle, inputStyle, buttonStyle, headingStyle, descriptionStyle } =
+  const { backgroundStyle, containerStyle, inputStyle, buttonStyle, headingStyle, descriptionStyle, badgeStyle } =
     getThemeComputedStyles(theme);
 
   // Drag & Drop handlers
@@ -149,14 +152,23 @@ export function BuilderCanvas({
         {/* Header Banner Image (if configured) */}
         {theme.branding.headerImageUrl && (
           <div
-            className="w-full rounded-t-3xl overflow-hidden mb-[-1.5rem] relative z-0 border border-b-0 border-[#EAE3D6] shadow-sm"
+            className="w-full overflow-hidden relative z-0 shadow-sm transition-all"
             style={{
               height:
                 theme.branding.headerImageHeight === "sm"
-                  ? "120px"
+                  ? "130px"
                   : theme.branding.headerImageHeight === "lg"
                     ? "240px"
                     : "180px",
+              borderTopLeftRadius: containerStyle.borderBottomLeftRadius || containerStyle.borderRadius || "1.5rem",
+              borderTopRightRadius: containerStyle.borderBottomRightRadius || containerStyle.borderRadius || "1.5rem",
+              borderLeftWidth: containerStyle.borderLeftWidth || containerStyle.borderWidth || "1px",
+              borderRightWidth: containerStyle.borderRightWidth || containerStyle.borderWidth || "1px",
+              borderTopWidth: containerStyle.borderWidth || "1px",
+              borderBottomWidth: "0px",
+              borderStyle: containerStyle.borderStyle || "solid",
+              borderColor: containerStyle.borderColor || "#EAE3D6",
+              marginBottom: theme.branding.logoUrl && theme.branding.logoPosition !== "center-bottom" ? "-2.25rem" : "0px",
             }}
           >
             <img
@@ -165,6 +177,7 @@ export function BuilderCanvas({
               className="w-full h-full"
               style={{ objectFit: theme.branding.headerImageFit || "cover" }}
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
           </div>
         )}
 
@@ -181,47 +194,100 @@ export function BuilderCanvas({
           {/* Form Branding Logo (if configured) */}
           {theme.branding.logoUrl && (
             <div
-              className={`mb-6 flex ${theme.branding.logoPosition === "center"
-                  ? "justify-center"
+              className={`flex relative z-20 ${
+                theme.branding.logoPosition === "left"
+                  ? `justify-start ${theme.branding.headerImageUrl ? "-mt-8 sm:-mt-10 mb-6 pl-4 sm:pl-6" : "mb-6"}`
                   : theme.branding.logoPosition === "right"
-                    ? "justify-end"
-                    : "justify-start"
-                }`}
+                    ? `justify-end ${theme.branding.headerImageUrl ? "-mt-8 sm:-mt-10 mb-6 pr-4 sm:pr-6" : "mb-6"}`
+                    : theme.branding.logoPosition === "center-top"
+                      ? `justify-center ${theme.branding.headerImageUrl ? "-mt-24 sm:-mt-28 mb-12" : "-mt-6 sm:-mt-8 mb-6"}`
+                      : theme.branding.logoPosition === "center-bottom"
+                        ? `justify-center ${theme.branding.headerImageUrl ? "mt-4 mb-6" : "mt-2 mb-6"}`
+                        : `justify-center ${theme.branding.headerImageUrl ? "-mt-8 sm:-mt-10 mb-6" : "mb-6"}`
+              }`}
             >
-              <img
-                src={theme.branding.logoUrl}
-                alt="Form logo"
-                className="rounded-xl object-contain"
-                style={{
-                  height:
-                    theme.branding.logoSize === "sm"
-                      ? "32px"
-                      : theme.branding.logoSize === "lg"
-                        ? "64px"
-                        : "48px",
-                }}
-              />
+              <div
+                className={`inline-flex items-center justify-center transition-all select-none ${
+                  theme.branding.logoFrame === "circle"
+                    ? "rounded-full p-2 bg-black/5 dark:bg-white/10"
+                    : theme.branding.logoFrame === "badge"
+                      ? "rounded-2xl p-2 bg-black/5 dark:bg-white/10"
+                      : "p-0 bg-transparent shadow-none border-0 ring-0"
+                }`}
+              >
+                <img
+                  src={theme.branding.logoUrl}
+                  alt="Form logo"
+                  className={`object-contain border-0 shadow-none ring-0 ${
+                    theme.branding.logoFrame === "circle" ? "rounded-full" : "rounded-xl"
+                  }`}
+                  style={{
+                    height:
+                      theme.branding.logoSize === "sm"
+                        ? "36px"
+                        : theme.branding.logoSize === "lg"
+                          ? "64px"
+                          : "48px",
+                    maxWidth:
+                      theme.branding.logoSize === "sm"
+                        ? "110px"
+                        : theme.branding.logoSize === "lg"
+                          ? "200px"
+                          : "150px",
+                  }}
+                />
+              </div>
             </div>
           )}
 
           {/* Form Header */}
           <div
-            className="border-b pb-6 mb-8 space-y-2"
+            className="border-b pb-6 mb-8 space-y-2 relative z-10"
             style={{ borderBottomColor: theme.container.borderColor || theme.colors.border || "#F5F2EB" }}
           >
-            <div className="flex items-center gap-2">
-              <span
-                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold border"
-                style={{
-                  backgroundColor: theme.colors.accent || "#FFF0EB",
-                  color: theme.colors.primary || "#FF5A36",
-                  borderColor: `${theme.colors.primary}33`,
-                }}
-              >
-                <Sparkles className="w-3 h-3" />
-                {style.charAt(0).toUpperCase() + style.slice(1)} Style
-              </span>
-            </div>
+            {theme.branding.showStyleBadge !== false && (
+              <div className="flex items-center gap-2 group/badge">
+                <span
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border shadow-xs backdrop-blur-md transition-all select-none hover:shadow-sm"
+                  style={badgeStyle}
+                >
+                  <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                  <span>
+                    {style?.toLowerCase() === "classic"
+                      ? "Classic All-in-One"
+                      : style?.toLowerCase() === "conversation"
+                      ? "Conversational Step-by-Step"
+                      : style?.toLowerCase() === "editorial"
+                      ? "Editorial Card"
+                      : style?.toLowerCase() === "minimal"
+                      ? "Minimalist Borderless"
+                      : style
+                      ? style.charAt(0).toUpperCase() + style.slice(1) + " Style"
+                      : "Interactive Flow"}
+                  </span>
+                  {onUpdateTheme && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onUpdateTheme({
+                          ...theme,
+                          branding: {
+                            ...theme.branding,
+                            showStyleBadge: false,
+                          },
+                        });
+                      }}
+                      className="ml-1 p-0.5 -mr-1 rounded-full hover:bg-black/10 dark:hover:bg-white/20 transition-all opacity-60 hover:opacity-100 cursor-pointer"
+                      title="Delete Flow Style Badge"
+                      aria-label="Delete Flow Style Badge"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                </span>
+              </div>
+            )}
 
             <h1 style={headingStyle} className="tracking-tight">
               {title || "Untitled Form"}
@@ -240,7 +306,7 @@ export function BuilderCanvas({
           {/* Form Fields Canvas */}
           {fields.length === 0 ? (
             /* Empty Canvas State */
-            <div className="rounded-2xl border-2 border-dashed border-[#E7E2D8] p-8 sm:p-12 text-center flex flex-col items-center justify-center">
+            <div className="rounded-2xl border-2 border-dashed border-[#E7E2D8] p-8 sm:p-12 text-center flex flex-col items-center justify-center relative z-10 bg-white/70 backdrop-blur-xs">
               <div className="w-12 h-12 rounded-2xl bg-[#FFF0EB] text-[#FF5A36] border border-[#FFD8CC] flex items-center justify-center mb-3">
                 <Plus className="w-6 h-6" />
               </div>
@@ -262,7 +328,7 @@ export function BuilderCanvas({
             </div>
           ) : (
             <div
-              className="space-y-4"
+              className="space-y-4 relative z-10"
               style={{
                 gap: theme.inputs.customFieldSpacing ? `${theme.inputs.customFieldSpacing}px` : undefined,
               }}
@@ -295,14 +361,14 @@ export function BuilderCanvas({
                       )}
                       <div className="h-px w-full bg-[#EAE3D6]" />
                       {isSelected && (
-                        <div className="absolute -top-3.5 right-4 z-10 flex items-center gap-1 bg-[#1C1917] text-white p-1 rounded-xl shadow-lg">
+                        <div className="absolute -top-3.5 right-4 z-10 flex items-center gap-1 bg-[#FF5A36] text-white p-1 rounded-xl shadow-md border border-[#FF5A36]">
                           <button
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
                               onDeleteField(field.id);
                             }}
-                            className="p-1 rounded-lg text-red-400 hover:bg-red-500/20"
+                            className="p-1 rounded-lg text-white/90 hover:bg-white/20"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -346,14 +412,14 @@ export function BuilderCanvas({
                         </p>
                       )}
                       {isSelected && (
-                        <div className="absolute -top-3.5 right-4 z-10 flex items-center gap-1 bg-[#1C1917] text-white p-1 rounded-xl shadow-lg">
+                        <div className="absolute -top-3.5 right-4 z-10 flex items-center gap-1 bg-[#FF5A36] text-white p-1 rounded-xl shadow-md border border-[#FF5A36]">
                           <button
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
                               onDeleteField(field.id);
                             }}
-                            className="p-1 rounded-lg text-red-400 hover:bg-red-500/20"
+                            className="p-1 rounded-lg text-white/90 hover:bg-white/20"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -382,7 +448,7 @@ export function BuilderCanvas({
 
                     {/* Floating Action Toolbar on Selected Field */}
                     {isSelected && (
-                      <div className="absolute -top-3.5 right-4 z-10 flex items-center gap-1 bg-[#1C1917] text-white p-1 rounded-xl shadow-lg animate-in zoom-in-95 duration-150">
+                      <div className="absolute -top-3.5 right-4 z-10 flex items-center gap-1 bg-[#FF5A36] text-white p-1 rounded-xl shadow-md border border-[#FF5A36] animate-in zoom-in-95 duration-150">
                         <button
                           type="button"
                           onClick={(e) => {

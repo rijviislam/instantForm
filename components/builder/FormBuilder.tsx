@@ -10,7 +10,7 @@ import {
   publishFormApi,
   unpublishFormApi,
 } from "@/lib/api-client";
-import { FormTheme, resolveFormTheme } from "@/lib/form-theme";
+import { FormTheme, resolveFormTheme, applyThemeMood } from "@/lib/form-theme";
 import { BuilderTopBar, SaveState, ViewportMode } from "./BuilderTopBar";
 import { FieldLibrary, FIELD_DEFINITIONS } from "./FieldLibrary";
 import { BuilderCanvas } from "./BuilderCanvas";
@@ -380,19 +380,25 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
 
       {/* Top Bar */}
       <BuilderTopBar
-        formId={form.id}
         slug={form.slug}
         title={form.title}
-        status={form.status}
+        isPublished={form.status === "published"}
         saveState={saveState}
         viewport={viewport}
         isPreview={isPreview}
+        colorMood={form.theme?.colorMood || "light"}
         canUndo={historyIndex > 0}
         canRedo={historyIndex < history.length - 1}
         onUndo={handleUndo}
         onRedo={handleRedo}
         onTitleChange={(title) => handleUpdateForm({ title })}
         onViewportChange={setViewport}
+        onColorMoodToggle={() => {
+          const currentMood = form.theme?.colorMood || "light";
+          const nextMood = currentMood === "light" ? "dark" : "light";
+          const updatedTheme = applyThemeMood(form.theme, nextMood);
+          handleUpdateForm({ theme: updatedTheme });
+        }}
         onTogglePreview={() => setIsPreview(!isPreview)}
         onPublishToggle={handlePublishToggle}
         onManualSave={handleManualSave}
@@ -428,6 +434,7 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
           onMoveField={handleMoveField}
           onReorderFields={handleReorderFields}
           onOpenFieldLibrary={() => setShowLeftDrawer(true)}
+          onUpdateTheme={(theme) => handleUpdateForm({ theme })}
         />
 
         {/* Right: Field & Visual Style Settings Panel */}
@@ -478,7 +485,7 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
               className="fixed inset-0 bg-black/40 backdrop-blur-xs"
               onClick={() => setShowLeftDrawer(false)}
             />
-            <div className="relative w-4/5 max-w-sm bg-white h-full shadow-2xl z-10 animate-in slide-in-from-left duration-200 min-h-0 flex flex-col">
+            <div className="relative w-4/5 max-w-sm bg-white dark:bg-[#111827] h-full shadow-2xl z-10 animate-in slide-in-from-left duration-200 min-h-0 flex flex-col">
               <FieldLibrary onAddField={handleAddField} />
             </div>
           </div>
@@ -491,7 +498,7 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
               className="fixed inset-0 bg-black/40 backdrop-blur-xs"
               onClick={() => setShowRightDrawer(false)}
             />
-            <div className="relative w-4/5 max-w-sm bg-white h-full shadow-2xl z-10 animate-in slide-in-from-right duration-200 min-h-0 flex flex-col">
+            <div className="relative w-4/5 max-w-sm bg-white dark:bg-[#111827] h-full shadow-2xl z-10 animate-in slide-in-from-right duration-200 min-h-0 flex flex-col">
               <FieldSettingsPanel
                 selectedField={selectedField}
                 formTitle={form.title}

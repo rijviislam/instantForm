@@ -10,72 +10,79 @@ import {
   CheckCircle2,
   AlertCircle,
   Smartphone,
-  Tablet,
   Monitor,
   ExternalLink,
   Copy,
   Check,
   Undo2,
   Redo2,
+  Sun,
+  Moon,
+  Sparkles,
+  Sliders,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
-export type ViewportMode = "desktop" | "tablet" | "mobile";
 export type SaveState = "saved" | "saving" | "unsaved" | "error";
+export type ViewportMode = "desktop" | "tablet" | "mobile";
 
 interface BuilderTopBarProps {
-  formId: string;
-  slug: string;
   title: string;
-  status: string;
+  isPublished: boolean;
+  slug: string;
   saveState: SaveState;
-  viewport: ViewportMode;
   isPreview: boolean;
+  viewport: ViewportMode;
+  isPublishing: boolean;
+  colorMood?: "light" | "dark" | "auto" | "toggle";
   canUndo?: boolean;
   canRedo?: boolean;
+  onTitleChange: (newTitle: string) => void;
+  onPublishToggle: () => void;
+  onTogglePreview: () => void;
+  onViewportChange: (mode: ViewportMode) => void;
+  onColorMoodToggle?: () => void;
+  onManualSave?: () => void;
   onUndo?: () => void;
   onRedo?: () => void;
-  onTitleChange: (newTitle: string) => void;
-  onViewportChange: (mode: ViewportMode) => void;
-  onTogglePreview: () => void;
-  onPublishToggle: () => void;
-  onManualSave: () => void;
-  isPublishing?: boolean;
 }
 
 export function BuilderTopBar({
-  slug,
   title,
-  status,
+  isPublished,
+  slug,
   saveState,
-  viewport,
   isPreview,
+  viewport,
+  isPublishing,
+  colorMood = "light",
   canUndo = false,
   canRedo = false,
+  onTitleChange,
+  onPublishToggle,
+  onTogglePreview,
+  onViewportChange,
+  onColorMoodToggle,
+  onManualSave,
   onUndo,
   onRedo,
-  onTitleChange,
-  onViewportChange,
-  onTogglePreview,
-  onPublishToggle,
-  onManualSave,
-  isPublishing = false,
 }: BuilderTopBarProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [tempTitle, setTempTitle] = useState(title);
   const [copiedUrl, setCopiedUrl] = useState(false);
 
-  const isPublished = status === "PUBLISHED";
-  const publicUrl = typeof window !== "undefined" ? `${window.location.origin}/f/${slug}` : `/f/${slug}`;
-
   const handleTitleSubmit = () => {
-    setIsEditingTitle(false);
-    if (tempTitle.trim() && tempTitle !== title) {
+    if (tempTitle.trim()) {
       onTitleChange(tempTitle.trim());
     } else {
       setTempTitle(title);
     }
+    setIsEditingTitle(false);
   };
+
+  const publicUrl = typeof window !== "undefined"
+    ? `${window.location.origin}/f/${slug}`
+    : `/f/${slug}`;
 
   const handleCopyPublicUrl = async () => {
     try {
@@ -88,12 +95,12 @@ export function BuilderTopBar({
   };
 
   return (
-    <header className="h-16 border-b border-[#EAE3D6] bg-white px-4 sm:px-6 flex items-center justify-between gap-3 sticky top-0 z-30 select-none">
+    <header className="h-16 border-b border-[#EAE3D6] dark:border-[#1F2937] bg-white dark:bg-[#111827] px-4 sm:px-6 flex items-center justify-between gap-3 sticky top-0 z-30 select-none">
       {/* Left: Back Link, Form Title & Undo/Redo */}
       <div className="flex items-center gap-3 min-w-0">
         <Link
           href="/forms"
-          className="w-9 h-9 rounded-xl border border-[#EAE3D6] flex items-center justify-center text-[#78716C] hover:text-[#1C1917] hover:bg-[#FAF8F5] transition-colors flex-shrink-0"
+          className="w-9 h-9 rounded-xl border border-[#EAE3D6] dark:border-[#1F2937] flex items-center justify-center text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] hover:bg-[#FAF8F5] dark:hover:bg-[#1E293B] transition-colors flex-shrink-0"
           title="Back to My Forms"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -114,7 +121,7 @@ export function BuilderTopBar({
                   setIsEditingTitle(false);
                 }
               }}
-              className="text-sm sm:text-base font-semibold text-[#1C1917] bg-[#FAF8F5] px-2.5 py-1 rounded-lg border border-[#FF5A36] focus:outline-none max-w-xs sm:max-w-md"
+              className="text-sm sm:text-base font-semibold text-[#1C1917] dark:text-[#F8FAFC] bg-[#FAF8F5] dark:bg-[#1E293B] px-2.5 py-1 rounded-lg border border-[#FF5A36] focus:outline-none max-w-xs sm:max-w-md"
             />
           ) : (
             <button
@@ -124,7 +131,7 @@ export function BuilderTopBar({
                 setIsEditingTitle(true);
               }}
               title="Click to rename form"
-              className="text-sm sm:text-base font-semibold text-[#1C1917] hover:text-[#FF5A36] truncate max-w-[140px] sm:max-w-xs md:max-w-md text-left px-1.5 py-0.5 rounded-md hover:bg-[#FAF8F5] transition-colors cursor-pointer"
+              className="text-sm sm:text-base font-semibold text-[#1C1917] dark:text-[#F8FAFC] hover:text-[#FF5A36] dark:hover:text-[#FF6B4A] truncate max-w-[140px] sm:max-w-xs md:max-w-md text-left px-1.5 py-0.5 rounded-md hover:bg-[#FAF8F5] dark:hover:bg-[#1E293B] transition-colors cursor-pointer"
             >
               {title || "Untitled Form"}
             </button>
@@ -132,12 +139,12 @@ export function BuilderTopBar({
 
           {/* Status Badge */}
           {isPublished ? (
-            <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               Published
             </span>
           ) : (
-            <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+            <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/40">
               Draft
             </span>
           )}
@@ -145,14 +152,14 @@ export function BuilderTopBar({
 
         {/* Undo / Redo history actions */}
         {!isPreview && (
-          <div className="hidden md:flex items-center gap-0.5 border-l border-[#EAE3D6] pl-2.5 ml-1">
+          <div className="hidden md:flex items-center gap-0.5 border-l border-[#EAE3D6] dark:border-[#1F2937] pl-2.5 ml-1">
             <button
               type="button"
               onClick={onUndo}
               disabled={!canUndo}
               aria-label="Undo (Cmd+Z)"
               title="Undo (Cmd+Z)"
-              className="p-1.5 rounded-lg text-[#78716C] hover:text-[#1C1917] hover:bg-[#FAF8F5] disabled:opacity-30 disabled:pointer-events-none transition-colors"
+              className="p-1.5 rounded-lg text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] hover:bg-[#FAF8F5] dark:hover:bg-[#1E293B] disabled:opacity-30 disabled:pointer-events-none transition-colors"
             >
               <Undo2 className="w-4 h-4" />
             </button>
@@ -162,7 +169,7 @@ export function BuilderTopBar({
               disabled={!canRedo}
               aria-label="Redo (Cmd+Shift+Z)"
               title="Redo (Cmd+Shift+Z)"
-              className="p-1.5 rounded-lg text-[#78716C] hover:text-[#1C1917] hover:bg-[#FAF8F5] disabled:opacity-30 disabled:pointer-events-none transition-colors"
+              className="p-1.5 rounded-lg text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] hover:bg-[#FAF8F5] dark:hover:bg-[#1E293B] disabled:opacity-30 disabled:pointer-events-none transition-colors"
             >
               <Redo2 className="w-4 h-4" />
             </button>
@@ -173,7 +180,7 @@ export function BuilderTopBar({
       {/* Center: Save Status & Viewport Toggle */}
       <div className="flex items-center gap-3">
         {/* Autosave Status Indicator */}
-        <div className="hidden md:flex items-center gap-1.5 text-xs text-[#78716C]">
+        <div className="hidden md:flex items-center gap-1.5 text-xs text-[#78716C] dark:text-[#94A3B8]">
           {saveState === "saving" && (
             <>
               <Loader2 className="w-3.5 h-3.5 animate-spin text-[#FF5A36]" />
@@ -206,7 +213,7 @@ export function BuilderTopBar({
 
         {/* Desktop / Mobile Viewport Switcher */}
         {!isPreview && (
-          <div className="hidden sm:inline-flex items-center p-0.5 bg-[#F5F2EB] rounded-xl border border-[#EAE3D6]">
+          <div className="hidden sm:inline-flex items-center p-0.5 bg-[#F5F2EB] dark:bg-[#161F30] rounded-xl border border-[#EAE3D6] dark:border-[#293548]">
             <button
               type="button"
               onClick={() => onViewportChange("desktop")}
@@ -214,8 +221,8 @@ export function BuilderTopBar({
               title="Desktop View"
               className={`p-1.5 rounded-lg text-xs font-medium transition-colors ${
                 viewport === "desktop"
-                  ? "bg-white text-[#1C1917] shadow-2xs"
-                  : "text-[#78716C] hover:text-[#1C1917]"
+                  ? "bg-white dark:bg-[#1E293B] text-[#1C1917] dark:text-[#F8FAFC] shadow-2xs"
+                  : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
               }`}
             >
               <Monitor className="w-4 h-4" />
@@ -227,8 +234,8 @@ export function BuilderTopBar({
               title="Mobile View"
               className={`p-1.5 rounded-lg text-xs font-medium transition-colors ${
                 viewport === "mobile"
-                  ? "bg-white text-[#1C1917] shadow-2xs"
-                  : "text-[#78716C] hover:text-[#1C1917]"
+                  ? "bg-white dark:bg-[#1E293B] text-[#1C1917] dark:text-[#F8FAFC] shadow-2xs"
+                  : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
               }`}
             >
               <Smartphone className="w-4 h-4" />
@@ -245,7 +252,7 @@ export function BuilderTopBar({
             <button
               type="button"
               onClick={handleCopyPublicUrl}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#57534E] hover:text-[#1C1917] bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-[#57534E] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl transition-colors cursor-pointer"
               title="Copy public form link"
             >
               {copiedUrl ? (
@@ -265,12 +272,44 @@ export function BuilderTopBar({
               href={`/f/${slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-1.5 text-[#78716C] hover:text-[#1C1917] rounded-lg transition-colors"
+              className="p-1.5 text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] rounded-lg transition-colors"
               title="Open public form in new tab"
             >
               <ExternalLink className="w-4 h-4" />
             </a>
           </div>
+        )}
+
+        {/* Quick Color Mood Switcher */}
+        {onColorMoodToggle && (
+          <button
+            type="button"
+            onClick={onColorMoodToggle}
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-[#EAE3D6] dark:border-[#293548] bg-white dark:bg-[#161F30] text-[#1C1917] dark:text-[#F8FAFC] hover:border-[#FF5A36] dark:hover:border-[#FF5A36] transition-colors cursor-pointer"
+            title={`Publishing Mood: ${colorMood}. Click to switch theme mood.`}
+          >
+            {colorMood === "dark" ? (
+              <>
+                <Moon className="w-3.5 h-3.5 text-[#FF5A36]" />
+                <span className="hidden lg:inline">Dark Mood</span>
+              </>
+            ) : colorMood === "auto" ? (
+              <>
+                <Sliders className="w-3.5 h-3.5 text-[#FF5A36]" />
+                <span className="hidden lg:inline">Auto Mood</span>
+              </>
+            ) : colorMood === "toggle" ? (
+              <>
+                <Sparkles className="w-3.5 h-3.5 text-[#FF5A36]" />
+                <span className="hidden lg:inline">Interactive</span>
+              </>
+            ) : (
+              <>
+                <Sun className="w-3.5 h-3.5 text-amber-500" />
+                <span className="hidden lg:inline">Light Mood</span>
+              </>
+            )}
+          </button>
         )}
 
         {/* Preview Button Toggle */}

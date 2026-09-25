@@ -3,15 +3,16 @@
 import React, { useState, useEffect } from "react";
 import { Logo } from "../ui/Logo";
 import { Button } from "../ui/Button";
-import { ArrowRight, Menu, X, Sparkles } from "lucide-react";
+import { ArrowRight, Menu, X, Sparkles, Sun, Moon } from "lucide-react";
 import { clsx } from "clsx";
-
 import { useRouter } from "next/navigation";
+import { useTheme } from "@/components/theme/ThemeProvider";
 
 export function Navbar() {
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { resolvedTheme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,7 +38,7 @@ export function Navbar() {
         className={clsx(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-4 sm:px-6 lg:px-8 py-3.5",
           isScrolled
-            ? "py-3 bg-[#FAF8F5]/85 backdrop-blur-md border-b border-[#EAE3D6] shadow-xs"
+            ? "py-3 bg-[#FAF8F5]/85 dark:bg-[#0B0F17]/85 backdrop-blur-md border-b border-[#EAE3D6] dark:border-[#1F2937] shadow-xs"
             : "bg-transparent py-5"
         )}
       >
@@ -50,13 +51,13 @@ export function Navbar() {
           {/* Desktop Navigation */}
           <nav
             aria-label="Main Navigation"
-            className="hidden md:flex items-center gap-1 bg-[#F4EFE6]/70 backdrop-blur-xs px-4 py-1.5 rounded-full border border-[#EAE3D6]"
+            className="hidden md:flex items-center gap-1 bg-[#F4EFE6]/70 dark:bg-[#161F30]/70 backdrop-blur-xs px-4 py-1.5 rounded-full border border-[#EAE3D6] dark:border-[#293548]"
           >
             {navLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
-                className="px-3.5 py-1.5 text-sm font-medium text-[#57534E] hover:text-[#1C1917] hover:bg-white/60 rounded-full transition-all duration-150"
+                className="px-3.5 py-1.5 text-sm font-medium text-[#57534E] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] hover:bg-white/60 dark:hover:bg-[#1E293B]/60 rounded-full transition-all duration-150"
               >
                 {link.label}
               </a>
@@ -65,12 +66,27 @@ export function Navbar() {
 
           {/* Right Action CTAs */}
           <div className="hidden md:flex items-center gap-2.5">
+            {/* Dark/Light mode quick switch */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="p-2 rounded-full border border-[#EAE3D6] dark:border-[#293548] bg-[#F4EFE6]/70 dark:bg-[#161F30]/70 text-[#57534E] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] transition-colors cursor-pointer"
+              title={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              aria-label="Toggle theme"
+            >
+              {resolvedTheme === "dark" ? (
+                <Sun className="w-4 h-4 text-[#FF5A36]" />
+              ) : (
+                <Moon className="w-4 h-4" />
+              )}
+            </button>
+
             <button
               type="button"
               onClick={() => {
                 router.push("/login");
               }}
-              className="px-4 py-2 text-sm font-medium text-[#57534E] hover:text-[#1C1917] transition-colors cursor-pointer"
+              className="px-4 py-2 text-sm font-medium text-[#57534E] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] transition-colors cursor-pointer"
             >
               Log in
             </button>
@@ -88,6 +104,18 @@ export function Navbar() {
 
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="p-2 rounded-xl bg-[#F4EFE6] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] text-[#1C1917] dark:text-[#F8FAFC] focus:outline-hidden"
+              aria-label="Toggle theme"
+            >
+              {resolvedTheme === "dark" ? (
+                <Sun className="w-4 h-4 text-[#FF5A36]" />
+              ) : (
+                <Moon className="w-4 h-4" />
+              )}
+            </button>
             <Button
               variant="primary"
               size="sm"
@@ -100,7 +128,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl bg-[#F4EFE6] border border-[#EAE3D6] text-[#1C1917] hover:bg-[#ECE5D9] transition-colors focus:outline-hidden"
+              className="p-2 rounded-xl bg-[#F4EFE6] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] text-[#1C1917] dark:text-[#F8FAFC] hover:bg-[#ECE5D9] dark:hover:bg-[#1F2937] transition-colors focus:outline-hidden"
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileMenuOpen}
             >
@@ -120,10 +148,10 @@ export function Navbar() {
           role="dialog"
           aria-modal="true"
           aria-label="Mobile Navigation Menu"
-          className="fixed inset-0 z-40 bg-[#FAF8F5] pt-20 px-6 pb-8 flex flex-col justify-between md:hidden animate-in fade-in duration-200"
+          className="fixed inset-0 z-40 bg-[#FAF8F5] dark:bg-[#0B0F17] pt-20 px-6 pb-8 flex flex-col justify-between md:hidden animate-in fade-in duration-200"
         >
           <div className="flex flex-col gap-3">
-            <div className="p-3 bg-[#FFF0EB] rounded-2xl border border-[#FFD8CC] flex items-center gap-3 mb-2">
+            <div className="p-3 bg-[#FFF0EB] dark:bg-[#FF5A36]/15 rounded-2xl border border-[#FFD8CC] dark:border-[#FF5A36]/30 flex items-center gap-3 mb-2">
               <div className="w-8 h-8 rounded-lg bg-[#FF5A36] text-white flex items-center justify-center">
                 <Sparkles className="w-4 h-4" />
               </div>
@@ -131,7 +159,7 @@ export function Navbar() {
                 <p className="text-xs font-bold text-[#FF5A36] uppercase tracking-wider">
                   InstantForm 2.0
                 </p>
-                <p className="text-xs text-[#57534E]">
+                <p className="text-xs text-[#57534E] dark:text-[#94A3B8]">
                   Create forms that stand out
                 </p>
               </div>
@@ -143,7 +171,7 @@ export function Navbar() {
                   key={link.label}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-3 text-lg font-medium text-[#1C1917] hover:bg-[#F4EFE6] rounded-xl transition-colors border border-transparent hover:border-[#EAE3D6]"
+                  className="px-4 py-3 text-lg font-medium text-[#1C1917] dark:text-[#F8FAFC] hover:bg-[#F4EFE6] dark:hover:bg-[#161F30] rounded-xl transition-colors border border-transparent hover:border-[#EAE3D6] dark:hover:border-[#293548]"
                 >
                   {link.label}
                 </a>
@@ -151,7 +179,7 @@ export function Navbar() {
             </nav>
           </div>
 
-          <div className="flex flex-col gap-3 pt-6 border-t border-[#EAE3D6]">
+          <div className="flex flex-col gap-3 pt-6 border-t border-[#EAE3D6] dark:border-[#1F2937]">
             <Button
               variant="outline"
               size="lg"

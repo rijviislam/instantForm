@@ -1,5 +1,6 @@
 import SmoothScroll from "@/components/SmoothScroll";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import type { Metadata } from "next";
 import { Newsreader, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
@@ -55,12 +56,39 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${newsreader.variable} ${jakarta.variable} font-sans-modern antialiased selection:bg-[#FFE5DE] selection:text-[#E44825]`}
     >
-      <body className="min-h-screen bg-[#FAF8F5] text-[#1C1917] flex flex-col overflow-x-hidden selection:bg-[#FFE5DE] selection:text-[#E44825]">
-        <SmoothScroll />
-        <AuthProvider>{children}</AuthProvider>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var stored = localStorage.getItem('instantform_theme');
+                  var isDark = stored === 'dark' || (!stored || stored === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  if (isDark) {
+                    document.documentElement.classList.add('dark');
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    document.documentElement.style.colorScheme = 'dark';
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    document.documentElement.style.colorScheme = 'light';
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body className="min-h-screen bg-[#FAF8F5] dark:bg-[#0B0F17] text-[#1C1917] dark:text-[#F8FAFC] flex flex-col overflow-x-hidden selection:bg-[#FFE5DE] selection:text-[#E44825] transition-colors duration-200">
+        <ThemeProvider>
+          <SmoothScroll />
+          <AuthProvider>{children}</AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
 }
+

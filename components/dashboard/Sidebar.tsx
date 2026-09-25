@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { useTheme } from "@/components/theme/ThemeProvider";
 import {
   LayoutDashboard,
   FileText,
@@ -34,7 +35,7 @@ export function Sidebar({ user, onOpenCommandPalette }: SidebarProps) {
   const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark" | "system">("light");
+  const { theme, setTheme } = useTheme();
 
   const navItems = [
     {
@@ -83,8 +84,8 @@ export function Sidebar({ user, onOpenCommandPalette }: SidebarProps) {
         setShowProfileMenu(false);
       }}
       className={clsx(
-        "hidden md:flex flex-col justify-between fixed top-0 left-0 bottom-0 z-40 bg-white/95 backdrop-blur-md border-r border-[#E7E2D8] transition-all duration-300 ease-out shadow-xs select-none",
-        isHovered ? "w-60 shadow-xl shadow-[#1C1917]/5" : "w-18"
+        "hidden md:flex flex-col justify-between fixed top-0 left-0 bottom-0 z-40 bg-white/95 dark:bg-[#111827]/95 backdrop-blur-md border-r border-[#E7E2D8] dark:border-[#1F2937] transition-all duration-300 ease-out shadow-xs select-none",
+        isHovered ? "w-60 shadow-xl shadow-[#1C1917]/5 dark:shadow-black/20" : "w-18"
       )}
       aria-label="Desktop Sidebar Navigation"
     >
@@ -111,7 +112,7 @@ export function Sidebar({ user, onOpenCommandPalette }: SidebarProps) {
                 isHovered ? "opacity-100" : "opacity-0 pointer-events-none"
               )}
             >
-              <span className="text-base font-bold text-[#1C1917] tracking-tight">
+              <span className="text-base font-bold text-[#1C1917] dark:text-[#F8FAFC] tracking-tight">
                 Instant<span className="text-[#FF5A36]">Form</span>
               </span>
             </div>
@@ -152,8 +153,8 @@ export function Sidebar({ user, onOpenCommandPalette }: SidebarProps) {
                 className={clsx(
                   "relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group overflow-hidden",
                   item.active
-                    ? "bg-[#FFF0EB] text-[#FF5A36] font-semibold"
-                    : "text-[#57534E] hover:text-[#1C1917] hover:bg-[#F4EFE6]/70"
+                    ? "bg-[#FFF0EB] dark:bg-[#FF5A36]/15 text-[#FF5A36] font-semibold"
+                    : "text-[#57534E] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] hover:bg-[#F4EFE6]/70 dark:hover:bg-[#1F2937]/70"
                 )}
                 title={!isHovered ? item.label : undefined}
                 aria-current={item.active ? "page" : undefined}
@@ -163,7 +164,7 @@ export function Sidebar({ user, onOpenCommandPalette }: SidebarProps) {
                   <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-[#FF5A36] rounded-r-full" />
                 )}
 
-                <Icon className={clsx("w-5 h-5 shrink-0 transition-colors", item.active ? "text-[#FF5A36]" : "text-[#78716C] group-hover:text-[#1C1917]")} />
+                <Icon className={clsx("w-5 h-5 shrink-0 transition-colors", item.active ? "text-[#FF5A36]" : "text-[#78716C] dark:text-[#64748B] group-hover:text-[#1C1917] dark:group-hover:text-[#F8FAFC]")} />
 
                 <span
                   className={clsx(
@@ -180,19 +181,19 @@ export function Sidebar({ user, onOpenCommandPalette }: SidebarProps) {
       </div>
 
       {/* Bottom Controls (Command Palette, Theme, Profile) */}
-      <div className="flex flex-col p-3 border-t border-[#E7E2D8] gap-2">
+      <div className="flex flex-col p-3 border-t border-[#E7E2D8] dark:border-[#1F2937] gap-2">
         {/* Command Palette Trigger */}
         <button
           type="button"
           onClick={onOpenCommandPalette}
           className={clsx(
-            "flex items-center gap-3 px-3 py-2 rounded-xl text-xs text-[#57534E] hover:text-[#1C1917] hover:bg-[#F4EFE6]/70 transition-colors cursor-pointer w-full overflow-hidden",
+            "flex items-center gap-3 px-3 py-2 rounded-xl text-xs text-[#57534E] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] hover:bg-[#F4EFE6]/70 dark:hover:bg-[#1F2937]/70 transition-colors cursor-pointer w-full overflow-hidden",
             isHovered ? "justify-between" : "justify-center"
           )}
           title="Search / Command Palette (Cmd + K)"
         >
           <div className="flex items-center gap-2.5">
-            <Search className="w-4 h-4 shrink-0 text-[#78716C]" />
+            <Search className="w-4 h-4 shrink-0 text-[#78716C] dark:text-[#64748B]" />
             <span
               className={clsx(
                 "whitespace-nowrap transition-opacity duration-200",
@@ -203,7 +204,7 @@ export function Sidebar({ user, onOpenCommandPalette }: SidebarProps) {
             </span>
           </div>
           {isHovered && (
-            <kbd className="px-1.5 py-0.5 text-[10px] font-semibold text-[#78716C] bg-[#F4EFE6] border border-[#E7E2D8] rounded-md">
+            <kbd className="px-1.5 py-0.5 text-[10px] font-semibold text-[#78716C] dark:text-[#94A3B8] bg-[#F4EFE6] dark:bg-[#1F2937] border border-[#E7E2D8] dark:border-[#374151] rounded-md">
               {isMac ? "⌘K" : "Ctrl+K"}
             </kbd>
           )}
@@ -211,13 +212,15 @@ export function Sidebar({ user, onOpenCommandPalette }: SidebarProps) {
 
         {/* Theme Switcher in Expanded State */}
         {isHovered && (
-          <div className="flex items-center justify-between p-1 bg-[#FAF8F5] rounded-xl border border-[#E7E2D8] text-[11px] text-[#78716C] animate-in fade-in duration-150">
+          <div className="flex items-center justify-between p-1 bg-[#FAF8F5] dark:bg-[#0D131F] rounded-xl border border-[#E7E2D8] dark:border-[#1F2937] text-[11px] text-[#78716C] dark:text-[#94A3B8] animate-in fade-in duration-150">
             <button
               type="button"
               onClick={() => setTheme("light")}
               className={clsx(
                 "flex-1 py-1 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer",
-                theme === "light" ? "bg-white text-[#FF5A36] font-semibold shadow-2xs" : "hover:text-[#1C1917]"
+                theme === "light"
+                  ? "bg-white dark:bg-[#1E293B] text-[#FF5A36] font-semibold shadow-2xs"
+                  : "hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
               )}
               title="Light theme"
             >
@@ -229,7 +232,9 @@ export function Sidebar({ user, onOpenCommandPalette }: SidebarProps) {
               onClick={() => setTheme("dark")}
               className={clsx(
                 "flex-1 py-1 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer",
-                theme === "dark" ? "bg-white text-[#FF5A36] font-semibold shadow-2xs" : "hover:text-[#1C1917]"
+                theme === "dark"
+                  ? "bg-white dark:bg-[#1E293B] text-[#FF5A36] font-semibold shadow-2xs"
+                  : "hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
               )}
               title="Dark theme"
             >
@@ -241,7 +246,9 @@ export function Sidebar({ user, onOpenCommandPalette }: SidebarProps) {
               onClick={() => setTheme("system")}
               className={clsx(
                 "flex-1 py-1 rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer",
-                theme === "system" ? "bg-white text-[#FF5A36] font-semibold shadow-2xs" : "hover:text-[#1C1917]"
+                theme === "system"
+                  ? "bg-white dark:bg-[#1E293B] text-[#FF5A36] font-semibold shadow-2xs"
+                  : "hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
               )}
               title="System theme"
             >
@@ -257,7 +264,7 @@ export function Sidebar({ user, onOpenCommandPalette }: SidebarProps) {
             type="button"
             onClick={() => setShowProfileMenu(!showProfileMenu)}
             className={clsx(
-              "w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-[#F4EFE6]/70 transition-colors cursor-pointer text-left focus:outline-hidden",
+              "w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-[#F4EFE6]/70 dark:hover:bg-[#1F2937]/70 transition-colors cursor-pointer text-left focus:outline-hidden",
               isHovered ? "justify-start" : "justify-center"
             )}
             title={user?.name || user?.email || "Account"}
@@ -267,20 +274,20 @@ export function Sidebar({ user, onOpenCommandPalette }: SidebarProps) {
               <img
                 src={user.image}
                 alt={user.name || "User avatar"}
-                className="w-8 h-8 rounded-full object-cover shrink-0 border border-[#E7E2D8]"
+                className="w-8 h-8 rounded-full object-cover shrink-0 border border-[#E7E2D8] dark:border-[#374151]"
               />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-[#FFF0EB] border border-[#FFD8CC] text-[#FF5A36] font-bold text-xs flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-full bg-[#FFF0EB] dark:bg-[#FF5A36]/20 border border-[#FFD8CC] dark:border-[#FF5A36]/30 text-[#FF5A36] font-bold text-xs flex items-center justify-center shrink-0">
                 {user?.name ? user.name[0].toUpperCase() : <User className="w-4 h-4" />}
               </div>
             )}
 
             {isHovered && (
               <div className="flex-1 min-w-0 overflow-hidden">
-                <p className="text-xs font-bold text-[#1C1917] truncate leading-tight">
+                <p className="text-xs font-bold text-[#1C1917] dark:text-[#F8FAFC] truncate leading-tight">
                   {user?.name || "Creator"}
                 </p>
-                <p className="text-[11px] text-[#78716C] truncate leading-tight mt-0.5">
+                <p className="text-[11px] text-[#78716C] dark:text-[#94A3B8] truncate leading-tight mt-0.5">
                   {user?.email || "InstantForm"}
                 </p>
               </div>
@@ -289,27 +296,27 @@ export function Sidebar({ user, onOpenCommandPalette }: SidebarProps) {
 
           {/* Profile Dropdown Menu */}
           {showProfileMenu && (
-            <div className="absolute bottom-14 left-0 w-52 bg-white rounded-2xl border border-[#E7E2D8] p-1.5 shadow-lg shadow-[#1C1917]/10 z-50 animate-in fade-in duration-150">
-              <div className="px-3 py-2 border-b border-[#F4EFE6] mb-1">
-                <p className="text-xs font-bold text-[#1C1917] truncate">{user?.name || "Creator"}</p>
-                <p className="text-[11px] text-[#78716C] truncate">{user?.email}</p>
+            <div className="absolute bottom-14 left-0 w-52 bg-white dark:bg-[#1E293B] rounded-2xl border border-[#E7E2D8] dark:border-[#334155] p-1.5 shadow-lg shadow-[#1C1917]/10 dark:shadow-black/40 z-50 animate-in fade-in duration-150">
+              <div className="px-3 py-2 border-b border-[#F4EFE6] dark:border-[#334155] mb-1">
+                <p className="text-xs font-bold text-[#1C1917] dark:text-[#F8FAFC] truncate">{user?.name || "Creator"}</p>
+                <p className="text-[11px] text-[#78716C] dark:text-[#94A3B8] truncate">{user?.email}</p>
               </div>
 
               <Link
                 href="/settings"
                 onClick={() => setShowProfileMenu(false)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs text-[#57534E] hover:text-[#1C1917] hover:bg-[#FAF8F5] transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs text-[#57534E] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] hover:bg-[#FAF8F5] dark:hover:bg-[#0F172A] transition-colors"
               >
-                <Settings className="w-3.5 h-3.5 text-[#78716C]" />
+                <Settings className="w-3.5 h-3.5 text-[#78716C] dark:text-[#94A3B8]" />
                 <span>Settings</span>
               </Link>
 
               <button
                 type="button"
                 onClick={handleLogout}
-                className="w-full flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs text-[#E44825] hover:bg-[#FFF0EB] transition-colors cursor-pointer"
+                className="w-full flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs text-[#E44825] dark:text-[#FF6B4A] hover:bg-[#FFF0EB] dark:hover:bg-[#FF5A36]/15 transition-colors cursor-pointer"
               >
-                <LogOut className="w-3.5 h-3.5 text-[#E44825]" />
+                <LogOut className="w-3.5 h-3.5 text-[#E44825] dark:text-[#FF6B4A]" />
                 <span>Sign out</span>
               </button>
             </div>

@@ -25,7 +25,7 @@ export const CardSurfaceBackground: React.FC<CardSurfaceBackgroundProps> = ({ th
       aria-hidden="true"
     >
       <div
-        className="absolute inset-[-20px] transition-all duration-200"
+        className="absolute inset-[-20px] transition-all duration-200 pointer-events-none"
         style={{
           backgroundImage: `url("${container.imageUrl}")`,
           backgroundPosition: container.imagePosition || "center",
@@ -37,7 +37,7 @@ export const CardSurfaceBackground: React.FC<CardSurfaceBackgroundProps> = ({ th
       />
       {overlayOpacity > 0 && (
         <div
-          className="absolute inset-0 transition-all duration-200"
+          className="absolute inset-0 transition-all duration-200 pointer-events-none"
           style={{
             backgroundColor: container.overlayColor || "#000000",
             opacity: overlayOpacity / 100,

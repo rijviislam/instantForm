@@ -183,7 +183,7 @@ export function FormsView() {
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl bg-[#1C1917] text-white shadow-xl text-xs sm:text-sm font-medium animate-in slide-in-from-bottom-3 duration-200">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl bg-[#1C1917] dark:bg-[#1E293B] text-white shadow-xl text-xs sm:text-sm font-medium border border-transparent dark:border-[#334155] animate-in slide-in-from-bottom-3 duration-200">
           {toastMessage.type === "success" ? (
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           ) : (
@@ -194,12 +194,12 @@ export function FormsView() {
       )}
 
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#EAE3D6]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#EAE3D6] dark:border-[#1F2937]">
         <div>
-          <h1 className="font-serif-editorial text-3xl sm:text-4xl font-normal text-[#1C1917] tracking-tight">
+          <h1 className="font-serif-editorial text-3xl sm:text-4xl font-normal text-[#1C1917] dark:text-[#F8FAFC] tracking-tight">
             Forms
           </h1>
-          <p className="text-xs sm:text-sm text-[#57534E] mt-1">
+          <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#94A3B8] mt-1">
             Create, manage, and organize all your forms in one place.
           </p>
         </div>
@@ -230,23 +230,23 @@ export function FormsView() {
           {[1, 2, 3, 4, 5, 6].map((idx) => (
             <div
               key={idx}
-              className="rounded-3xl bg-white border border-[#EAE3D6] p-6 sm:p-7 card-shadow animate-pulse space-y-4"
+              className="rounded-3xl bg-white dark:bg-[#111827] border border-[#EAE3D6] dark:border-[#1F2937] p-6 sm:p-7 card-shadow animate-pulse space-y-4"
             >
               <div className="flex items-center justify-between">
-                <div className="h-5 w-20 bg-[#FAF8F5] border border-[#EAE3D6] rounded-full" />
-                <div className="h-5 w-16 bg-[#FAF8F5] border border-[#EAE3D6] rounded-full" />
+                <div className="h-5 w-20 bg-[#FAF8F5] dark:bg-[#1F2937] border border-[#EAE3D6] dark:border-[#374151] rounded-full" />
+                <div className="h-5 w-16 bg-[#FAF8F5] dark:bg-[#1F2937] border border-[#EAE3D6] dark:border-[#374151] rounded-full" />
               </div>
-              <div className="h-5 w-3/4 bg-[#FAF8F5] rounded-md" />
-              <div className="h-4 w-full bg-[#FAF8F5] rounded-md" />
-              <div className="pt-4 border-t border-[#EAE3D6] flex justify-between">
-                <div className="h-4 w-24 bg-[#FAF8F5] rounded-md" />
-                <div className="h-4 w-20 bg-[#FAF8F5] rounded-md" />
+              <div className="h-5 w-3/4 bg-[#FAF8F5] dark:bg-[#1F2937] rounded-md" />
+              <div className="h-4 w-full bg-[#FAF8F5] dark:bg-[#1F2937] rounded-md" />
+              <div className="pt-4 border-t border-[#EAE3D6] dark:border-[#1F2937] flex justify-between">
+                <div className="h-4 w-24 bg-[#FAF8F5] dark:bg-[#1F2937] rounded-md" />
+                <div className="h-4 w-20 bg-[#FAF8F5] dark:bg-[#1F2937] rounded-md" />
               </div>
             </div>
           ))}
         </div>
       ) : errorMessage ? (
-        <div className="rounded-3xl bg-red-50 border border-red-200 p-8 text-center text-red-700">
+        <div className="rounded-3xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/40 p-8 text-center text-red-700 dark:text-red-400">
           <p className="text-sm font-semibold">{errorMessage}</p>
           <Button variant="outline" size="sm" onClick={fetchForms} className="mt-4">
             Try again
@@ -275,7 +275,7 @@ export function FormsView() {
 
           {/* Pagination Controls */}
           {pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between pt-6 border-t border-[#EAE3D6] text-xs sm:text-sm text-[#78716C]">
+            <div className="flex items-center justify-between pt-6 border-t border-[#EAE3D6] dark:border-[#1F2937] text-xs sm:text-sm text-[#78716C] dark:text-[#94A3B8]">
               <span>
                 Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
                 {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
@@ -293,7 +293,7 @@ export function FormsView() {
                   Previous
                 </Button>
 
-                <span className="px-2 font-semibold text-[#1C1917]">
+                <span className="px-2 font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
                   {currentPage} / {pagination.totalPages}
                 </span>
 
@@ -323,4 +323,3 @@ export function FormsView() {
     </div>
   );
 }
-

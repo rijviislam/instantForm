@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Logo } from "../ui/Logo";
+import { useTheme } from "@/components/theme/ThemeProvider";
 import {
   Sun,
   Moon,
@@ -10,7 +11,7 @@ import {
 } from "lucide-react";
 
 export function Footer() {
-  const [selectedTheme, setSelectedTheme] = useState<"light" | "dark" | "system">("light");
+  const { theme: selectedTheme, setTheme: setSelectedTheme } = useTheme();
   const [selectedLanguage, setSelectedLanguage] = useState<"en" | "bn">("en");
 
   const footerLinks = {
@@ -44,23 +45,23 @@ export function Footer() {
   };
 
   return (
-    <footer className="bg-white border-t border-[#EAE3D6] pt-16 pb-12 text-[#57534E]">
+    <footer className="bg-white dark:bg-[#0B0F17] border-t border-[#EAE3D6] dark:border-[#1F2937] pt-16 pb-12 text-[#57534E] dark:text-[#94A3B8] transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Footer Columns */}
-        <div className="grid grid-cols-2 md:grid-cols-12 gap-8 pb-14 border-b border-[#EAE3D6]">
+        <div className="grid grid-cols-2 md:grid-cols-12 gap-8 pb-14 border-b border-[#EAE3D6] dark:border-[#1F2937]">
           {/* Brand info (4 cols) */}
           <div className="col-span-2 md:col-span-4 space-y-4">
             <Logo />
-            <p className="text-xs sm:text-sm text-[#78716C] max-w-sm leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#78716C] dark:text-[#94A3B8] max-w-sm leading-relaxed">
               InstantForm is the design-first form builder for creators who care about visual craft and respondent joy.
             </p>
-            <div className="flex items-center gap-3 pt-2 text-[#78716C]">
+            <div className="flex items-center gap-3 pt-2 text-[#78716C] dark:text-[#94A3B8]">
               {/* X / Twitter */}
               <a
                 href="https://twitter.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-8 h-8 rounded-xl bg-[#FAF8F5] border border-[#EAE3D6] flex items-center justify-center hover:text-[#FF5A36] hover:border-[#FFD8CC] transition-colors"
+                className="w-8 h-8 rounded-xl bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] text-[#78716C] dark:text-[#94A3B8] flex items-center justify-center hover:text-[#FF5A36] dark:hover:text-[#FF5A36] hover:border-[#FFD8CC] dark:hover:border-[#FF5A36]/40 transition-colors"
                 aria-label="Twitter / X"
               >
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
@@ -72,7 +73,7 @@ export function Footer() {
                 href="https://github.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-8 h-8 rounded-xl bg-[#FAF8F5] border border-[#EAE3D6] flex items-center justify-center hover:text-[#FF5A36] hover:border-[#FFD8CC] transition-colors"
+                className="w-8 h-8 rounded-xl bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] text-[#78716C] dark:text-[#94A3B8] flex items-center justify-center hover:text-[#FF5A36] dark:hover:text-[#FF5A36] hover:border-[#FFD8CC] dark:hover:border-[#FF5A36]/40 transition-colors"
                 aria-label="GitHub"
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -84,7 +85,7 @@ export function Footer() {
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-8 h-8 rounded-xl bg-[#FAF8F5] border border-[#EAE3D6] flex items-center justify-center hover:text-[#FF5A36] hover:border-[#FFD8CC] transition-colors"
+                className="w-8 h-8 rounded-xl bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] text-[#78716C] dark:text-[#94A3B8] flex items-center justify-center hover:text-[#FF5A36] dark:hover:text-[#FF5A36] hover:border-[#FFD8CC] dark:hover:border-[#FF5A36]/40 transition-colors"
                 aria-label="LinkedIn"
               >
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
@@ -96,7 +97,7 @@ export function Footer() {
 
           {/* Product Links (2 cols) */}
           <div className="col-span-1 md:col-span-2 space-y-3">
-            <h4 className="text-xs font-bold text-[#1C1917] uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-[#1C1917] dark:text-[#F8FAFC] uppercase tracking-wider">
               Product
             </h4>
             <ul className="space-y-2">
@@ -104,7 +105,7 @@ export function Footer() {
                 <li key={item.name}>
                   <a
                     href={item.href}
-                    className="text-xs text-[#78716C] hover:text-[#1C1917] transition-colors"
+                    className="text-xs text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] transition-colors"
                   >
                     {item.name}
                   </a>
@@ -115,7 +116,7 @@ export function Footer() {
 
           {/* Resources Links (2 cols) */}
           <div className="col-span-1 md:col-span-2 space-y-3">
-            <h4 className="text-xs font-bold text-[#1C1917] uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-[#1C1917] dark:text-[#F8FAFC] uppercase tracking-wider">
               Resources
             </h4>
             <ul className="space-y-2">
@@ -123,7 +124,7 @@ export function Footer() {
                 <li key={item.name}>
                   <a
                     href={item.href}
-                    className="text-xs text-[#78716C] hover:text-[#1C1917] transition-colors"
+                    className="text-xs text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] transition-colors"
                   >
                     {item.name}
                   </a>
@@ -134,7 +135,7 @@ export function Footer() {
 
           {/* Company Links (2 cols) */}
           <div className="col-span-1 md:col-span-2 space-y-3">
-            <h4 className="text-xs font-bold text-[#1C1917] uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-[#1C1917] dark:text-[#F8FAFC] uppercase tracking-wider">
               Company
             </h4>
             <ul className="space-y-2">
@@ -142,7 +143,7 @@ export function Footer() {
                 <li key={item.name}>
                   <a
                     href={item.href}
-                    className="text-xs text-[#78716C] hover:text-[#1C1917] transition-colors"
+                    className="text-xs text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] transition-colors"
                   >
                     {item.name}
                   </a>
@@ -153,7 +154,7 @@ export function Footer() {
 
           {/* Legal Links (2 cols) */}
           <div className="col-span-1 md:col-span-2 space-y-3">
-            <h4 className="text-xs font-bold text-[#1C1917] uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-[#1C1917] dark:text-[#F8FAFC] uppercase tracking-wider">
               Legal
             </h4>
             <ul className="space-y-2">
@@ -161,7 +162,7 @@ export function Footer() {
                 <li key={item.name}>
                   <a
                     href={item.href}
-                    className="text-xs text-[#78716C] hover:text-[#1C1917] transition-colors"
+                    className="text-xs text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] transition-colors"
                   >
                     {item.name}
                   </a>
@@ -172,7 +173,7 @@ export function Footer() {
         </div>
 
         {/* Footer Bottom Controls & Copyright */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#78716C]">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#78716C] dark:text-[#94A3B8]">
           <div className="flex items-center gap-1.5">
             <span>© 2026 InstantForm. All rights reserved. Crafted with care.</span>
           </div>
@@ -180,8 +181,8 @@ export function Footer() {
           {/* Controls: Theme & Language */}
           <div className="flex flex-wrap items-center gap-3">
             {/* Language dropdown / toggle */}
-            <div className="flex items-center bg-[#FAF8F5] p-1 rounded-full border border-[#EAE3D6]">
-              <span className="px-2 text-[11px] text-[#78716C] flex items-center gap-1">
+            <div className="flex items-center bg-[#FAF8F5] dark:bg-[#161F30] p-1 rounded-full border border-[#EAE3D6] dark:border-[#293548]">
+              <span className="px-2 text-[11px] text-[#78716C] dark:text-[#94A3B8] flex items-center gap-1">
                 <Globe className="w-3 h-3 text-[#FF5A36]" />
               </span>
               <button
@@ -189,8 +190,8 @@ export function Footer() {
                 onClick={() => setSelectedLanguage("en")}
                 className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold transition-all cursor-pointer ${
                   selectedLanguage === "en"
-                    ? "bg-white text-[#1C1917] shadow-xs"
-                    : "text-[#78716C] hover:text-[#1C1917]"
+                    ? "bg-white dark:bg-[#1E293B] text-[#1C1917] dark:text-[#F8FAFC] shadow-xs"
+                    : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
                 }`}
               >
                 English
@@ -200,8 +201,8 @@ export function Footer() {
                 onClick={() => setSelectedLanguage("bn")}
                 className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold transition-all cursor-pointer ${
                   selectedLanguage === "bn"
-                    ? "bg-white text-[#1C1917] shadow-xs"
-                    : "text-[#78716C] hover:text-[#1C1917]"
+                    ? "bg-white dark:bg-[#1E293B] text-[#1C1917] dark:text-[#F8FAFC] shadow-xs"
+                    : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
                 }`}
               >
                 বাংলা (Bangla)
@@ -209,14 +210,14 @@ export function Footer() {
             </div>
 
             {/* Theme visual switcher */}
-            <div className="flex items-center bg-[#FAF8F5] p-1 rounded-full border border-[#EAE3D6]">
+            <div className="flex items-center bg-[#FAF8F5] dark:bg-[#161F30] p-1 rounded-full border border-[#EAE3D6] dark:border-[#293548]">
               <button
                 type="button"
                 onClick={() => setSelectedTheme("light")}
                 className={`p-1 rounded-full transition-all cursor-pointer ${
                   selectedTheme === "light"
-                    ? "bg-white text-[#FF5A36] shadow-xs"
-                    : "text-[#78716C] hover:text-[#1C1917]"
+                    ? "bg-white dark:bg-[#1E293B] text-[#FF5A36] shadow-xs"
+                    : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
                 }`}
                 title="Light Theme"
               >
@@ -227,8 +228,8 @@ export function Footer() {
                 onClick={() => setSelectedTheme("dark")}
                 className={`p-1 rounded-full transition-all cursor-pointer ${
                   selectedTheme === "dark"
-                    ? "bg-white text-[#FF5A36] shadow-xs"
-                    : "text-[#78716C] hover:text-[#1C1917]"
+                    ? "bg-white dark:bg-[#1E293B] text-[#FF5A36] shadow-xs"
+                    : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
                 }`}
                 title="Dark Theme"
               >
@@ -239,8 +240,8 @@ export function Footer() {
                 onClick={() => setSelectedTheme("system")}
                 className={`p-1 rounded-full transition-all cursor-pointer ${
                   selectedTheme === "system"
-                    ? "bg-white text-[#FF5A36] shadow-xs"
-                    : "text-[#78716C] hover:text-[#1C1917]"
+                    ? "bg-white dark:bg-[#1E293B] text-[#FF5A36] shadow-xs"
+                    : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
                 }`}
                 title="System Theme"
               >

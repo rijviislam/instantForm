@@ -15,7 +15,7 @@ import {
   Link2,
 } from "lucide-react";
 import { FormField, FormStyle } from "@/lib/api-client";
-import { FormTheme, INPUT_STYLE_PRESETS, FIELD_CARD_STYLE_PRESETS } from "@/lib/form-theme";
+import { FormTheme, resolveFormTheme, INPUT_STYLE_PRESETS, FIELD_CARD_STYLE_PRESETS } from "@/lib/form-theme";
 import { FormStyleCustomizer } from "./FormStyleCustomizer";
 
 interface FieldSettingsPanelProps {
@@ -132,19 +132,19 @@ export function FieldSettingsPanel({
 
   return (
     <aside
-      className="w-full lg:w-80 border-l border-[#EAE3D6] bg-white flex flex-col h-full min-h-0 overflow-hidden select-none"
+      className="w-full lg:w-80 border-l border-[#EAE3D6] dark:border-[#1F2937] bg-white dark:bg-[#111827] flex flex-col h-full min-h-0 overflow-hidden select-none"
       data-lenis-prevent="true"
     >
       {/* Header Tabs */}
-      <div className="p-2.5 border-b border-[#F5F2EB] flex items-center gap-1 shrink-0 bg-[#FAF8F5]">
+      <div className="p-2.5 border-b border-[#F5F2EB] dark:border-[#1F2937] flex items-center gap-1 shrink-0 bg-[#FAF8F5] dark:bg-[#161F30]">
         <button
           type="button"
           onClick={() => setActiveTab("field")}
           disabled={!selectedField}
           className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             activeTab === "field"
-              ? "bg-[#1C1917] text-white shadow-2xs"
-              : "text-[#78716C] hover:bg-white disabled:opacity-40"
+              ? "bg-[#FF5A36] text-white shadow-xs"
+              : "text-[#78716C] dark:text-[#94A3B8] hover:bg-white dark:hover:bg-[#1E293B] disabled:opacity-40"
           }`}
         >
           <Sliders className="w-3.5 h-3.5" />
@@ -156,8 +156,8 @@ export function FieldSettingsPanel({
           onClick={() => setActiveTab("style")}
           className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             activeTab === "style"
-              ? "bg-[#1C1917] text-white shadow-2xs"
-              : "text-[#78716C] hover:bg-white"
+              ? "bg-[#FF5A36] text-white shadow-xs"
+              : "text-[#78716C] dark:text-[#94A3B8] hover:bg-white dark:hover:bg-[#1E293B]"
           }`}
         >
           <Palette className="w-3.5 h-3.5 text-[#FF5A36]" />
@@ -169,8 +169,8 @@ export function FieldSettingsPanel({
           onClick={() => setActiveTab("form")}
           className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             activeTab === "form"
-              ? "bg-[#1C1917] text-white shadow-2xs"
-              : "text-[#78716C] hover:bg-white"
+              ? "bg-[#FF5A36] text-white shadow-xs"
+              : "text-[#78716C] dark:text-[#94A3B8] hover:bg-white dark:hover:bg-[#1E293B]"
           }`}
         >
           <Settings className="w-3.5 h-3.5" />
@@ -199,18 +199,18 @@ export function FieldSettingsPanel({
           /* Question / Field Settings */
           <div className="space-y-4">
             {/* Field Type Badge */}
-            <div className="flex items-center justify-between pb-2 border-b border-[#F5F2EB]">
-              <span className="text-[11px] font-semibold text-[#A8A29E] uppercase tracking-wider">
+            <div className="flex items-center justify-between pb-2 border-b border-[#F5F2EB] dark:border-[#1F2937]">
+              <span className="text-[11px] font-semibold text-[#A8A29E] dark:text-[#64748B] uppercase tracking-wider">
                 Field Type
               </span>
-              <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#FFF0EB] text-[#FF5A36] border border-[#FFD8CC]">
+              <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#FFF0EB] dark:bg-[#FF5A36]/10 text-[#FF5A36] border border-[#FFD8CC] dark:border-[#FF5A36]/20">
                 {selectedField.type.replace(/_/g, " ")}
               </span>
             </div>
 
             {/* Label */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-[#1C1917]">
+              <label className="block text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
                 Question Label
               </label>
               <input
@@ -219,13 +219,13 @@ export function FieldSettingsPanel({
                 onChange={(e) =>
                   onUpdateField(selectedField.id, { label: e.target.value })
                 }
-                className="w-full px-3 py-2 text-xs bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917] focus:outline-none focus:ring-2 focus:ring-[#FF5A36]/20 focus:border-[#FF5A36] transition-all"
+                className="w-full px-3 py-2 text-xs bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl text-[#1C1917] dark:text-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#FF5A36]/20 focus:border-[#FF5A36] transition-all"
               />
             </div>
 
             {/* Description / Subtitle */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-[#1C1917]">
+              <label className="block text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
                 Help Text / Description
               </label>
               <textarea
@@ -237,7 +237,7 @@ export function FieldSettingsPanel({
                 }
                 placeholder="Optional hint for respondents..."
                 rows={2}
-                className="w-full px-3 py-2 text-xs bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917] focus:outline-none focus:ring-2 focus:ring-[#FF5A36]/20 focus:border-[#FF5A36] transition-all resize-none"
+                className="w-full px-3 py-2 text-xs bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl text-[#1C1917] dark:text-[#F8FAFC] placeholder-[#A8A29E] dark:placeholder-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#FF5A36]/20 focus:border-[#FF5A36] transition-all resize-none"
               />
             </div>
 
@@ -245,7 +245,7 @@ export function FieldSettingsPanel({
             {/* CUSTOM INPUT FIELD CONFIGURATION                              */}
             {/* ------------------------------------------------------------- */}
             {selectedField.type === "custom_input" && (
-              <div className="space-y-3 pt-3 border-t border-[#F5F2EB]">
+              <div className="space-y-3 pt-3 border-t border-[#F5F2EB] dark:border-[#1F2937]">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-[#FF5A36]">
                   <Code2 className="w-3.5 h-3.5" />
                   <span>Custom Field Properties</span>
@@ -253,7 +253,7 @@ export function FieldSettingsPanel({
 
                 {/* Custom Input Type */}
                 <div className="space-y-1">
-                  <label className="block text-[11px] font-semibold text-[#1C1917]">
+                  <label className="block text-[11px] font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
                     HTML Input Type
                   </label>
                   <select
@@ -263,7 +263,7 @@ export function FieldSettingsPanel({
                         customInputType: e.target.value as any,
                       })
                     }
-                    className="w-full px-2.5 py-1.5 text-xs bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917]"
+                    className="w-full px-2.5 py-1.5 text-xs bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl text-[#1C1917] dark:text-[#F8FAFC]"
                   >
                     <option value="text">Text (Single-line)</option>
                     <option value="number">Number</option>
@@ -280,7 +280,7 @@ export function FieldSettingsPanel({
 
                 {/* Field Identifier Name */}
                 <div className="space-y-1">
-                  <label className="block text-[11px] font-semibold text-[#1C1917]">
+                  <label className="block text-[11px] font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
                     Field Key / Name (API Submission Key)
                   </label>
                   <input
@@ -292,13 +292,13 @@ export function FieldSettingsPanel({
                       })
                     }
                     placeholder="e.g. user_membership_tier"
-                    className="w-full px-2.5 py-1.5 text-xs font-mono bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917]"
+                    className="w-full px-2.5 py-1.5 text-xs font-mono bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl text-[#1C1917] dark:text-[#F8FAFC]"
                   />
                 </div>
 
                 {/* Regex Validation Pattern */}
                 <div className="space-y-1">
-                  <label className="block text-[11px] font-semibold text-[#1C1917]">
+                  <label className="block text-[11px] font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
                     Regex Pattern Validation (Optional)
                   </label>
                   <input
@@ -310,13 +310,13 @@ export function FieldSettingsPanel({
                       })
                     }
                     placeholder="e.g. ^[A-Z]{3}-[0-9]{4}$"
-                    className="w-full px-2.5 py-1.5 text-xs font-mono bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917]"
+                    className="w-full px-2.5 py-1.5 text-xs font-mono bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl text-[#1C1917] dark:text-[#F8FAFC]"
                   />
                 </div>
 
                 {/* Custom Error Message */}
                 <div className="space-y-1">
-                  <label className="block text-[11px] font-semibold text-[#1C1917]">
+                  <label className="block text-[11px] font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
                     Validation Error Message
                   </label>
                   <input
@@ -328,13 +328,13 @@ export function FieldSettingsPanel({
                       })
                     }
                     placeholder="e.g. Format must match XXX-0000"
-                    className="w-full px-2.5 py-1.5 text-xs bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917]"
+                    className="w-full px-2.5 py-1.5 text-xs bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl text-[#1C1917] dark:text-[#F8FAFC]"
                   />
                 </div>
 
                 {/* Custom CSS Class */}
                 <div className="space-y-1">
-                  <label className="block text-[11px] font-semibold text-[#1C1917]">
+                  <label className="block text-[11px] font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
                     Custom CSS Class
                   </label>
                   <input
@@ -346,7 +346,7 @@ export function FieldSettingsPanel({
                       })
                     }
                     placeholder="e.g. shadow-sm border-indigo-400"
-                    className="w-full px-2.5 py-1.5 text-xs font-mono bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917]"
+                    className="w-full px-2.5 py-1.5 text-xs font-mono bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl text-[#1C1917] dark:text-[#F8FAFC]"
                   />
                 </div>
               </div>
@@ -362,7 +362,7 @@ export function FieldSettingsPanel({
               selectedField.type === "password" ||
               selectedField.type === "custom_input") && (
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-[#1C1917]">
+                <label className="block text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
                   Placeholder Text
                 </label>
                 <input
@@ -374,7 +374,7 @@ export function FieldSettingsPanel({
                     })
                   }
                   placeholder="e.g. Type your answer here..."
-                  className="w-full px-3 py-2 text-xs bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917] focus:outline-none focus:ring-2 focus:ring-[#FF5A36]/20 focus:border-[#FF5A36] transition-all"
+                  className="w-full px-3 py-2 text-xs bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl text-[#1C1917] dark:text-[#F8FAFC] placeholder-[#A8A29E] dark:placeholder-[#64748B] focus:outline-none focus:ring-2 focus:ring-[#FF5A36]/20 focus:border-[#FF5A36] transition-all"
                 />
               </div>
             )}
@@ -382,7 +382,7 @@ export function FieldSettingsPanel({
             {/* Currency Symbol */}
             {selectedField.type === "currency" && (
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-[#1C1917]">
+                <label className="block text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
                   Currency Symbol
                 </label>
                 <input
@@ -395,38 +395,38 @@ export function FieldSettingsPanel({
                   }
                   placeholder="$"
                   maxLength={4}
-                  className="w-24 px-3 py-2 text-xs bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917] focus:outline-none focus:ring-1 focus:ring-[#FF5A36]"
+                  className="w-24 px-3 py-2 text-xs bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl text-[#1C1917] dark:text-[#F8FAFC] focus:outline-none focus:ring-1 focus:ring-[#FF5A36]"
                 />
               </div>
             )}
 
             {/* Linear Scale Min/Max Labels */}
             {selectedField.type === "linear_scale" && (
-              <div className="space-y-3 pt-2 border-t border-[#F5F2EB]">
-                <label className="block text-xs font-semibold text-[#1C1917]">
+              <div className="space-y-3 pt-2 border-t border-[#F5F2EB] dark:border-[#1F2937]">
+                <label className="block text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
                   Scale Endpoints & Labels
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <span className="text-[10px] text-[#78716C]">Min Label (1)</span>
+                    <span className="text-[10px] text-[#78716C] dark:text-[#94A3B8]">Min Label (1)</span>
                     <input
                       type="text"
                       value={selectedField.minLabel || "Poor"}
                       onChange={(e) =>
                         onUpdateField(selectedField.id, { minLabel: e.target.value })
                       }
-                      className="w-full px-2.5 py-1.5 text-xs bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917]"
+                      className="w-full px-2.5 py-1.5 text-xs bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl text-[#1C1917] dark:text-[#F8FAFC]"
                     />
                   </div>
                   <div>
-                    <span className="text-[10px] text-[#78716C]">Max Label (10)</span>
+                    <span className="text-[10px] text-[#78716C] dark:text-[#94A3B8]">Max Label (10)</span>
                     <input
                       type="text"
                       value={selectedField.maxLabel || "Excellent"}
                       onChange={(e) =>
                         onUpdateField(selectedField.id, { maxLabel: e.target.value })
                       }
-                      className="w-full px-2.5 py-1.5 text-xs bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917]"
+                      className="w-full px-2.5 py-1.5 text-xs bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl text-[#1C1917] dark:text-[#F8FAFC]"
                     />
                   </div>
                 </div>
@@ -437,8 +437,8 @@ export function FieldSettingsPanel({
             {(selectedField.type === "single_choice" ||
               selectedField.type === "multiple_choice" ||
               selectedField.type === "dropdown") && (
-              <div className="space-y-2 pt-2 border-t border-[#F5F2EB]">
-                <label className="block text-xs font-semibold text-[#1C1917]">
+              <div className="space-y-2 pt-2 border-t border-[#F5F2EB] dark:border-[#1F2937]">
+                <label className="block text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
                   Choices / Options
                 </label>
                 <div className="space-y-1.5">
@@ -448,13 +448,13 @@ export function FieldSettingsPanel({
                         type="text"
                         value={opt}
                         onChange={(e) => handleUpdateOption(i, e.target.value)}
-                        className="flex-1 px-3 py-1.5 text-xs bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917] focus:outline-none focus:ring-1 focus:ring-[#FF5A36]"
+                        className="flex-1 px-3 py-1.5 text-xs bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl text-[#1C1917] dark:text-[#F8FAFC] focus:outline-none focus:ring-1 focus:ring-[#FF5A36]"
                       />
                       {(selectedField.options || []).length > 1 && (
                         <button
                           type="button"
                           onClick={() => handleDeleteOption(i)}
-                          className="p-1.5 text-[#A8A29E] hover:text-[#EF4444] rounded-lg hover:bg-red-50 transition-colors"
+                          className="p-1.5 text-[#A8A29E] dark:text-[#64748B] hover:text-[#EF4444] rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -466,7 +466,7 @@ export function FieldSettingsPanel({
                 <button
                   type="button"
                   onClick={handleAddOption}
-                  className="mt-2 w-full py-2 border border-dashed border-[#EAE3D6] hover:border-[#FF5A36] text-[#FF5A36] rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-[#FFF0EB]/30 transition-colors cursor-pointer"
+                  className="mt-2 w-full py-2 border border-dashed border-[#EAE3D6] dark:border-[#293548] hover:border-[#FF5A36] dark:hover:border-[#FF5A36] text-[#FF5A36] rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-[#FFF0EB]/30 dark:hover:bg-[#FF5A36]/10 transition-colors cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add Option</span>
@@ -477,11 +477,11 @@ export function FieldSettingsPanel({
             {/* Matrix / Grid Configurator */}
             {(selectedField.type === "multiple_choice_grid" ||
               selectedField.type === "checkbox_grid") && (
-              <div className="space-y-4 pt-2 border-t border-[#F5F2EB]">
+              <div className="space-y-4 pt-2 border-t border-[#F5F2EB] dark:border-[#1F2937]">
                 {/* Rows */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-[#1C1917]">
+                    <span className="text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
                       Matrix Rows
                     </span>
                     <button
@@ -498,13 +498,13 @@ export function FieldSettingsPanel({
                         type="text"
                         value={row}
                         onChange={(e) => handleUpdateRow(i, e.target.value)}
-                        className="flex-1 px-2.5 py-1.5 text-xs bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917]"
+                        className="flex-1 px-2.5 py-1.5 text-xs bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl text-[#1C1917] dark:text-[#F8FAFC]"
                       />
                       {(selectedField.rows || []).length > 1 && (
                         <button
                           type="button"
                           onClick={() => handleDeleteRow(i)}
-                          className="p-1 text-[#A8A29E] hover:text-[#EF4444]"
+                          className="p-1 text-[#A8A29E] dark:text-[#64748B] hover:text-[#EF4444]"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -516,7 +516,7 @@ export function FieldSettingsPanel({
                 {/* Columns */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-[#1C1917]">
+                    <span className="text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
                       Matrix Columns
                     </span>
                     <button
@@ -533,13 +533,13 @@ export function FieldSettingsPanel({
                         type="text"
                         value={col}
                         onChange={(e) => handleUpdateColumn(i, e.target.value)}
-                        className="flex-1 px-2.5 py-1.5 text-xs bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917]"
+                        className="flex-1 px-2.5 py-1.5 text-xs bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl text-[#1C1917] dark:text-[#F8FAFC]"
                       />
                       {(selectedField.columns || []).length > 1 && (
                         <button
                           type="button"
                           onClick={() => handleDeleteColumn(i)}
-                          className="p-1 text-[#A8A29E] hover:text-[#EF4444]"
+                          className="p-1 text-[#A8A29E] dark:text-[#64748B] hover:text-[#EF4444]"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -560,7 +560,7 @@ export function FieldSettingsPanel({
               selectedField.type === "timestamp" ||
               selectedField.type === "user_id") && (
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-[#1C1917]">
+                <label className="block text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
                   Default / Parameter Name
                 </label>
                 <input
@@ -572,7 +572,7 @@ export function FieldSettingsPanel({
                     })
                   }
                   placeholder={`e.g. ${selectedField.type}`}
-                  className="w-full px-3 py-2 text-xs bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917] focus:outline-none focus:ring-1 focus:ring-[#FF5A36]"
+                  className="w-full px-3 py-2 text-xs bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl text-[#1C1917] dark:text-[#F8FAFC] focus:outline-none focus:ring-1 focus:ring-[#FF5A36]"
                 />
               </div>
             )}
@@ -581,12 +581,12 @@ export function FieldSettingsPanel({
             {selectedField.type !== "divider" &&
               selectedField.type !== "section_heading" &&
               selectedField.type !== "hidden_input" && (
-                <div className="flex items-center justify-between p-3 rounded-xl bg-[#FAF8F5] border border-[#EAE3D6]">
+                <div className="flex items-center justify-between p-3 rounded-xl bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548]">
                   <div>
-                    <div className="text-xs font-semibold text-[#1C1917]">
+                    <div className="text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
                       Required
                     </div>
-                    <div className="text-[10px] text-[#78716C]">
+                    <div className="text-[10px] text-[#78716C] dark:text-[#94A3B8]">
                       Respondent must answer this question
                     </div>
                   </div>
@@ -598,7 +598,7 @@ export function FieldSettingsPanel({
                       })
                     }
                     className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${
-                      selectedField.required ? "bg-[#FF5A36]" : "bg-[#EAE3D6]"
+                      selectedField.required ? "bg-[#FF5A36]" : "bg-[#EAE3D6] dark:bg-[#293548]"
                     }`}
                   >
                     <span
@@ -616,23 +616,23 @@ export function FieldSettingsPanel({
             {selectedField.type !== "divider" &&
               selectedField.type !== "section_heading" &&
               selectedField.type !== "hidden_input" && (
-                <div className="p-3.5 rounded-xl bg-[#FAF8F5] border border-[#EAE3D6] space-y-3">
+                <div className="p-3.5 rounded-xl bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 font-semibold text-xs text-[#1C1917]">
+                    <div className="flex items-center gap-1.5 font-semibold text-xs text-[#1C1917] dark:text-[#F8FAFC]">
                       <Palette className="w-3.5 h-3.5 text-[#FF5A36]" />
                       <span>Input Style Preference</span>
                     </div>
                   </div>
 
                   {/* Segmented Switcher */}
-                  <div className="grid grid-cols-2 gap-1 p-1 bg-white rounded-lg border border-[#EAE3D6] text-xs">
+                  <div className="grid grid-cols-2 gap-1 p-1 bg-[#FAF8F5] dark:bg-[#111827] rounded-lg border border-[#EAE3D6] dark:border-[#293548] text-xs">
                     <button
                       type="button"
                       onClick={() => onUpdateField(selectedField.id, { useGlobalStyle: true })}
                       className={`py-1 text-center font-semibold rounded-md transition-colors cursor-pointer ${
                         selectedField.useGlobalStyle !== false
-                          ? "bg-[#1C1917] text-white shadow-2xs"
-                          : "text-[#78716C] hover:text-[#1C1917]"
+                          ? "bg-[#FF5A36] text-white shadow-xs"
+                          : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
                       }`}
                     >
                       Use Global
@@ -642,8 +642,8 @@ export function FieldSettingsPanel({
                       onClick={() => onUpdateField(selectedField.id, { useGlobalStyle: false })}
                       className={`py-1 text-center font-semibold rounded-md transition-colors cursor-pointer ${
                         selectedField.useGlobalStyle === false
-                          ? "bg-[#1C1917] text-white shadow-2xs"
-                          : "text-[#78716C] hover:text-[#1C1917]"
+                          ? "bg-[#FF5A36] text-white shadow-xs"
+                          : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
                       }`}
                     >
                       Customize Field
@@ -654,7 +654,7 @@ export function FieldSettingsPanel({
                     <div className="space-y-2.5 pt-1">
                       {/* Preset Selector */}
                       <div>
-                        <label className="block text-[10px] text-[#78716C] mb-1 font-semibold">
+                        <label className="block text-[10px] text-[#78716C] dark:text-[#94A3B8] mb-1 font-semibold">
                           Appearance Preset
                         </label>
                         <select
@@ -669,7 +669,7 @@ export function FieldSettingsPanel({
                               },
                             });
                           }}
-                          className="w-full px-2 py-1 text-xs rounded-lg border border-[#EAE3D6] bg-white"
+                          className="w-full px-2 py-1 text-xs rounded-lg border border-[#EAE3D6] dark:border-[#293548] bg-white dark:bg-[#111827] text-[#1C1917] dark:text-[#F8FAFC]"
                         >
                           {INPUT_STYLE_PRESETS.map((p) => (
                             <option key={p.id} value={p.id}>
@@ -682,7 +682,7 @@ export function FieldSettingsPanel({
 
                       {/* Background Color */}
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-[#78716C]">Background</span>
+                        <span className="text-[11px] text-[#78716C] dark:text-[#94A3B8]">Background</span>
                         <input
                           type="color"
                           value={selectedField.customStyle?.backgroundColor || "#FAF8F5"}
@@ -694,13 +694,13 @@ export function FieldSettingsPanel({
                               },
                             })
                           }
-                          className="w-6 h-6 rounded border border-black/10 cursor-pointer"
+                          className="w-6 h-6 rounded border border-black/10 dark:border-white/10 cursor-pointer"
                         />
                       </div>
 
                       {/* Border Color */}
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-[#78716C]">Border Color</span>
+                        <span className="text-[11px] text-[#78716C] dark:text-[#94A3B8]">Border Color</span>
                         <input
                           type="color"
                           value={selectedField.customStyle?.borderColor || "#EAE3D6"}
@@ -712,13 +712,13 @@ export function FieldSettingsPanel({
                               },
                             })
                           }
-                          className="w-6 h-6 rounded border border-black/10 cursor-pointer"
+                          className="w-6 h-6 rounded border border-black/10 dark:border-white/10 cursor-pointer"
                         />
                       </div>
 
                       {/* Text Color */}
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-[#78716C]">Text Color</span>
+                        <span className="text-[11px] text-[#78716C] dark:text-[#94A3B8]">Text Color</span>
                         <input
                           type="color"
                           value={selectedField.customStyle?.textColor || "#1C1917"}
@@ -730,7 +730,7 @@ export function FieldSettingsPanel({
                               },
                             })
                           }
-                          className="w-6 h-6 rounded border border-black/10 cursor-pointer"
+                          className="w-6 h-6 rounded border border-black/10 dark:border-white/10 cursor-pointer"
                         />
                       </div>
                     </div>
@@ -742,23 +742,23 @@ export function FieldSettingsPanel({
             {selectedField.type !== "divider" &&
               selectedField.type !== "section_heading" &&
               selectedField.type !== "hidden_input" && (
-                <div className="p-3.5 rounded-xl bg-[#FAF8F5] border border-[#EAE3D6] space-y-3">
+                <div className="p-3.5 rounded-xl bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 font-semibold text-xs text-[#1C1917]">
+                    <div className="flex items-center gap-1.5 font-semibold text-xs text-[#1C1917] dark:text-[#F8FAFC]">
                       <BoxSelect className="w-3.5 h-3.5 text-[#FF5A36]" />
                       <span>Card Container Style</span>
                     </div>
                   </div>
 
                   {/* Segmented Switcher */}
-                  <div className="grid grid-cols-2 gap-1 p-1 bg-white rounded-lg border border-[#EAE3D6] text-xs">
+                  <div className="grid grid-cols-2 gap-1 p-1 bg-[#FAF8F5] dark:bg-[#111827] rounded-lg border border-[#EAE3D6] dark:border-[#293548] text-xs">
                     <button
                       type="button"
                       onClick={() => onUpdateField(selectedField.id, { useGlobalFieldCardStyle: true })}
                       className={`py-1 text-center font-semibold rounded-md transition-colors cursor-pointer ${
                         selectedField.useGlobalFieldCardStyle !== false
-                          ? "bg-[#1C1917] text-white shadow-2xs"
-                          : "text-[#78716C] hover:text-[#1C1917]"
+                          ? "bg-[#FF5A36] text-white shadow-xs"
+                          : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
                       }`}
                     >
                       Use Global
@@ -768,8 +768,8 @@ export function FieldSettingsPanel({
                       onClick={() => onUpdateField(selectedField.id, { useGlobalFieldCardStyle: false })}
                       className={`py-1 text-center font-semibold rounded-md transition-colors cursor-pointer ${
                         selectedField.useGlobalFieldCardStyle === false
-                          ? "bg-[#1C1917] text-white shadow-2xs"
-                          : "text-[#78716C] hover:text-[#1C1917]"
+                          ? "bg-[#FF5A36] text-white shadow-xs"
+                          : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
                       }`}
                     >
                       Customize Card
@@ -780,7 +780,7 @@ export function FieldSettingsPanel({
                     <div className="space-y-2.5 pt-1">
                       {/* Preset Selector */}
                       <div>
-                        <label className="block text-[10px] text-[#78716C] mb-1 font-semibold">
+                        <label className="block text-[10px] text-[#78716C] dark:text-[#94A3B8] mb-1 font-semibold">
                           Card Preset
                         </label>
                         <select
@@ -795,7 +795,7 @@ export function FieldSettingsPanel({
                               },
                             });
                           }}
-                          className="w-full px-2 py-1 text-xs rounded-lg border border-[#EAE3D6] bg-white"
+                          className="w-full px-2 py-1 text-xs rounded-lg border border-[#EAE3D6] dark:border-[#293548] bg-white dark:bg-[#111827] text-[#1C1917] dark:text-[#F8FAFC]"
                         >
                           {FIELD_CARD_STYLE_PRESETS.map((p) => (
                             <option key={p.id} value={p.id}>
@@ -808,7 +808,7 @@ export function FieldSettingsPanel({
 
                       {/* Card Background Color */}
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-[#78716C]">Card Background</span>
+                        <span className="text-[11px] text-[#78716C] dark:text-[#94A3B8]">Card Background</span>
                         <input
                           type="color"
                           value={selectedField.customFieldCardStyle?.backgroundColor || "#FAF8F5"}
@@ -822,13 +822,13 @@ export function FieldSettingsPanel({
                               },
                             })
                           }
-                          className="w-6 h-6 rounded border border-black/10 cursor-pointer"
+                          className="w-6 h-6 rounded border border-black/10 dark:border-white/10 cursor-pointer"
                         />
                       </div>
 
                       {/* Card Border Color */}
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-[#78716C]">Card Border Color</span>
+                        <span className="text-[11px] text-[#78716C] dark:text-[#94A3B8]">Card Border Color</span>
                         <input
                           type="color"
                           value={selectedField.customFieldCardStyle?.borderColor || "#EAE3D6"}
@@ -841,13 +841,13 @@ export function FieldSettingsPanel({
                               },
                             })
                           }
-                          className="w-6 h-6 rounded border border-black/10 cursor-pointer"
+                          className="w-6 h-6 rounded border border-black/10 dark:border-white/10 cursor-pointer"
                         />
                       </div>
 
                       {/* Card Border Radius */}
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] text-[#78716C]">Border Radius</span>
+                        <span className="text-[11px] text-[#78716C] dark:text-[#94A3B8]">Border Radius</span>
                         <select
                           value={selectedField.customFieldCardStyle?.borderRadius || "2xl"}
                           onChange={(e) =>
@@ -858,7 +858,7 @@ export function FieldSettingsPanel({
                               },
                             })
                           }
-                          className="w-24 px-2 py-1 text-xs rounded-lg border border-[#EAE3D6] bg-white capitalize"
+                          className="w-24 px-2 py-1 text-xs rounded-lg border border-[#EAE3D6] dark:border-[#293548] bg-white dark:bg-[#111827] text-[#1C1917] dark:text-[#F8FAFC] capitalize"
                         >
                           <option value="none">None</option>
                           <option value="sm">Small</option>
@@ -880,7 +880,7 @@ export function FieldSettingsPanel({
           <div className="space-y-5">
             {/* Form Title */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-[#1C1917]">
+              <label className="block text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
                 Form Title
               </label>
               <input
@@ -888,13 +888,13 @@ export function FieldSettingsPanel({
                 value={formTitle}
                 onChange={(e) => onUpdateForm({ title: e.target.value })}
                 placeholder="e.g. Customer Feedback Survey"
-                className="w-full px-3 py-2 text-xs bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917] focus:outline-none focus:ring-2 focus:ring-[#FF5A36]/20 focus:border-[#FF5A36] transition-all"
+                className="w-full px-3 py-2 text-xs bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl text-[#1C1917] dark:text-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#FF5A36]/20 focus:border-[#FF5A36] transition-all"
               />
             </div>
 
             {/* Form Description */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-[#1C1917]">
+              <label className="block text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
                 Form Description
               </label>
               <textarea
@@ -904,21 +904,21 @@ export function FieldSettingsPanel({
                 }
                 placeholder="Give your respondents context on what this form is for..."
                 rows={3}
-                className="w-full px-3 py-2 text-xs bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917] focus:outline-none focus:ring-2 focus:ring-[#FF5A36]/20 focus:border-[#FF5A36] transition-all resize-none"
+                className="w-full px-3 py-2 text-xs bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl text-[#1C1917] dark:text-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#FF5A36]/20 focus:border-[#FF5A36] transition-all resize-none"
               />
             </div>
 
             {/* Custom Short URL Slug */}
-            <div className="space-y-1.5 pt-2 border-t border-[#F5F2EB]">
+            <div className="space-y-1.5 pt-2 border-t border-[#F5F2EB] dark:border-[#1F2937]">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-[#1C1917] flex items-center gap-1.5">
+                <label className="text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC] flex items-center gap-1.5">
                   <Link2 className="w-3.5 h-3.5 text-[#FF5A36]" />
                   <span>Custom Short Link</span>
                 </label>
-                <span className="text-[10px] text-[#A8A29E]">Public URL</span>
+                <span className="text-[10px] text-[#A8A29E] dark:text-[#64748B]">Public URL</span>
               </div>
-              <div className="flex items-center bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl px-3 py-2 text-xs focus-within:ring-2 focus-within:ring-[#FF5A36]/20 focus-within:border-[#FF5A36] transition-all">
-                <span className="text-[#A8A29E] shrink-0 font-mono select-none">/f/</span>
+              <div className="flex items-center bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl px-3 py-2 text-xs focus-within:ring-2 focus-within:ring-[#FF5A36]/20 focus-within:border-[#FF5A36] transition-all">
+                <span className="text-[#A8A29E] dark:text-[#64748B] shrink-0 font-mono select-none">/f/</span>
                 <input
                   type="text"
                   value={formSlug || ""}
@@ -930,18 +930,18 @@ export function FieldSettingsPanel({
                     onUpdateForm({ slug: sanitized });
                   }}
                   placeholder="job-application"
-                  className="w-full bg-transparent text-[#1C1917] font-mono focus:outline-none ml-1"
+                  className="w-full bg-transparent text-[#1C1917] dark:text-[#F8FAFC] font-mono focus:outline-none ml-1"
                 />
               </div>
-              <p className="text-[10px] text-[#78716C]">
+              <p className="text-[10px] text-[#78716C] dark:text-[#94A3B8]">
                 Your form's short shareable URL (e.g. <span className="font-mono text-[#FF5A36]">/f/{formSlug || "job-application"}</span>)
               </p>
             </div>
 
             {/* Form Style Preset Switcher */}
-            <div className="space-y-2.5 pt-2 border-t border-[#F5F2EB]">
+            <div className="space-y-2.5 pt-2 border-t border-[#F5F2EB] dark:border-[#1F2937]">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-[#1C1917]">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
                   <Sparkles className="w-3.5 h-3.5 text-[#FF5A36]" />
                   <span>Interactive Flow Style</span>
                 </div>
@@ -978,12 +978,12 @@ export function FieldSettingsPanel({
                       onClick={() => onUpdateForm({ style: styleOption.id as FormStyle })}
                       className={`p-3 rounded-xl border transition-all cursor-pointer ${
                         isSelected
-                          ? "bg-[#FFF0EB]/50 border-[#FF5A36] ring-1 ring-[#FF5A36]"
-                          : "bg-[#FAF8F5] border-[#EAE3D6] hover:border-[#D6D3D1]"
+                          ? "bg-[#FFF0EB]/50 dark:bg-[#FF5A36]/15 border-[#FF5A36] ring-1 ring-[#FF5A36]"
+                          : "bg-[#FAF8F5] dark:bg-[#161F30] border-[#EAE3D6] dark:border-[#293548] hover:border-[#D6D3D1] dark:hover:border-[#374151]"
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-[#1C1917]">
+                        <span className="text-xs font-bold text-[#1C1917] dark:text-[#F8FAFC]">
                           {styleOption.title}
                         </span>
                         {isSelected && (
@@ -992,13 +992,144 @@ export function FieldSettingsPanel({
                           </div>
                         )}
                       </div>
-                      <p className="text-[11px] text-[#78716C] mt-0.5 leading-relaxed">
+                      <p className="text-[11px] text-[#78716C] dark:text-[#94A3B8] mt-0.5 leading-relaxed">
                         {styleOption.description}
                       </p>
                     </div>
                   );
                 })}
               </div>
+
+              {/* Flow Style Badge Customizer */}
+              {(() => {
+                const currentTheme = resolveFormTheme(formTheme, formStyle);
+                const badgeBg = currentTheme.branding.badgeBackgroundColor || currentTheme.colors.accent || "#FFF0EB";
+                const badgeText = currentTheme.branding.badgeTextColor || currentTheme.colors.primary || "#FF5A36";
+                const badgeBorder = currentTheme.branding.badgeBorderColor || (currentTheme.colors.primary ? `${currentTheme.colors.primary}40` : "#FFD8CC");
+                const showBadge = currentTheme.branding.showStyleBadge !== false;
+
+                const updateBadge = (updates: Partial<FormTheme["branding"]>) => {
+                  const updated: FormTheme = {
+                    ...currentTheme,
+                    branding: {
+                      ...currentTheme.branding,
+                      ...updates,
+                    },
+                  };
+                  if (onUpdateTheme) {
+                    onUpdateTheme(updated);
+                  } else {
+                    onUpdateForm({ theme: updated });
+                  }
+                };
+
+                return (
+                  <div className="mt-3 p-3 rounded-xl bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-[#1C1917] dark:text-[#F8FAFC] flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-[#FF5A36]" />
+                        Flow Style Badge
+                      </span>
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={showBadge}
+                          onChange={(e) => updateBadge({ showStyleBadge: e.target.checked })}
+                          className="w-3.5 h-3.5 rounded text-[#FF5A36] focus:ring-[#FF5A36] cursor-pointer"
+                        />
+                        <span className="text-[11px] text-[#78716C] dark:text-[#94A3B8]">Visible</span>
+                      </label>
+                    </div>
+
+                    {/* Live Badge Preview */}
+                    {showBadge && (
+                      <div className="p-2.5 rounded-lg bg-white dark:bg-[#111827] border border-[#EAE3D6] dark:border-[#293548] flex flex-col items-center justify-center gap-1">
+                        <span className="text-[10px] text-[#A8A29E] dark:text-[#64748B] font-medium">Badge Preview</span>
+                        <span
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border shadow-xs transition-all select-none"
+                          style={{
+                            backgroundColor: badgeBg,
+                            color: badgeText,
+                            borderColor: badgeBorder,
+                          }}
+                        >
+                          <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                          {formStyle === "classic"
+                            ? "Classic All-in-One"
+                            : formStyle === "conversation"
+                            ? "Conversational Step-by-Step"
+                            : formStyle === "editorial"
+                            ? "Editorial Card"
+                            : formStyle === "minimal"
+                            ? "Minimalist Borderless"
+                            : `${formStyle} Style`}
+                        </span>
+                      </div>
+                    )}
+
+                    {showBadge && (
+                      <div className="space-y-2 pt-1 border-t border-[#EAE3D6]/60 dark:border-[#293548]">
+                        {/* Badge Background Color */}
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-[#78716C] dark:text-[#94A3B8]">Background</span>
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              type="color"
+                              value={badgeBg.startsWith("#") ? badgeBg : "#FFF0EB"}
+                              onChange={(e) => updateBadge({ badgeBackgroundColor: e.target.value })}
+                              className="w-6 h-6 rounded-md border border-[#EAE3D6] dark:border-[#293548] cursor-pointer p-0.5"
+                            />
+                            <input
+                              type="text"
+                              value={badgeBg}
+                              onChange={(e) => updateBadge({ badgeBackgroundColor: e.target.value })}
+                              className="w-20 px-2 py-1 text-[10px] font-mono rounded-lg border border-[#EAE3D6] dark:border-[#293548] bg-white dark:bg-[#111827] text-[#1C1917] dark:text-[#F8FAFC]"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Badge Text Color */}
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-[#78716C] dark:text-[#94A3B8]">Text & Icon</span>
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              type="color"
+                              value={badgeText.startsWith("#") ? badgeText : "#FF5A36"}
+                              onChange={(e) => updateBadge({ badgeTextColor: e.target.value })}
+                              className="w-6 h-6 rounded-md border border-[#EAE3D6] dark:border-[#293548] cursor-pointer p-0.5"
+                            />
+                            <input
+                              type="text"
+                              value={badgeText}
+                              onChange={(e) => updateBadge({ badgeTextColor: e.target.value })}
+                              className="w-20 px-2 py-1 text-[10px] font-mono rounded-lg border border-[#EAE3D6] dark:border-[#293548] bg-white dark:bg-[#111827] text-[#1C1917] dark:text-[#F8FAFC]"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Badge Border Color */}
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-[#78716C] dark:text-[#94A3B8]">Border</span>
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              type="color"
+                              value={badgeBorder.startsWith("#") ? badgeBorder.slice(0, 7) : "#FFD8CC"}
+                              onChange={(e) => updateBadge({ badgeBorderColor: e.target.value })}
+                              className="w-6 h-6 rounded-md border border-[#EAE3D6] dark:border-[#293548] cursor-pointer p-0.5"
+                            />
+                            <input
+                              type="text"
+                              value={badgeBorder}
+                              onChange={(e) => updateBadge({ badgeBorderColor: e.target.value })}
+                              className="w-20 px-2 py-1 text-[10px] font-mono rounded-lg border border-[#EAE3D6] dark:border-[#293548] bg-white dark:bg-[#111827] text-[#1C1917] dark:text-[#F8FAFC]"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </div>
         )}

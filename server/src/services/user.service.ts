@@ -76,6 +76,77 @@ export class UserService {
     };
   }
 
+  static async ensureUser(data: {
+    id?: string;
+    email: string;
+    name?: string | null;
+  }): Promise<SafeUser> {
+    const normalizedEmail = data.email.trim().toLowerCase();
+
+    // 1. Try finding by id
+    if (data.id) {
+      const byId = await this.findById(data.id);
+      if (byId) return byId;
+    }
+
+    // 2. Try finding by email
+    const byEmail = await this.findByEmail(normalizedEmail);
+    if (byEmail) {
+      return {
+        id: byEmail.id,
+        name: byEmail.name,
+        email: byEmail.email,
+        image: byEmail.image,
+        createdAt: byEmail.createdAt,
+      };
+    }
+
+    // 3. Auto-provision in DB
+    if (this.isPrismaAvailable) {
+      try {
+        const user = await prisma.user.create({
+          data: {
+            id: data.id || undefined,
+            name: data.name || normalizedEmail.split("@")[0],
+            email: normalizedEmail,
+            password: "",
+          },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            createdAt: true,
+          },
+        });
+        return user;
+      } catch (e) {
+        console.warn("⚠️ Could not provision user in database, using dev fallback store.");
+        this.isPrismaAvailable = false;
+      }
+    }
+
+    // 4. Fallback dev store
+    const id = data.id || `user_${Date.now()}`;
+    const now = new Date();
+    const newUser: StoredUser = {
+      id,
+      name: data.name || normalizedEmail.split("@")[0],
+      email: normalizedEmail,
+      image: null,
+      createdAt: now,
+      updatedAt: now,
+    };
+    devUsersStore.set(id, newUser);
+    return {
+      id: newUser.id,
+      name: newUser.name,
+      email: newUser.email,
+      image: newUser.image,
+      createdAt: newUser.createdAt,
+    };
+  }
+
   static async create(data: {
     name: string;
     email: string;

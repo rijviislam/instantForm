@@ -531,40 +531,40 @@ export function FieldLibrary({ onAddField }: FieldLibraryProps) {
   });
 
   return (
-    <aside className="w-full lg:w-80 border-r border-[#EAE3D6] bg-white p-4 flex flex-col h-full min-h-0 overflow-hidden" data-lenis-prevent="true">
+    <aside className="w-full lg:w-80 border-r border-[#EAE3D6] dark:border-[#1F2937] bg-white dark:bg-[#111827] p-4 flex flex-col h-full min-h-0 overflow-hidden" data-lenis-prevent="true">
       {/* Header */}
-      <div className="pb-3 mb-3 border-b border-[#F5F2EB] space-y-2.5 shrink-0">
+      <div className="pb-3 mb-3 border-b border-[#F5F2EB] dark:border-[#1F2937] space-y-2.5 shrink-0">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-[#1C1917]">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
             <Sparkles className="w-3.5 h-3.5 text-[#FF5A36]" />
             <span>Fields Library</span>
           </div>
-          <span className="text-[10px] font-semibold text-[#FF5A36] bg-[#FFF0EB] px-2 py-0.5 rounded-full border border-[#FFD8CC]">
+          <span className="text-[10px] font-semibold text-[#FF5A36] bg-[#FFF0EB] dark:bg-[#FF5A36]/10 px-2 py-0.5 rounded-full border border-[#FFD8CC] dark:border-[#FF5A36]/20">
             {FIELD_DEFINITIONS.length} Options
           </span>
         </div>
 
         {/* Search Bar */}
         <div className="relative">
-          <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-[#A8A29E]" />
+          <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-[#A8A29E] dark:text-[#64748B]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search all field types..."
-            className="w-full pl-8 pr-3 py-1.5 text-xs bg-[#FAF8F5] border border-[#EAE3D6] rounded-xl text-[#1C1917] placeholder-[#A8A29E] focus:outline-none focus:ring-1 focus:ring-[#FF5A36] transition-all"
+            className="w-full pl-8 pr-3 py-1.5 text-xs bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl text-[#1C1917] dark:text-[#F8FAFC] placeholder-[#A8A29E] dark:placeholder-[#64748B] focus:outline-none focus:ring-1 focus:ring-[#FF5A36] transition-all"
           />
         </div>
 
         {/* Category Pills Filter */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-1 no-scrollbar">
+        <div className="flex items-center gap-1.5 overflow-x-auto p-1 bg-[#FAF8F5] dark:bg-[#161F30] rounded-xl border border-[#EAE3D6] dark:border-[#293548] no-scrollbar">
           <button
             type="button"
             onClick={() => setSelectedCategory("All")}
-            className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+            className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold whitespace-nowrap transition-all cursor-pointer ${
               selectedCategory === "All"
-                ? "bg-[#1C1917] text-white"
-                : "bg-[#FAF8F5] text-[#78716C] hover:text-[#1C1917] border border-[#EAE3D6]"
+                ? "bg-[#FF5A36] text-white shadow-xs"
+                : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#FF5A36] dark:hover:text-[#FF5A36] hover:bg-[#FFF0EB] dark:hover:bg-[#FF5A36]/15"
             }`}
           >
             All
@@ -574,10 +574,10 @@ export function FieldLibrary({ onAddField }: FieldLibraryProps) {
               key={cat}
               type="button"
               onClick={() => setSelectedCategory(cat)}
-              className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold whitespace-nowrap transition-all cursor-pointer ${
                 selectedCategory === cat
-                  ? "bg-[#1C1917] text-white"
-                  : "bg-[#FAF8F5] text-[#78716C] hover:text-[#1C1917] border border-[#EAE3D6]"
+                  ? "bg-[#FF5A36] text-white shadow-xs"
+                  : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#FF5A36] dark:hover:text-[#FF5A36] hover:bg-[#FFF0EB] dark:hover:bg-[#FF5A36]/15"
               }`}
             >
               {cat}
@@ -602,10 +602,10 @@ export function FieldLibrary({ onAddField }: FieldLibraryProps) {
             return (
               <div key={category} className="space-y-1.5">
                 <div className="flex items-center justify-between px-1">
-                  <h4 className="text-[10px] font-bold text-[#A8A29E] uppercase tracking-wider">
+                  <h4 className="text-[10px] font-bold text-[#A8A29E] dark:text-[#64748B] uppercase tracking-wider">
                     {category}
                   </h4>
-                  <span className="text-[10px] text-[#A8A29E] font-mono">
+                  <span className="text-[10px] text-[#A8A29E] dark:text-[#64748B] font-mono">
                     {catFields.length}
                   </span>
                 </div>
@@ -618,23 +618,23 @@ export function FieldLibrary({ onAddField }: FieldLibraryProps) {
                         key={def.type}
                         type="button"
                         onClick={() => onAddField(def.type, def.defaultProps)}
-                        className="group w-full flex items-center justify-between p-2 rounded-xl text-left hover:bg-[#FAF8F5] border border-transparent hover:border-[#EAE3D6] transition-all cursor-pointer"
+                        className="group w-full flex items-center justify-between p-2 rounded-xl text-left hover:bg-[#FAF8F5] dark:hover:bg-[#161F30] border border-transparent hover:border-[#EAE3D6] dark:hover:border-[#293548] transition-all cursor-pointer"
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="w-7 h-7 rounded-lg bg-[#FAF8F5] border border-[#EAE3D6] text-[#78716C] group-hover:text-[#FF5A36] group-hover:border-[#FFD8CC] flex items-center justify-center transition-colors flex-shrink-0">
+                          <div className="w-7 h-7 rounded-lg bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] text-[#78716C] dark:text-[#94A3B8] group-hover:text-[#FF5A36] dark:group-hover:text-[#FF5A36] group-hover:border-[#FFD8CC] dark:group-hover:border-[#FF5A36]/30 flex items-center justify-center transition-colors flex-shrink-0">
                             <Icon className="w-3.5 h-3.5" />
                           </div>
                           <div className="min-w-0">
-                            <div className="text-xs font-semibold text-[#1C1917] group-hover:text-[#FF5A36] truncate transition-colors">
+                            <div className="text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC] group-hover:text-[#FF5A36] dark:group-hover:text-[#FF5A36] truncate transition-colors">
                               {def.label}
                             </div>
-                            <div className="text-[10px] text-[#A8A29E] truncate">
+                            <div className="text-[10px] text-[#A8A29E] dark:text-[#64748B] truncate">
                               {def.description}
                             </div>
                           </div>
                         </div>
 
-                        <Plus className="w-3.5 h-3.5 text-[#A8A29E] opacity-0 group-hover:opacity-100 group-hover:text-[#FF5A36] transition-opacity flex-shrink-0" />
+                        <Plus className="w-3.5 h-3.5 text-[#A8A29E] dark:text-[#64748B] opacity-0 group-hover:opacity-100 group-hover:text-[#FF5A36] transition-opacity flex-shrink-0" />
                       </button>
                     );
                   })}
@@ -644,8 +644,8 @@ export function FieldLibrary({ onAddField }: FieldLibraryProps) {
           })}
 
         {filteredFields.length === 0 && (
-          <div className="text-center py-8 px-4 text-[#A8A29E] space-y-1">
-            <p className="text-xs font-semibold text-[#57534E]">
+          <div className="text-center py-8 px-4 text-[#A8A29E] dark:text-[#64748B] space-y-1">
+            <p className="text-xs font-semibold text-[#57534E] dark:text-[#94A3B8]">
               No matching fields
             </p>
             <p className="text-[11px]">

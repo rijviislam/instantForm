@@ -40,19 +40,19 @@ export function ResponsesChart({ data, isLoading = false }: ResponsesChartProps)
     : "";
 
   return (
-    <div className="rounded-3xl bg-white border border-[#E7E2D8] p-6 sm:p-8 shadow-2xs">
+    <div className="rounded-3xl bg-white dark:bg-[#111827] border border-[#E7E2D8] dark:border-[#1F2937] p-6 sm:p-8 shadow-2xs">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h2 className="font-serif-editorial text-xl sm:text-2xl font-normal text-[#1C1917] tracking-tight">
+          <h2 className="font-serif-editorial text-xl sm:text-2xl font-normal text-[#1C1917] dark:text-[#F8FAFC] tracking-tight">
             Responses over time
           </h2>
-          <p className="text-xs sm:text-sm text-[#78716C] mt-0.5">
+          <p className="text-xs sm:text-sm text-[#78716C] dark:text-[#94A3B8] mt-0.5">
             Submissions tracked across your published forms
           </p>
         </div>
 
         {totalResponses > 0 && (
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EBF9F1] text-[#15803D] text-xs font-semibold border border-[#DCFCE7]">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EBF9F1] dark:bg-emerald-950/40 text-[#15803D] dark:text-emerald-400 text-xs font-semibold border border-[#DCFCE7] dark:border-emerald-800/40">
             <TrendingUp className="w-3.5 h-3.5" />
             <span>Active Tracking</span>
           </div>
@@ -60,17 +60,17 @@ export function ResponsesChart({ data, isLoading = false }: ResponsesChartProps)
       </div>
 
       {isLoading ? (
-        <div className="h-48 w-full bg-[#FAF8F5] rounded-2xl animate-pulse flex items-center justify-center">
-          <div className="h-6 w-32 bg-[#F4EFE6] rounded-md" />
+        <div className="h-48 w-full bg-[#FAF8F5] dark:bg-[#1F2937] rounded-2xl animate-pulse flex items-center justify-center">
+          <div className="h-6 w-32 bg-[#F4EFE6] dark:bg-[#374151] rounded-md" />
         </div>
       ) : totalResponses === 0 ? (
         /* Empty State */
-        <div className="py-12 px-4 rounded-2xl bg-[#FAF8F5] border border-dashed border-[#E7E2D8] flex flex-col items-center justify-center text-center">
-          <div className="w-12 h-12 rounded-2xl bg-[#FFF0EB] border border-[#FFD8CC] text-[#FF5A36] flex items-center justify-center mb-4">
+        <div className="py-12 px-4 rounded-2xl bg-[#FAF8F5] dark:bg-[#161F30] border border-dashed border-[#E7E2D8] dark:border-[#293548] flex flex-col items-center justify-center text-center">
+          <div className="w-12 h-12 rounded-2xl bg-[#FFF0EB] dark:bg-[#FF5A36]/15 border border-[#FFD8CC] dark:border-[#FF5A36]/30 text-[#FF5A36] dark:text-[#FF6B4A] flex items-center justify-center mb-4">
             <TrendingUp className="w-6 h-6" />
           </div>
-          <h3 className="text-sm font-bold text-[#1C1917]">No response data yet</h3>
-          <p className="text-xs sm:text-sm text-[#78716C] max-w-sm mt-1 mb-5 leading-relaxed">
+          <h3 className="text-sm font-bold text-[#1C1917] dark:text-[#F8FAFC]">No response data yet</h3>
+          <p className="text-xs sm:text-sm text-[#78716C] dark:text-[#94A3B8] max-w-sm mt-1 mb-5 leading-relaxed">
             Publish your first form and share the link to start collecting submissions and viewing insights.
           </p>
           <Button
@@ -103,7 +103,7 @@ export function ResponsesChart({ data, isLoading = false }: ResponsesChartProps)
                   y1={y}
                   x2={width - padding.right}
                   y2={y}
-                  stroke="#F4EFE6"
+                  className="stroke-[#F4EFE6] dark:stroke-[#1F2937]"
                   strokeDasharray="4 4"
                 />
               );
@@ -129,10 +129,8 @@ export function ResponsesChart({ data, isLoading = false }: ResponsesChartProps)
                   cx={p.x}
                   cy={p.y}
                   r="4"
-                  fill="white"
-                  stroke="#FF5A36"
+                  className="fill-white dark:fill-[#111827] stroke-[#FF5A36] cursor-pointer transition-transform hover:scale-150"
                   strokeWidth="2"
-                  className="cursor-pointer transition-transform hover:scale-150"
                   onMouseEnter={() => setHoveredPoint(p)}
                   onMouseLeave={() => setHoveredPoint(null)}
                 />
@@ -141,7 +139,7 @@ export function ResponsesChart({ data, isLoading = false }: ResponsesChartProps)
                   y={height - 8}
                   textAnchor="middle"
                   fontSize="10"
-                  fill="#78716C"
+                  className="fill-[#78716C] dark:fill-[#94A3B8]"
                 >
                   {p.date}
                 </text>
@@ -152,7 +150,7 @@ export function ResponsesChart({ data, isLoading = false }: ResponsesChartProps)
           {/* Hover Tooltip */}
           {hoveredPoint && (
             <div
-              className="absolute pointer-events-none bg-[#1C1917] text-white text-[11px] font-semibold px-2.5 py-1 rounded-lg shadow-lg -translate-x-1/2 -translate-y-10 transition-all z-10"
+              className="absolute pointer-events-none bg-[#1C1917] dark:bg-[#F8FAFC] text-white dark:text-[#1C1917] text-[11px] font-semibold px-2.5 py-1 rounded-lg shadow-lg -translate-x-1/2 -translate-y-10 transition-all z-10"
               style={{
                 left: `${(hoveredPoint.x / width) * 100}%`,
                 top: `${(hoveredPoint.y / height) * 100}%`,

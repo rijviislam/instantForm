@@ -8,6 +8,7 @@ import {
   INPUT_STYLE_PRESETS,
   FIELD_CARD_STYLE_PRESETS,
   resolveFormTheme,
+  applyThemeMood,
 } from "@/lib/form-theme";
 import {
   Palette,
@@ -31,6 +32,8 @@ import {
   BoxSelect,
   MousePointer,
   HelpCircle,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 interface FormStyleCustomizerProps {
@@ -47,21 +50,102 @@ export function FormStyleCustomizer({
   const [activeFieldCardSubTab, setActiveFieldCardSubTab] = useState<string>("presets");
   const [activeInputSubTab, setActiveInputSubTab] = useState<string>("presets");
 
-  const updateMultiple = (updates: { [K in keyof FormTheme]?: Partial<FormTheme[K]> }) => {
-    let nextTheme = { ...theme };
-    (Object.keys(updates) as Array<keyof FormTheme>).forEach((section) => {
+  const isFormDark = () => {
+    const bg = (theme.background?.color || "").toLowerCase();
+    const cardBg = (theme.container?.backgroundColor || "").toLowerCase();
+    const text = (theme.colors?.text || "").toLowerCase();
+    return (
+      bg === "#0b0f17" ||
+      bg === "#0f172a" ||
+      bg === "#111827" ||
+      bg === "#18181b" ||
+      bg === "#000000" ||
+      bg === "#1e293b" ||
+      cardBg === "#1e293b" ||
+      cardBg === "#1f2937" ||
+      cardBg === "#18181b" ||
+      cardBg === "#0f172a" ||
+      cardBg === "#161f30" ||
+      text === "#f8fafc" ||
+      text === "#ffffff" ||
+      text === "#f1f5f9"
+    );
+  };
+
+  const handleApplyFormLightMode = () => {
+    updateMultiple({
+      background: {
+        type: "solid",
+        color: "#FAF8F5",
+      },
+      container: {
+        backgroundColor: "#FFFFFF",
+        borderColor: "#EAE3D6",
+      },
+      colors: {
+        text: "#1C1917",
+      },
+      typography: {
+        headingColor: "#1C1917",
+        descriptionColor: "#78716C",
+      },
+      inputs: {
+        backgroundColor: "#FFFFFF",
+        textColor: "#1C1917",
+        borderColor: "#EAE3D6",
+        placeholderColor: "#A8A29E",
+      },
+      fieldCard: {
+        backgroundColor: "#FFFFFF",
+        borderColor: "#EAE3D6",
+      },
+    });
+  };
+
+  const handleApplyFormDarkMode = () => {
+    updateMultiple({
+      background: {
+        type: "solid",
+        color: "#0F172A",
+      },
+      container: {
+        backgroundColor: "#1E293B",
+        borderColor: "#334155",
+      },
+      colors: {
+        text: "#F8FAFC",
+      },
+      typography: {
+        headingColor: "#FFFFFF",
+        descriptionColor: "#94A3B8",
+      },
+      inputs: {
+        backgroundColor: "#0F172A",
+        textColor: "#F8FAFC",
+        borderColor: "#334155",
+        placeholderColor: "#64748B",
+      },
+      fieldCard: {
+        backgroundColor: "#1E293B",
+        borderColor: "#334155",
+      },
+    });
+  };
+
+  const updateMultiple = (updates: any) => {
+    let nextTheme: any = { ...theme };
+    Object.keys(updates).forEach((section) => {
       const sectionUpdates = updates[section];
-      if (sectionUpdates) {
-        nextTheme = {
-          ...nextTheme,
-          [section]: {
-            ...nextTheme[section],
-            ...sectionUpdates,
-          },
+      if (typeof sectionUpdates === "object" && sectionUpdates !== null) {
+        nextTheme[section] = {
+          ...(nextTheme[section] || {}),
+          ...sectionUpdates,
         };
+      } else {
+        nextTheme[section] = sectionUpdates;
       }
     });
-    onChange(nextTheme);
+    onChange(nextTheme as FormTheme);
   };
 
   const updateSubKey = <K extends keyof FormTheme>(
@@ -197,6 +281,116 @@ export function FormStyleCustomizer({
         </button>
       </div>
 
+      {/* Quick Form Mood & Publishing Mode Switcher */}
+      <div className="space-y-2.5 p-3 bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-2xl">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 font-bold text-[11px] text-[#1C1917] dark:text-[#F8FAFC] uppercase tracking-wider">
+            <Sparkles className="w-3.5 h-3.5 text-[#FF5A36]" />
+            <span>Publishing Color Mood</span>
+          </div>
+          <span className="text-[10px] font-semibold text-[#FF5A36] bg-[#FFF0EB] dark:bg-[#FF5A36]/15 px-2 py-0.5 rounded-full border border-[#FFD8CC] dark:border-[#FF5A36]/30">
+            {theme.colorMood === "dark"
+              ? "Dark Mood"
+              : theme.colorMood === "auto"
+              ? "Auto (System)"
+              : theme.colorMood === "toggle"
+              ? "Interactive"
+              : "Light Mood"}
+          </span>
+        </div>
+
+        {/* 4-way Mode Selector */}
+        <div className="grid grid-cols-2 gap-1.5 p-1 bg-white dark:bg-[#111827] border border-[#EAE3D6] dark:border-[#293548] rounded-xl">
+          <button
+            type="button"
+            onClick={() => {
+              const updated = applyThemeMood(theme, "light");
+              onChange({ ...updated, colorMood: "light" });
+            }}
+            className={`py-2 px-2.5 rounded-lg flex items-center justify-center gap-1.5 font-semibold text-xs transition-all cursor-pointer ${
+              theme.colorMood === "light" || (!theme.colorMood && !isFormDark())
+                ? "bg-[#FFF0EB] dark:bg-[#FF5A36]/20 text-[#FF5A36] shadow-xs border border-[#FFD8CC] dark:border-[#FF5A36]/30"
+                : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] hover:bg-[#FAF8F5] dark:hover:bg-[#1E293B]"
+            }`}
+          >
+            <Sun className="w-3.5 h-3.5" />
+            <span>Light Mood</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              const updated = applyThemeMood(theme, "dark");
+              onChange({ ...updated, colorMood: "dark" });
+            }}
+            className={`py-2 px-2.5 rounded-lg flex items-center justify-center gap-1.5 font-semibold text-xs transition-all cursor-pointer ${
+              theme.colorMood === "dark" || (!theme.colorMood && isFormDark())
+                ? "bg-[#0B0F17] dark:bg-[#1E293B] text-white shadow-xs border border-[#1F2937] dark:border-[#334155]"
+                : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] hover:bg-[#FAF8F5] dark:hover:bg-[#1E293B]"
+            }`}
+          >
+            <Moon className="w-3.5 h-3.5" />
+            <span>Dark Mood</span>
+          </button>
+        </div>
+
+        {/* Secondary Options: Auto & Toggle */}
+        <div className="grid grid-cols-2 gap-1.5 pt-1">
+          <button
+            type="button"
+            onClick={() => {
+              onChange({ ...theme, colorMood: "auto" });
+            }}
+            className={`py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 text-[11px] font-medium border transition-all cursor-pointer ${
+              theme.colorMood === "auto"
+                ? "bg-[#FFF0EB] dark:bg-[#FF5A36]/20 border-[#FF5A36] text-[#FF5A36] font-semibold"
+                : "bg-white dark:bg-[#111827] border-[#EAE3D6] dark:border-[#293548] text-[#78716C] dark:text-[#94A3B8] hover:border-[#D6CEC0]"
+            }`}
+          >
+            <Sliders className="w-3 h-3" />
+            <span>Auto System</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              onChange({ ...theme, colorMood: "toggle", allowRespondentMoodToggle: true });
+            }}
+            className={`py-1.5 px-2 rounded-lg flex items-center justify-center gap-1 text-[11px] font-medium border transition-all cursor-pointer ${
+              theme.colorMood === "toggle"
+                ? "bg-[#FFF0EB] dark:bg-[#FF5A36]/20 border-[#FF5A36] text-[#FF5A36] font-semibold"
+                : "bg-white dark:bg-[#111827] border-[#EAE3D6] dark:border-[#293548] text-[#78716C] dark:text-[#94A3B8] hover:border-[#D6CEC0]"
+            }`}
+          >
+            <Sparkles className="w-3 h-3" />
+            <span>Respondent Switch</span>
+          </button>
+        </div>
+
+        {/* Respondent Switcher Checkbox */}
+        <div className="pt-2 border-t border-[#EAE3D6] dark:border-[#293548] flex items-center justify-between">
+          <div>
+            <div className="text-[11px] font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
+              Respondent Mood Switcher
+            </div>
+            <div className="text-[10px] text-[#78716C] dark:text-[#94A3B8]">
+              Show Sun/Moon toggle button on published form
+            </div>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={theme.allowRespondentMoodToggle !== false}
+              onChange={(e) => {
+                onChange({ ...theme, allowRespondentMoodToggle: e.target.checked });
+              }}
+              className="sr-only peer"
+            />
+            <div className="w-8 h-4.5 bg-[#EAE3D6] dark:bg-[#293548] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-[#FF5A36]" />
+          </label>
+        </div>
+      </div>
+
       {/* 1. Theme Presets Bar */}
       <div className="space-y-2">
         <label className="block text-[11px] font-bold text-[#A8A29E] uppercase tracking-wider">
@@ -212,11 +406,10 @@ export function FormStyleCustomizer({
                 key={p.id}
                 type="button"
                 onClick={() => handleApplyPreset(p.theme)}
-                className={`p-2 rounded-xl border text-left flex items-center gap-2 transition-all cursor-pointer ${
-                  isSelected
+                className={`p-2 rounded-xl border text-left flex items-center gap-2 transition-all cursor-pointer ${isSelected
                     ? "border-[#FF5A36] bg-[#FFF0EB] ring-1 ring-[#FF5A36]"
                     : "border-[#EAE3D6] bg-[#FAF8F5] hover:border-[#D6CEC0]"
-                }`}
+                  }`}
               >
                 <div
                   className="w-4 h-4 rounded-full border border-black/10 shrink-0 flex items-center justify-center text-white"
@@ -260,6 +453,32 @@ export function FormStyleCustomizer({
 
           {activeSection === "colors" && (
             <div className="p-3 space-y-3 bg-white">
+              {/* Quick Mode Toggle in Colors */}
+              <div className="flex items-center justify-between pb-2 border-b border-[#F5F2EB]">
+                <span className="text-stone-700 font-medium">Form Color Mood</span>
+                <div className="flex items-center gap-1 p-0.5 bg-[#FAF8F5] border border-[#EAE3D6] rounded-lg">
+                  <button
+                    type="button"
+                    onClick={handleApplyFormLightMode}
+                    className={`p-1 rounded-md flex items-center gap-1 text-[11px] cursor-pointer ${
+                      !isFormDark() ? "bg-white text-[#FF5A36] font-semibold shadow-2xs" : "text-[#78716C]"
+                    }`}
+                    title="Switch form to light mode"
+                  >
+                    <Sun className="w-3 h-3" /> Light
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleApplyFormDarkMode}
+                    className={`p-1 rounded-md flex items-center gap-1 text-[11px] cursor-pointer ${
+                      isFormDark() ? "bg-[#0F172A] text-white font-semibold shadow-2xs" : "text-[#78716C]"
+                    }`}
+                    title="Switch form to dark mode"
+                  >
+                    <Moon className="w-3 h-3" /> Dark
+                  </button>
+                </div>
+              </div>
               {/* Primary Color */}
               <div className="flex items-center justify-between">
                 <span className="text-stone-700">Primary Accent</span>
@@ -424,6 +643,59 @@ export function FormStyleCustomizer({
                 </div>
               </div>
 
+              {/* Flow Style Badge Colors */}
+              <div className="flex items-center justify-between">
+                <span className="text-stone-700 font-medium">Style Badge Background</span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={
+                      theme.branding.badgeBackgroundColor?.startsWith("#")
+                        ? theme.branding.badgeBackgroundColor
+                        : (theme.colors.accent?.startsWith("#") ? theme.colors.accent : "#FFF0EB")
+                    }
+                    onChange={(e) => {
+                      updateSubKey("branding", { badgeBackgroundColor: e.target.value });
+                    }}
+                    className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer p-0.5"
+                  />
+                  <input
+                    type="text"
+                    value={theme.branding.badgeBackgroundColor || theme.colors.accent || "#FFF0EB"}
+                    onChange={(e) => {
+                      updateSubKey("branding", { badgeBackgroundColor: e.target.value });
+                    }}
+                    className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-[#FAF8F5]"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-stone-700 font-medium">Style Badge Text & Icon</span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={
+                      theme.branding.badgeTextColor?.startsWith("#")
+                        ? theme.branding.badgeTextColor
+                        : (theme.colors.primary?.startsWith("#") ? theme.colors.primary : "#FF5A36")
+                    }
+                    onChange={(e) => {
+                      updateSubKey("branding", { badgeTextColor: e.target.value });
+                    }}
+                    className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer p-0.5"
+                  />
+                  <input
+                    type="text"
+                    value={theme.branding.badgeTextColor || theme.colors.primary || "#FF5A36"}
+                    onChange={(e) => {
+                      updateSubKey("branding", { badgeTextColor: e.target.value });
+                    }}
+                    className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-[#FAF8F5]"
+                  />
+                </div>
+              </div>
+
               {/* Border Color */}
               <div className="flex items-center justify-between">
                 <span className="text-stone-700 font-medium">Borders</span>
@@ -487,11 +759,10 @@ export function FormStyleCustomizer({
                     key={t}
                     type="button"
                     onClick={() => updateSubKey("background", { type: t })}
-                    className={`py-1 text-center font-semibold rounded-lg capitalize cursor-pointer transition-colors ${
-                      theme.background.type === t
-                        ? "bg-[#1C1917] text-white shadow-2xs"
+                    className={`py-1 text-center font-semibold rounded-lg capitalize cursor-pointer transition-colors ${theme.background.type === t
+                        ? "bg-[#FF5A36] text-white shadow-xs"
                         : "text-[#78716C] hover:text-[#1C1917]"
-                    }`}
+                      }`}
                   >
                     {t}
                   </button>
@@ -843,11 +1114,10 @@ export function FormStyleCustomizer({
                       key={t}
                       type="button"
                       onClick={() => updateSubKey("container", { backgroundType: t })}
-                      className={`py-1 text-center font-semibold rounded-lg capitalize cursor-pointer transition-colors ${
-                        (theme.container.backgroundType || "solid") === t
-                          ? "bg-[#1C1917] text-white shadow-2xs"
+                      className={`py-1 text-center font-semibold rounded-lg capitalize cursor-pointer transition-colors ${(theme.container.backgroundType || "solid") === t
+                          ? "bg-[#FF5A36] text-white shadow-xs"
                           : "text-[#78716C] hover:text-[#1C1917]"
-                      }`}
+                        }`}
                     >
                       {t}
                     </button>
@@ -1225,11 +1495,10 @@ export function FormStyleCustomizer({
                               [side.key]: !isActive,
                             })
                           }
-                          className={`py-1 text-[11px] font-semibold rounded-lg border text-center transition-colors cursor-pointer ${
-                            isActive
+                          className={`py-1 text-[11px] font-semibold rounded-lg border text-center transition-colors cursor-pointer ${isActive
                               ? "bg-[#FFF0EB] border-[#FF5A36] text-[#FF5A36]"
                               : "bg-[#FAF8F5] border-[#EAE3D6] text-[#A8A29E]"
-                          }`}
+                            }`}
                         >
                           {side.label}
                         </button>
@@ -1239,8 +1508,8 @@ export function FormStyleCustomizer({
                 </div>
               </div>
 
-              {/* 3. Border Radius */}
-              <div className="space-y-2.5 pb-3 border-b border-[#F5F2EB]">
+              {/* 3. Corner Radius */}
+              <div className="space-y-3 pb-3 border-b border-[#F5F2EB]">
                 <div className="flex items-center justify-between">
                   <label className="text-[11px] font-bold text-[#A8A29E] uppercase tracking-wider">
                     Corner Radius
@@ -1254,113 +1523,205 @@ export function FormStyleCustomizer({
                     }
                     className="text-[10px] text-[#FF5A36] font-semibold hover:underline cursor-pointer"
                   >
-                    {theme.container.individualRadius ? "Uniform Corners" : "Individual Corners"}
+                    {theme.container.individualRadius ? "Uniform Corners" : "Individual 4 Corners"}
                   </button>
                 </div>
 
                 {!theme.container.individualRadius ? (
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <select
-                        value={theme.container.borderRadius || "2xl"}
-                        onChange={(e) =>
-                          updateSubKey("container", {
-                            borderRadius: e.target.value as any,
-                          })
-                        }
-                        className="w-full px-2 py-1 text-xs rounded-xl border border-[#EAE3D6] bg-[#FAF8F5]"
-                      >
-                        <option value="none">Square (0px)</option>
-                        <option value="sm">Small (6px)</option>
-                        <option value="md">Medium (8px)</option>
-                        <option value="lg">Large (12px)</option>
-                        <option value="xl">XL (16px)</option>
-                        <option value="2xl">Rounded (24px)</option>
-                        <option value="3xl">Pill (32px)</option>
-                        <option value="full">Full (9999px)</option>
-                        <option value="custom">Custom px</option>
-                      </select>
+                  <div className="space-y-2.5">
+                    {/* Quick Preset Buttons */}
+                    <div className="grid grid-cols-4 gap-1 p-1 bg-[#FAF8F5] rounded-xl border border-[#EAE3D6]">
+                      {[
+                        { id: "none", label: "0px (Square)" },
+                        { id: "md", label: "8px" },
+                        { id: "xl", label: "16px" },
+                        { id: "2xl", label: "24px" },
+                        { id: "3xl", label: "32px" },
+                        { id: "custom", label: "Custom" },
+                      ].map((preset) => {
+                        const isSelected = theme.container.borderRadius === preset.id;
+                        return (
+                          <button
+                            key={preset.id}
+                            type="button"
+                            onClick={() =>
+                              updateSubKey("container", {
+                                borderRadius: preset.id as any,
+                                customBorderRadius: preset.id === "custom" ? (theme.container.customBorderRadius || 24) : undefined,
+                              })
+                            }
+                            className={`py-1 px-1 text-center text-[10px] font-semibold rounded-lg transition-colors cursor-pointer truncate ${isSelected
+                                ? "bg-[#FF5A36] text-white shadow-xs"
+                                : "text-[#78716C] hover:text-[#1C1917] hover:bg-white"
+                              }`}
+                          >
+                            <span>{preset.label}</span>
+                          </button>
+                        );
+                      })}
                     </div>
 
-                    {theme.container.borderRadius === "custom" && (
-                      <div className="flex items-center gap-1.5">
-                        <input
-                          type="number"
-                          min="0"
-                          max="64"
-                          value={theme.container.customBorderRadius ?? 24}
-                          onChange={(e) =>
-                            updateSubKey("container", {
-                              customBorderRadius: Number(e.target.value),
-                            })
-                          }
-                          className="w-full px-2 py-1 text-xs rounded-lg border border-[#EAE3D6] bg-[#FAF8F5]"
-                        />
-                        <span className="text-[10px] text-[#78716C]">px</span>
+                    {/* Interactive Real-Time Range Slider */}
+                    <div className="p-2.5 bg-[#FAF8F5] rounded-xl border border-[#EAE3D6] space-y-1.5">
+                      <div className="flex justify-between items-center text-[#78716C]">
+                        <span className="text-[10px] font-semibold text-[#1C1917]">Adjust Corner Radius</span>
+                        <div className="flex items-center gap-1.5">
+                          <input
+                            type="number"
+                            min="0"
+                            max="64"
+                            value={
+                              theme.container.borderRadius === "none"
+                                ? 0
+                                : theme.container.borderRadius === "sm"
+                                  ? 4
+                                  : theme.container.borderRadius === "md"
+                                    ? 8
+                                    : theme.container.borderRadius === "lg"
+                                      ? 12
+                                      : theme.container.borderRadius === "xl"
+                                        ? 16
+                                        : theme.container.borderRadius === "2xl"
+                                          ? 24
+                                          : theme.container.borderRadius === "3xl"
+                                            ? 32
+                                            : theme.container.borderRadius === "full"
+                                              ? 9999
+                                              : (theme.container.customBorderRadius ?? 24)
+                            }
+                            onChange={(e) => {
+                              const val = Number(e.target.value);
+                              updateSubKey("container", {
+                                borderRadius: "custom",
+                                customBorderRadius: val,
+                              });
+                            }}
+                            className="w-14 px-1.5 py-0.5 text-[11px] font-mono font-bold text-[#FF5A36] bg-white rounded border border-[#EAE3D6] text-center"
+                          />
+                          <span className="text-[10px] font-mono text-[#A8A29E]">px</span>
+                        </div>
                       </div>
-                    )}
+
+                      <input
+                        type="range"
+                        min="0"
+                        max="48"
+                        step="1"
+                        value={
+                          theme.container.borderRadius === "none"
+                            ? 0
+                            : theme.container.borderRadius === "sm"
+                              ? 4
+                              : theme.container.borderRadius === "md"
+                                ? 8
+                                : theme.container.borderRadius === "lg"
+                                  ? 12
+                                  : theme.container.borderRadius === "xl"
+                                    ? 16
+                                    : theme.container.borderRadius === "2xl"
+                                      ? 24
+                                      : theme.container.borderRadius === "3xl"
+                                        ? 32
+                                        : theme.container.borderRadius === "full"
+                                          ? 48
+                                          : Math.min(theme.container.customBorderRadius ?? 24, 48)
+                        }
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          updateSubKey("container", {
+                            borderRadius: "custom",
+                            customBorderRadius: val,
+                          });
+                        }}
+                        className="w-full accent-[#FF5A36] h-1.5 bg-[#EAE3D6] rounded-lg cursor-pointer"
+                      />
+                      <div className="flex justify-between text-[9px] text-[#A8A29E]">
+                        <span>0px (Sharp)</span>
+                        <span>16px</span>
+                        <span>24px</span>
+                        <span>48px (Pill)</span>
+                      </div>
+                    </div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <span className="text-[10px] text-[#78716C]">Top-Left</span>
-                      <input
-                        type="number"
-                        min="0"
-                        max="64"
-                        value={theme.container.radiusTopLeft ?? 24}
-                        onChange={(e) =>
-                          updateSubKey("container", {
-                            radiusTopLeft: Number(e.target.value),
-                          })
-                        }
-                        className="w-full px-2 py-1 text-xs rounded-lg border border-[#EAE3D6] bg-[#FAF8F5] mt-0.5"
-                      />
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-[#78716C]">Top-Right</span>
-                      <input
-                        type="number"
-                        min="0"
-                        max="64"
-                        value={theme.container.radiusTopRight ?? 24}
-                        onChange={(e) =>
-                          updateSubKey("container", {
-                            radiusTopRight: Number(e.target.value),
-                          })
-                        }
-                        className="w-full px-2 py-1 text-xs rounded-lg border border-[#EAE3D6] bg-[#FAF8F5] mt-0.5"
-                      />
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-[#78716C]">Bottom-Left</span>
-                      <input
-                        type="number"
-                        min="0"
-                        max="64"
-                        value={theme.container.radiusBottomLeft ?? 24}
-                        onChange={(e) =>
-                          updateSubKey("container", {
-                            radiusBottomLeft: Number(e.target.value),
-                          })
-                        }
-                        className="w-full px-2 py-1 text-xs rounded-lg border border-[#EAE3D6] bg-[#FAF8F5] mt-0.5"
-                      />
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-[#78716C]">Bottom-Right</span>
-                      <input
-                        type="number"
-                        min="0"
-                        max="64"
-                        value={theme.container.radiusBottomRight ?? 24}
-                        onChange={(e) =>
-                          updateSubKey("container", {
-                            radiusBottomRight: Number(e.target.value),
-                          })
-                        }
-                        className="w-full px-2 py-1 text-xs rounded-lg border border-[#EAE3D6] bg-[#FAF8F5] mt-0.5"
-                      />
+                  <div className="space-y-2 p-2.5 bg-[#FAF8F5] rounded-xl border border-[#EAE3D6]">
+                    <span className="text-[10px] font-bold text-[#1C1917]">Individual Corner Radii</span>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <span className="text-[10px] text-[#78716C]">Top-Left Radius</span>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <input
+                            type="number"
+                            min="0"
+                            max="64"
+                            value={theme.container.radiusTopLeft ?? 24}
+                            onChange={(e) =>
+                              updateSubKey("container", {
+                                radiusTopLeft: Number(e.target.value),
+                              })
+                            }
+                            className="w-full px-2 py-1 text-xs rounded-lg border border-[#EAE3D6] bg-white font-mono"
+                          />
+                          <span className="text-[10px] text-[#78716C]">px</span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <span className="text-[10px] text-[#78716C]">Top-Right Radius</span>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <input
+                            type="number"
+                            min="0"
+                            max="64"
+                            value={theme.container.radiusTopRight ?? 24}
+                            onChange={(e) =>
+                              updateSubKey("container", {
+                                radiusTopRight: Number(e.target.value),
+                              })
+                            }
+                            className="w-full px-2 py-1 text-xs rounded-lg border border-[#EAE3D6] bg-white font-mono"
+                          />
+                          <span className="text-[10px] text-[#78716C]">px</span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <span className="text-[10px] text-[#78716C]">Bottom-Left Radius</span>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <input
+                            type="number"
+                            min="0"
+                            max="64"
+                            value={theme.container.radiusBottomLeft ?? 24}
+                            onChange={(e) =>
+                              updateSubKey("container", {
+                                radiusBottomLeft: Number(e.target.value),
+                              })
+                            }
+                            className="w-full px-2 py-1 text-xs rounded-lg border border-[#EAE3D6] bg-white font-mono"
+                          />
+                          <span className="text-[10px] text-[#78716C]">px</span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <span className="text-[10px] text-[#78716C]">Bottom-Right Radius</span>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <input
+                            type="number"
+                            min="0"
+                            max="64"
+                            value={theme.container.radiusBottomRight ?? 24}
+                            onChange={(e) =>
+                              updateSubKey("container", {
+                                radiusBottomRight: Number(e.target.value),
+                              })
+                            }
+                            className="w-full px-2 py-1 text-xs rounded-lg border border-[#EAE3D6] bg-white font-mono"
+                          />
+                          <span className="text-[10px] text-[#78716C]">px</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1460,16 +1821,14 @@ export function FormStyleCustomizer({
                             customShadowInset: !theme.container.customShadowInset,
                           })
                         }
-                        className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer ${
-                          theme.container.customShadowInset ? "bg-[#FF5A36]" : "bg-[#EAE3D6]"
-                        }`}
+                        className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer ${theme.container.customShadowInset ? "bg-[#FF5A36]" : "bg-[#EAE3D6]"
+                          }`}
                       >
                         <span
-                          className={`block w-3.5 h-3.5 rounded-full bg-white transition-transform ${
-                            theme.container.customShadowInset
+                          className={`block w-3.5 h-3.5 rounded-full bg-white transition-transform ${theme.container.customShadowInset
                               ? "translate-x-4.5"
                               : "translate-x-0.5"
-                          }`}
+                            }`}
                         />
                       </button>
                     </div>
@@ -1743,11 +2102,10 @@ export function FormStyleCustomizer({
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveFieldCardSubTab(tab.id)}
-                    className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors flex-shrink-0 cursor-pointer ${
-                      activeFieldCardSubTab === tab.id
-                        ? "bg-[#1C1917] text-white shadow-2xs"
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors flex-shrink-0 cursor-pointer ${activeFieldCardSubTab === tab.id
+                        ? "bg-[#FF5A36] text-white shadow-xs"
                         : "text-[#78716C] hover:bg-[#FAF8F5] hover:text-[#1C1917]"
-                    }`}
+                      }`}
                   >
                     {tab.label}
                   </button>
@@ -1779,11 +2137,10 @@ export function FormStyleCustomizer({
                               preset: preset.id,
                             });
                           }}
-                          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between relative ${
-                            isSelected
+                          className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between relative ${isSelected
                               ? "border-[#FF5A36] bg-[#FFF0EB]/40 ring-2 ring-[#FF5A36]/20 shadow-xs"
                               : "border-[#EAE3D6] bg-[#FAF8F5] hover:border-[#D9CFBE] hover:bg-white"
-                          }`}
+                            }`}
                         >
                           <div>
                             <div className="flex items-center justify-between mb-1">
@@ -1830,12 +2187,11 @@ export function FormStyleCustomizer({
                               });
                             }
                           }}
-                          className={`py-1 text-center font-semibold rounded-lg text-xs capitalize transition-all cursor-pointer ${
-                            (theme.fieldCard.backgroundType === type) ||
-                            (type === "glass" && theme.fieldCard.glassEnabled)
+                          className={`py-1 text-center font-semibold rounded-lg text-xs capitalize transition-all cursor-pointer ${(theme.fieldCard.backgroundType === type) ||
+                              (type === "glass" && theme.fieldCard.glassEnabled)
                               ? "bg-white text-[#1C1917] shadow-2xs font-bold"
                               : "text-[#78716C] hover:text-[#1C1917]"
-                          }`}
+                            }`}
                         >
                           {type}
                         </button>
@@ -1905,14 +2261,12 @@ export function FormStyleCustomizer({
                               backgroundType: !theme.fieldCard.glassEnabled ? "glass" : "solid",
                             })
                           }
-                          className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer ${
-                            theme.fieldCard.glassEnabled !== false ? "bg-[#FF5A36]" : "bg-[#D9CFBE]"
-                          }`}
+                          className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer ${theme.fieldCard.glassEnabled !== false ? "bg-[#FF5A36]" : "bg-[#D9CFBE]"
+                            }`}
                         >
                           <span
-                            className={`block w-4 h-4 rounded-full bg-white shadow-xs transition-transform ${
-                              theme.fieldCard.glassEnabled !== false ? "translate-x-4.5" : "translate-x-0.5"
-                            }`}
+                            className={`block w-4 h-4 rounded-full bg-white shadow-xs transition-transform ${theme.fieldCard.glassEnabled !== false ? "translate-x-4.5" : "translate-x-0.5"
+                              }`}
                           />
                         </button>
                       </div>
@@ -2110,14 +2464,12 @@ export function FormStyleCustomizer({
                           borderEnabled: theme.fieldCard.borderEnabled === false,
                         })
                       }
-                      className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer ${
-                        theme.fieldCard.borderEnabled !== false ? "bg-[#FF5A36]" : "bg-[#D9CFBE]"
-                      }`}
+                      className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer ${theme.fieldCard.borderEnabled !== false ? "bg-[#FF5A36]" : "bg-[#D9CFBE]"
+                        }`}
                     >
                       <span
-                        className={`block w-4 h-4 rounded-full bg-white shadow-xs transition-transform ${
-                          theme.fieldCard.borderEnabled !== false ? "translate-x-4.5" : "translate-x-0.5"
-                        }`}
+                        className={`block w-4 h-4 rounded-full bg-white shadow-xs transition-transform ${theme.fieldCard.borderEnabled !== false ? "translate-x-4.5" : "translate-x-0.5"
+                          }`}
                       />
                     </button>
                   </div>
@@ -2156,11 +2508,10 @@ export function FormStyleCustomizer({
                               key={w}
                               type="button"
                               onClick={() => updateSubKey("fieldCard", { borderWidth: w })}
-                              className={`py-1 text-center font-semibold rounded-lg text-xs capitalize transition-all cursor-pointer ${
-                                theme.fieldCard.borderWidth === w
+                              className={`py-1 text-center font-semibold rounded-lg text-xs capitalize transition-all cursor-pointer ${theme.fieldCard.borderWidth === w
                                   ? "bg-white text-[#1C1917] shadow-2xs font-bold"
                                   : "text-[#78716C] hover:text-[#1C1917]"
-                              }`}
+                                }`}
                             >
                               {w === "thin" ? "1px" : w === "medium" ? "2px" : w === "thick" ? "4px" : w}
                             </button>
@@ -2239,11 +2590,10 @@ export function FormStyleCustomizer({
                                     [side.key]: (theme.fieldCard as any)[side.key] === false,
                                   })
                                 }
-                                className={`py-1 text-center font-semibold rounded-lg text-xs transition-colors cursor-pointer border ${
-                                  (theme.fieldCard as any)[side.key] !== false
+                                className={`py-1 text-center font-semibold rounded-lg text-xs transition-colors cursor-pointer border ${(theme.fieldCard as any)[side.key] !== false
                                     ? "bg-white text-[#1C1917] border-[#FF5A36]"
                                     : "bg-[#F5F2EB] text-[#A8A29E] border-transparent"
-                                }`}
+                                  }`}
                               >
                                 {side.label}
                               </button>
@@ -2269,11 +2619,10 @@ export function FormStyleCustomizer({
                           key={r}
                           type="button"
                           onClick={() => updateSubKey("fieldCard", { borderRadius: r })}
-                          className={`py-1 text-center font-semibold rounded-lg text-xs capitalize transition-all cursor-pointer ${
-                            theme.fieldCard.borderRadius === r
+                          className={`py-1 text-center font-semibold rounded-lg text-xs capitalize transition-all cursor-pointer ${theme.fieldCard.borderRadius === r
                               ? "bg-white text-[#1C1917] shadow-2xs font-bold"
                               : "text-[#78716C] hover:text-[#1C1917]"
-                          }`}
+                            }`}
                         >
                           {r}
                         </button>
@@ -2363,14 +2712,12 @@ export function FormStyleCustomizer({
                           shadowEnabled: theme.fieldCard.shadowEnabled === false,
                         })
                       }
-                      className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer ${
-                        theme.fieldCard.shadowEnabled !== false ? "bg-[#FF5A36]" : "bg-[#D9CFBE]"
-                      }`}
+                      className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer ${theme.fieldCard.shadowEnabled !== false ? "bg-[#FF5A36]" : "bg-[#D9CFBE]"
+                        }`}
                     >
                       <span
-                        className={`block w-4 h-4 rounded-full bg-white shadow-xs transition-transform ${
-                          theme.fieldCard.shadowEnabled !== false ? "translate-x-4.5" : "translate-x-0.5"
-                        }`}
+                        className={`block w-4 h-4 rounded-full bg-white shadow-xs transition-transform ${theme.fieldCard.shadowEnabled !== false ? "translate-x-4.5" : "translate-x-0.5"
+                          }`}
                       />
                     </button>
                   </div>
@@ -2388,11 +2735,10 @@ export function FormStyleCustomizer({
                                 key={s}
                                 type="button"
                                 onClick={() => updateSubKey("fieldCard", { shadow: s })}
-                                className={`py-1 text-center font-semibold rounded-lg text-xs capitalize transition-all cursor-pointer ${
-                                  theme.fieldCard.shadow === s
+                                className={`py-1 text-center font-semibold rounded-lg text-xs capitalize transition-all cursor-pointer ${theme.fieldCard.shadow === s
                                     ? "bg-white text-[#1C1917] shadow-2xs font-bold"
                                     : "text-[#78716C] hover:text-[#1C1917]"
-                                }`}
+                                  }`}
                               >
                                 {s}
                               </button>
@@ -2496,11 +2842,10 @@ export function FormStyleCustomizer({
                           key={p}
                           type="button"
                           onClick={() => updateSubKey("fieldCard", { padding: p })}
-                          className={`py-1 text-center font-semibold rounded-lg text-xs capitalize transition-all cursor-pointer ${
-                            theme.fieldCard.padding === p
+                          className={`py-1 text-center font-semibold rounded-lg text-xs capitalize transition-all cursor-pointer ${theme.fieldCard.padding === p
                               ? "bg-white text-[#1C1917] shadow-2xs font-bold"
                               : "text-[#78716C] hover:text-[#1C1917]"
-                          }`}
+                            }`}
                         >
                           {p}
                         </button>
@@ -2675,18 +3020,16 @@ export function FormStyleCustomizer({
                             selectedRingEnabled: theme.fieldCard.selectedRingEnabled === false,
                           })
                         }
-                        className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer ${
-                          theme.fieldCard.selectedRingEnabled !== false
+                        className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer ${theme.fieldCard.selectedRingEnabled !== false
                             ? "bg-[#FF5A36]"
                             : "bg-[#D9CFBE]"
-                        }`}
+                          }`}
                       >
                         <span
-                          className={`block w-4 h-4 rounded-full bg-white shadow-xs transition-transform ${
-                            theme.fieldCard.selectedRingEnabled !== false
+                          className={`block w-4 h-4 rounded-full bg-white shadow-xs transition-transform ${theme.fieldCard.selectedRingEnabled !== false
                               ? "translate-x-4.5"
                               : "translate-x-0.5"
-                          }`}
+                            }`}
                         />
                       </button>
                     </div>
@@ -2811,11 +3154,10 @@ export function FormStyleCustomizer({
                     key={st.id}
                     type="button"
                     onClick={() => setActiveInputSubTab(st.id)}
-                    className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                      activeInputSubTab === st.id
-                        ? "bg-[#1C1917] text-white shadow-2xs"
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-colors cursor-pointer ${activeInputSubTab === st.id
+                        ? "bg-[#FF5A36] text-white shadow-xs"
                         : "text-[#78716C] hover:text-[#1C1917] hover:bg-[#FAF8F5]"
-                    }`}
+                      }`}
                   >
                     {st.label}
                   </button>
@@ -2838,11 +3180,10 @@ export function FormStyleCustomizer({
                               preset: preset.id,
                             });
                           }}
-                          className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all cursor-pointer ${
-                            isSelected
+                          className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all cursor-pointer ${isSelected
                               ? "border-[#FF5A36] bg-[#FFF0EB] ring-1 ring-[#FF5A36]"
                               : "border-[#EAE3D6] bg-[#FAF8F5] hover:border-[#D6CEC0]"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center justify-between w-full mb-1">
                             <span className="text-[11px] font-bold text-[#1C1917]">
@@ -2878,11 +3219,10 @@ export function FormStyleCustomizer({
                           key={t}
                           type="button"
                           onClick={() => updateSubKey("inputs", { backgroundType: t, glassEnabled: t === "glass" })}
-                          className={`py-1 text-center font-semibold rounded-lg capitalize text-[10px] cursor-pointer transition-colors ${
-                            (theme.inputs.backgroundType || "solid") === t
-                              ? "bg-[#1C1917] text-white shadow-2xs"
+                          className={`py-1 text-center font-semibold rounded-lg capitalize text-[10px] cursor-pointer transition-colors ${(theme.inputs.backgroundType || "solid") === t
+                              ? "bg-[#FF5A36] text-white shadow-xs"
                               : "text-[#78716C] hover:text-[#1C1917]"
-                          }`}
+                            }`}
                         >
                           {t}
                         </button>
@@ -2940,11 +3280,10 @@ export function FormStyleCustomizer({
                         <button
                           type="button"
                           onClick={() => updateSubKey("inputs", { glassHighlight: !theme.inputs.glassHighlight })}
-                          className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold border cursor-pointer ${
-                            theme.inputs.glassHighlight
+                          className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold border cursor-pointer ${theme.inputs.glassHighlight
                               ? "bg-[#FFF0EB] text-[#FF5A36] border-[#FF5A36]"
                               : "bg-white text-[#78716C] border-[#EAE3D6]"
-                          }`}
+                            }`}
                         >
                           Highlight: {theme.inputs.glassHighlight ? "ON" : "OFF"}
                         </button>
@@ -3046,14 +3385,12 @@ export function FormStyleCustomizer({
                     <button
                       type="button"
                       onClick={() => updateSubKey("inputs", { borderEnabled: theme.inputs.borderEnabled === false ? true : false })}
-                      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer ${
-                        theme.inputs.borderEnabled !== false ? "bg-[#FF5A36]" : "bg-[#EAE3D6]"
-                      }`}
+                      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer ${theme.inputs.borderEnabled !== false ? "bg-[#FF5A36]" : "bg-[#EAE3D6]"
+                        }`}
                     >
                       <span
-                        className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
-                          theme.inputs.borderEnabled !== false ? "translate-x-4.5" : "translate-x-1"
-                        }`}
+                        className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${theme.inputs.borderEnabled !== false ? "translate-x-4.5" : "translate-x-1"
+                          }`}
                       />
                     </button>
                   </div>
@@ -3135,11 +3472,10 @@ export function FormStyleCustomizer({
                         <button
                           type="button"
                           onClick={() => updateSubKey("inputs", { bottomBorderOnly: !theme.inputs.bottomBorderOnly })}
-                          className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold border cursor-pointer ${
-                            theme.inputs.bottomBorderOnly
+                          className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold border cursor-pointer ${theme.inputs.bottomBorderOnly
                               ? "bg-[#FFF0EB] text-[#FF5A36] border-[#FF5A36]"
                               : "bg-white text-[#78716C] border-[#EAE3D6]"
-                          }`}
+                            }`}
                         >
                           {theme.inputs.bottomBorderOnly ? "Active" : "Standard"}
                         </button>
@@ -3196,11 +3532,10 @@ export function FormStyleCustomizer({
                       <button
                         type="button"
                         onClick={() => updateSubKey("inputs", { individualRadius: !theme.inputs.individualRadius })}
-                        className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold border cursor-pointer ${
-                          theme.inputs.individualRadius
+                        className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold border cursor-pointer ${theme.inputs.individualRadius
                             ? "bg-[#FFF0EB] text-[#FF5A36] border-[#FF5A36]"
                             : "bg-white text-[#78716C] border-[#EAE3D6]"
-                        }`}
+                          }`}
                       >
                         {theme.inputs.individualRadius ? "ON" : "OFF"}
                       </button>
@@ -3282,18 +3617,16 @@ export function FormStyleCustomizer({
                           <button
                             type="button"
                             onClick={() => updateSubKey("inputs", { neumorphismRaised: false })}
-                            className={`px-2 py-0.5 text-[10px] font-semibold rounded cursor-pointer ${
-                              !theme.inputs.neumorphismRaised ? "bg-[#1C1917] text-white" : "text-[#78716C]"
-                            }`}
+                            className={`px-2 py-0.5 text-[10px] font-semibold rounded cursor-pointer ${!theme.inputs.neumorphismRaised ? "bg-[#FF5A36] text-white" : "text-[#78716C]"
+                              }`}
                           >
                             Pressed (Inset)
                           </button>
                           <button
                             type="button"
                             onClick={() => updateSubKey("inputs", { neumorphismRaised: true })}
-                            className={`px-2 py-0.5 text-[10px] font-semibold rounded cursor-pointer ${
-                              theme.inputs.neumorphismRaised ? "bg-[#1C1917] text-white" : "text-[#78716C]"
-                            }`}
+                            className={`px-2 py-0.5 text-[10px] font-semibold rounded cursor-pointer ${theme.inputs.neumorphismRaised ? "bg-[#FF5A36] text-white" : "text-[#78716C]"
+                              }`}
                           >
                             Raised (Outer)
                           </button>
@@ -3309,11 +3642,10 @@ export function FormStyleCustomizer({
                         <button
                           type="button"
                           onClick={() => updateSubKey("inputs", { customShadowInset: !theme.inputs.customShadowInset })}
-                          className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold border cursor-pointer ${
-                            theme.inputs.customShadowInset
+                          className={`px-2 py-0.5 rounded-lg text-[10px] font-semibold border cursor-pointer ${theme.inputs.customShadowInset
                               ? "bg-[#FFF0EB] text-[#FF5A36] border-[#FF5A36]"
                               : "bg-white text-[#78716C] border-[#EAE3D6]"
-                          }`}
+                            }`}
                         >
                           Inset: {theme.inputs.customShadowInset ? "ON" : "OFF"}
                         </button>
@@ -3844,6 +4176,49 @@ export function FormStyleCustomizer({
                     <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
                   </label>
                 </div>
+
+                {theme.branding.logoUrl && (
+                  <div className="grid grid-cols-3 gap-2 mt-2 pt-2 border-t border-[#F5F2EB]">
+                    <div>
+                      <span className="text-[10px] text-[#78716C]">Position</span>
+                      <select
+                        value={theme.branding.logoPosition || "center"}
+                        onChange={(e) => updateSubKey("branding", { logoPosition: e.target.value as any })}
+                        className="w-full px-2 py-1 text-xs rounded-xl border border-[#EAE3D6] bg-[#FAF8F5] mt-0.5 font-medium"
+                      >
+                        <option value="left">Left</option>
+                        <option value="center">Center</option>
+                        <option value="right">Right</option>
+                        <option value="center-top">Center Top</option>
+                        <option value="center-bottom">Center Bottom</option>
+                      </select>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#78716C]">Size</span>
+                      <select
+                        value={theme.branding.logoSize || "md"}
+                        onChange={(e) => updateSubKey("branding", { logoSize: e.target.value as any })}
+                        className="w-full px-2 py-1 text-xs rounded-xl border border-[#EAE3D6] bg-[#FAF8F5] mt-0.5"
+                      >
+                        <option value="sm">Small</option>
+                        <option value="md">Medium</option>
+                        <option value="lg">Large</option>
+                      </select>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#78716C]">Frame Style</span>
+                      <select
+                        value={theme.branding.logoFrame || "badge"}
+                        onChange={(e) => updateSubKey("branding", { logoFrame: e.target.value as any })}
+                        className="w-full px-2 py-1 text-xs rounded-xl border border-[#EAE3D6] bg-[#FAF8F5] mt-0.5"
+                      >
+                        <option value="badge">Badge Frame</option>
+                        <option value="circle">Circular Avatar</option>
+                        <option value="plain">Transparent</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Header Banner */}
@@ -3862,6 +4237,120 @@ export function FormStyleCustomizer({
                     <span className="text-[11px] font-semibold text-[#1C1917]">Upload Header Banner</span>
                     <input type="file" accept="image/*" onChange={handleHeaderImageUpload} className="hidden" />
                   </label>
+                </div>
+
+                {theme.branding.headerImageUrl && (
+                  <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-[#F5F2EB]">
+                    <div>
+                      <span className="text-[10px] text-[#78716C]">Banner Height</span>
+                      <select
+                        value={theme.branding.headerImageHeight || "md"}
+                        onChange={(e) => updateSubKey("branding", { headerImageHeight: e.target.value as any })}
+                        className="w-full px-2 py-1 text-xs rounded-xl border border-[#EAE3D6] bg-[#FAF8F5] mt-0.5"
+                      >
+                        <option value="sm">Compact (130px)</option>
+                        <option value="md">Medium (180px)</option>
+                        <option value="lg">Tall (240px)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#78716C]">Image Fit</span>
+                      <select
+                        value={theme.branding.headerImageFit || "cover"}
+                        onChange={(e) => updateSubKey("branding", { headerImageFit: e.target.value as any })}
+                        className="w-full px-2 py-1 text-xs rounded-xl border border-[#EAE3D6] bg-[#FAF8F5] mt-0.5"
+                      >
+                        <option value="cover">Cover (Fill)</option>
+                        <option value="contain">Contain (Fit)</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Interactive Flow Style Badge Styling */}
+              <div className="pt-2 border-t border-[#F5F2EB] space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <label className="block text-[11px] font-bold text-[#A8A29E] uppercase tracking-wider">
+                    Flow Style Badge
+                  </label>
+                  <label className="flex items-center gap-1.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={theme.branding.showStyleBadge !== false}
+                      onChange={(e) => updateSubKey("branding", { showStyleBadge: e.target.checked })}
+                      className="w-3.5 h-3.5 rounded text-[#FF5A36] focus:ring-[#FF5A36] cursor-pointer"
+                    />
+                    <span className="text-[11px] text-[#78716C]">Show Badge</span>
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <span className="text-[10px] text-[#78716C]">Badge Background</span>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <input
+                        type="color"
+                        value={
+                          theme.branding.badgeBackgroundColor?.startsWith("#")
+                            ? theme.branding.badgeBackgroundColor
+                            : (theme.colors.accent?.startsWith("#") ? theme.colors.accent : "#FFF0EB")
+                        }
+                        onChange={(e) => updateSubKey("branding", { badgeBackgroundColor: e.target.value })}
+                        className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer p-0.5"
+                      />
+                      <input
+                        type="text"
+                        value={theme.branding.badgeBackgroundColor || theme.colors.accent || "#FFF0EB"}
+                        onChange={(e) => updateSubKey("branding", { badgeBackgroundColor: e.target.value })}
+                        className="w-full px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-[#FAF8F5]"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] text-[#78716C]">Badge Text & Icon</span>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <input
+                        type="color"
+                        value={
+                          theme.branding.badgeTextColor?.startsWith("#")
+                            ? theme.branding.badgeTextColor
+                            : (theme.colors.primary?.startsWith("#") ? theme.colors.primary : "#FF5A36")
+                        }
+                        onChange={(e) => updateSubKey("branding", { badgeTextColor: e.target.value })}
+                        className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer p-0.5"
+                      />
+                      <input
+                        type="text"
+                        value={theme.branding.badgeTextColor || theme.colors.primary || "#FF5A36"}
+                        onChange={(e) => updateSubKey("branding", { badgeTextColor: e.target.value })}
+                        className="w-full px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-[#FAF8F5]"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <span className="text-[10px] text-[#78716C]">Badge Border Color</span>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <input
+                      type="color"
+                      value={
+                        theme.branding.badgeBorderColor?.startsWith("#")
+                          ? theme.branding.badgeBorderColor.slice(0, 7)
+                          : "#FFD8CC"
+                      }
+                      onChange={(e) => updateSubKey("branding", { badgeBorderColor: e.target.value })}
+                      className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer p-0.5"
+                    />
+                    <input
+                      type="text"
+                      value={theme.branding.badgeBorderColor || (theme.colors.primary ? `${theme.colors.primary}40` : "#FFD8CC")}
+                      onChange={(e) => updateSubKey("branding", { badgeBorderColor: e.target.value })}
+                      className="w-full px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-[#FAF8F5]"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

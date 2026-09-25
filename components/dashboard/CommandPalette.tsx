@@ -275,10 +275,10 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
     >
       <div
         ref={modalRef}
-        className="w-full max-w-xl bg-white rounded-3xl border border-[#EAE3D6] card-shadow shadow-2xl overflow-hidden flex flex-col font-sans-modern my-auto sm:my-0 shrink-0"
+        className="w-full max-w-xl bg-white dark:bg-[#111827] rounded-3xl border border-[#EAE3D6] dark:border-[#1F2937] card-shadow shadow-2xl overflow-hidden flex flex-col font-sans-modern my-auto sm:my-0 shrink-0"
       >
         {/* Search Header */}
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-[#EAE3D6] bg-white shrink-0">
+        <div className="flex items-center gap-3 px-5 py-4 border-b border-[#EAE3D6] dark:border-[#1F2937] bg-white dark:bg-[#111827] shrink-0">
           <Search className="w-5 h-5 text-[#FF5A36] shrink-0" />
           <input
             ref={inputRef}
@@ -290,11 +290,11 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
               isKeyboardNavRef.current = false;
             }}
             placeholder="Type a command or search forms..."
-            className="w-full bg-transparent text-base text-[#1C1917] placeholder:text-[#A8A29E] focus:outline-none font-medium"
+            className="w-full bg-transparent text-base text-[#1C1917] dark:text-[#F8FAFC] placeholder:text-[#A8A29E] dark:placeholder:text-[#64748B] focus:outline-none font-medium"
             aria-autocomplete="list"
             aria-controls="command-list"
           />
-          <kbd className="px-2 py-0.5 text-[10px] font-semibold text-[#78716C] bg-[#FAF8F5] border border-[#EAE3D6] rounded-md shrink-0">
+          <kbd className="px-2 py-0.5 text-[10px] font-semibold text-[#78716C] dark:text-[#94A3B8] bg-[#FAF8F5] dark:bg-[#1F2937] border border-[#EAE3D6] dark:border-[#374151] rounded-md shrink-0">
             ESC
           </kbd>
         </div>
@@ -308,8 +308,8 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
           className="max-h-[60vh] sm:max-h-[380px] overflow-y-auto p-2 space-y-1 overscroll-contain focus:outline-none"
         >
           {filteredCommands.length === 0 ? (
-            <div className="py-12 text-center text-sm text-[#78716C]">
-              No results found for &ldquo;<span className="text-[#1C1917] font-semibold">{search}</span>&rdquo;
+            <div className="py-12 text-center text-sm text-[#78716C] dark:text-[#94A3B8]">
+              No results found for &ldquo;<span className="text-[#1C1917] dark:text-[#F8FAFC] font-semibold">{search}</span>&rdquo;
             </div>
           ) : (
             filteredCommands.map((item, index) => {
@@ -335,8 +335,8 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                   className={clsx(
                     "flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-sm transition-all cursor-pointer select-none",
                     isSelected
-                      ? "bg-[#FFF0EB] text-[#FF5A36] font-semibold"
-                      : "text-[#1C1917] hover:bg-[#FAF8F5]"
+                      ? "bg-[#FFF0EB] dark:bg-[#FF5A36]/15 text-[#FF5A36] dark:text-[#FF6B4A] font-semibold"
+                      : "text-[#1C1917] dark:text-[#F8FAFC] hover:bg-[#FAF8F5] dark:hover:bg-[#1E293B]/70"
                   )}
                 >
                   <div className="flex items-center gap-3 min-w-0">
@@ -345,7 +345,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                         "w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors",
                         isSelected
                           ? "bg-[#FF5A36] text-white"
-                          : "bg-[#FAF8F5] text-[#78716C] border border-[#EAE3D6]"
+                          : "bg-[#FAF8F5] dark:bg-[#1F2937] text-[#78716C] dark:text-[#94A3B8] border border-[#EAE3D6] dark:border-[#374151]"
                       )}
                     >
                       <Icon className="w-4 h-4" />
@@ -354,11 +354,11 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0 ml-2">
-                    <span className="text-[11px] text-[#78716C] font-normal uppercase tracking-wider">
+                    <span className="text-[11px] text-[#78716C] dark:text-[#94A3B8] font-normal uppercase tracking-wider">
                       {item.category}
                     </span>
                     {isSelected && (
-                      <ArrowRight className="w-4 h-4 text-[#FF5A36]" />
+                      <ArrowRight className="w-4 h-4 text-[#FF5A36] dark:text-[#FF6B4A]" />
                     )}
                   </div>
                 </div>
@@ -368,19 +368,19 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         </div>
 
         {/* Command Palette Footer */}
-        <div className="px-5 py-2.5 bg-[#FAF8F5] border-t border-[#EAE3D6] flex items-center justify-between text-xs text-[#78716C] shrink-0">
+        <div className="px-5 py-2.5 bg-[#FAF8F5] dark:bg-[#0D131F] border-t border-[#EAE3D6] dark:border-[#1F2937] flex items-center justify-between text-xs text-[#78716C] dark:text-[#94A3B8] shrink-0">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 text-[10px] bg-white border border-[#EAE3D6] rounded">↑</kbd>
-              <kbd className="px-1.5 py-0.5 text-[10px] bg-white border border-[#EAE3D6] rounded">↓</kbd>
+              <kbd className="px-1.5 py-0.5 text-[10px] bg-white dark:bg-[#1F2937] border border-[#EAE3D6] dark:border-[#374151] rounded">↑</kbd>
+              <kbd className="px-1.5 py-0.5 text-[10px] bg-white dark:bg-[#1F2937] border border-[#EAE3D6] dark:border-[#374151] rounded">↓</kbd>
               <span>Navigate</span>
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 text-[10px] bg-white border border-[#EAE3D6] rounded">↵</kbd>
+              <kbd className="px-1.5 py-0.5 text-[10px] bg-white dark:bg-[#1F2937] border border-[#EAE3D6] dark:border-[#374151] rounded">↵</kbd>
               <span>Select</span>
             </span>
           </div>
-          <span className="text-[11px] text-[#78716C]">InstantForm Search</span>
+          <span className="text-[11px] text-[#78716C] dark:text-[#94A3B8]">InstantForm Search</span>
         </div>
       </div>
     </div>

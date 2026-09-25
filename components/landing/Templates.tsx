@@ -171,7 +171,7 @@ export function Templates() {
     <section
       ref={sectionRef}
       id="templates"
-      className="py-24 md:py-32 bg-[#FAF8F5] relative overflow-hidden"
+      className="py-24 md:py-32 bg-[#FAF8F5] dark:bg-[#0B0F17] relative overflow-hidden transition-colors duration-200"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
@@ -183,11 +183,11 @@ export function Templates() {
           >
             Start With a Template
           </Badge>
-          <h2 className="font-serif-editorial text-3xl sm:text-5xl md:text-6xl text-[#1C1917] tracking-tight font-normal leading-[1.1]">
+          <h2 className="font-serif-editorial text-3xl sm:text-5xl md:text-6xl text-[#1C1917] dark:text-[#F8FAFC] tracking-tight font-normal leading-[1.1]">
             Don&apos;t start from{" "}
             <span className="italic font-medium text-[#FF5A36]">scratch</span>.
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-[#57534E] leading-relaxed">
+          <p className="mt-4 text-base sm:text-lg text-[#57534E] dark:text-[#94A3B8] leading-relaxed">
             Choose from battle-tested layouts crafted by design experts. Customise fonts, colors, and questions in seconds.
           </p>
         </div>
@@ -201,8 +201,8 @@ export function Templates() {
               onClick={() => setActiveCategory(cat)}
               className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                 activeCategory === cat
-                  ? "bg-[#1C1917] text-white shadow-xs"
-                  : "bg-white text-[#57534E] border border-[#EAE3D6] hover:bg-[#F4EFE6] hover:text-[#1C1917]"
+                  ? "bg-[#1C1917] dark:bg-[#FF5A36] text-white shadow-xs"
+                  : "bg-white dark:bg-[#161F30] text-[#57534E] dark:text-[#94A3B8] border border-[#EAE3D6] dark:border-[#293548] hover:bg-[#F4EFE6] dark:hover:bg-[#1E293B] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
               }`}
             >
               {cat}
@@ -215,32 +215,32 @@ export function Templates() {
           {filteredTemplates.map((template) => (
             <div
               key={template.id}
-              className="template-card group bg-white rounded-3xl p-6 sm:p-7 border border-[#EAE3D6] card-shadow hover:card-shadow-hover hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
+              className="template-card group bg-white dark:bg-[#111827] rounded-3xl p-6 sm:p-7 border border-[#EAE3D6] dark:border-[#1F2937] card-shadow hover:card-shadow-hover hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between"
             >
               <div>
                 {/* Card Top: Icon & Metadata badges */}
                 <div className="flex items-center justify-between mb-5">
-                  <div className="w-10 h-10 rounded-2xl bg-[#FAF8F5] border border-[#EAE3D6] flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <div className="w-10 h-10 rounded-2xl bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] flex items-center justify-center group-hover:scale-105 transition-transform">
                     {template.icon}
                   </div>
                   <span
-                    className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${template.badgeColor}`}
+                    className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border dark:bg-opacity-20 ${template.badgeColor}`}
                   >
                     {template.category}
                   </span>
                 </div>
 
                 {/* Template Name & Description */}
-                <h3 className="font-serif-editorial text-2xl text-[#1C1917] font-medium group-hover:text-[#FF5A36] transition-colors">
+                <h3 className="font-serif-editorial text-2xl text-[#1C1917] dark:text-[#F8FAFC] font-medium group-hover:text-[#FF5A36] transition-colors">
                   {template.name}
                 </h3>
-                <p className="text-xs sm:text-sm text-[#57534E] mt-2 leading-relaxed">
+                <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#94A3B8] mt-2 leading-relaxed">
                   {template.description}
                 </p>
 
                 {/* Mini Preview Box */}
-                <div className="mt-5 p-3.5 rounded-2xl bg-[#FAF8F5] border border-[#EAE3D6] space-y-2">
-                  <div className="flex items-center justify-between text-[11px] text-[#78716C]">
+                <div className="mt-5 p-3.5 rounded-2xl bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] space-y-2">
+                  <div className="flex items-center justify-between text-[11px] text-[#78716C] dark:text-[#94A3B8]">
                     <span>{template.questionsCount} Questions</span>
                     <span>~{template.timeToFill} to complete</span>
                   </div>
@@ -248,7 +248,7 @@ export function Templates() {
                     {template.sampleFields.slice(0, 2).map((field, idx) => (
                       <div
                         key={idx}
-                        className="text-[11px] text-[#1C1917] bg-white px-2.5 py-1 rounded-lg border border-[#EAE3D6] truncate flex items-center gap-1.5"
+                        className="text-[11px] text-[#1C1917] dark:text-[#F8FAFC] bg-white dark:bg-[#1E293B] px-2.5 py-1 rounded-lg border border-[#EAE3D6] dark:border-[#293548] truncate flex items-center gap-1.5"
                       >
                         <span className="w-1.5 h-1.5 rounded-full bg-[#FF5A36]" />
                         {field}
@@ -259,11 +259,11 @@ export function Templates() {
               </div>
 
               {/* Bottom CTA Action Button */}
-              <div className="mt-6 pt-4 border-t border-[#EAE3D6] flex items-center justify-between">
+              <div className="mt-6 pt-4 border-t border-[#EAE3D6] dark:border-[#1F2937] flex items-center justify-between">
                 <button
                   type="button"
                   onClick={() => setSelectedTemplate(template)}
-                  className="text-xs font-semibold text-[#57534E] hover:text-[#FF5A36] flex items-center gap-1 transition-colors cursor-pointer"
+                  className="text-xs font-semibold text-[#57534E] dark:text-[#94A3B8] hover:text-[#FF5A36] dark:hover:text-[#FF5A36] flex items-center gap-1 transition-colors cursor-pointer"
                 >
                   <Eye className="w-3.5 h-3.5" />
                   Quick preview
@@ -290,47 +290,47 @@ export function Templates() {
           role="dialog"
           aria-modal="true"
           aria-label={`${selectedTemplate.name} preview`}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200"
         >
-          <div className="bg-white rounded-3xl border border-[#EAE3D6] max-w-lg w-full p-6 sm:p-8 card-shadow-hover relative animate-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-[#111827] rounded-3xl border border-[#EAE3D6] dark:border-[#1F2937] max-w-lg w-full p-6 sm:p-8 card-shadow-hover relative animate-in zoom-in-95 duration-200">
             <button
               type="button"
               onClick={() => setSelectedTemplate(null)}
-              className="absolute top-5 right-5 p-2 rounded-full bg-[#FAF8F5] border border-[#EAE3D6] text-[#57534E] hover:text-[#1C1917] transition-colors cursor-pointer"
+              className="absolute top-5 right-5 p-2 rounded-full bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] text-[#57534E] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] transition-colors cursor-pointer"
               aria-label="Close template preview"
             >
               <X className="w-4 h-4" />
             </button>
 
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-2xl bg-[#FFF0EB] text-[#FF5A36] flex items-center justify-center">
+              <div className="w-10 h-10 rounded-2xl bg-[#FFF0EB] dark:bg-[#FF5A36]/20 text-[#FF5A36] flex items-center justify-center">
                 {selectedTemplate.icon}
               </div>
               <div>
                 <span className="text-[11px] font-bold text-[#FF5A36] uppercase tracking-wider">
                   {selectedTemplate.category} Template
                 </span>
-                <h3 className="font-serif-editorial text-2xl text-[#1C1917] font-medium">
+                <h3 className="font-serif-editorial text-2xl text-[#1C1917] dark:text-[#F8FAFC] font-medium">
                   {selectedTemplate.name}
                 </h3>
               </div>
             </div>
 
-            <p className="text-sm text-[#57534E] mb-5">
+            <p className="text-sm text-[#57534E] dark:text-[#94A3B8] mb-5">
               {selectedTemplate.description}
             </p>
 
-            <div className="space-y-3 bg-[#FAF8F5] p-4 rounded-2xl border border-[#EAE3D6] mb-6">
-              <p className="text-xs font-semibold text-[#1C1917] uppercase tracking-wider">
+            <div className="space-y-3 bg-[#FAF8F5] dark:bg-[#161F30] p-4 rounded-2xl border border-[#EAE3D6] dark:border-[#293548] mb-6">
+              <p className="text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC] uppercase tracking-wider">
                 Included Question Modules:
               </p>
               <div className="space-y-2">
                 {selectedTemplate.sampleFields.map((field, idx) => (
                   <div
                     key={idx}
-                    className="p-2.5 bg-white rounded-xl border border-[#EAE3D6] text-xs flex items-center justify-between"
+                    className="p-2.5 bg-white dark:bg-[#1E293B] rounded-xl border border-[#EAE3D6] dark:border-[#293548] text-xs flex items-center justify-between"
                   >
-                    <span className="font-medium text-[#1C1917]">{field}</span>
+                    <span className="font-medium text-[#1C1917] dark:text-[#F8FAFC]">{field}</span>
                     <CheckCircle2 className="w-3.5 h-3.5 text-[#22C55E]" />
                   </div>
                 ))}

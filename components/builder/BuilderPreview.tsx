@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   X,
   CheckCircle2,
+  AlertCircle,
   ArrowLeft,
   ArrowRight,
   Star,
@@ -14,19 +15,20 @@ import {
   Mic,
   Camera,
   PenTool,
-  MapPin,
-  Globe2,
-  Navigation,
-  KeyRound,
-  CalendarRange,
-  Hourglass,
-  Calendar,
-  Clock,
-  CircleDot,
-  CheckSquare,
+  Monitor,
+  Tablet,
+  Smartphone,
+  Sparkles,
+  RotateCcw,
 } from "lucide-react";
 import { FormField, FormStyle } from "@/lib/api-client";
-import { FormTheme, resolveFormTheme, getThemeComputedStyles, getComputedFieldStyles } from "@/lib/form-theme";
+import {
+  FormTheme,
+  resolveFormTheme,
+  getThemeComputedStyles,
+  getComputedFieldStyles,
+} from "@/lib/form-theme";
+import { CardSurfaceBackground } from "@/components/public-form/CardSurfaceBackground";
 import { DynamicFontLoader } from "./DynamicFontLoader";
 import { ViewportMode } from "./BuilderTopBar";
 
@@ -46,19 +48,207 @@ export function BuilderPreview({
   style,
   theme: rawTheme,
   fields,
-  viewport,
+  viewport: initialViewport,
   onClose,
 }: BuilderPreviewProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [previewViewport, setPreviewViewport] = useState<ViewportMode>(initialViewport || "desktop");
 
-  const theme = resolveFormTheme(rawTheme, style);
-  const { backgroundStyle, containerStyle, inputStyle, buttonStyle, headingStyle } =
+  const baseResolvedTheme = resolveFormTheme(rawTheme, style);
+  const configuredMood = baseResolvedTheme.colorMood || "light";
+
+  const [activeMood, setActiveMood] = useState<"light" | "dark">(() => {
+    if (configuredMood === "dark") return "dark";
+    if (configuredMood === "light") return "light";
+    return "light";
+  });
+
+  const theme =
+    activeMood === "dark"
+      ? resolveFormTheme({ ...baseResolvedTheme, ...getThemeComputedStyles(baseResolvedTheme), colorMood: "dark" }, style)
+      : baseResolvedTheme;
+
+  const { backgroundStyle, containerStyle, buttonStyle, headingStyle, descriptionStyle } =
     getThemeComputedStyles(theme);
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
 
   const handleAnswerChange = (fieldId: string, value: any) => {
     setAnswers((prev) => ({ ...prev, [fieldId]: value }));
+    if (errors[fieldId]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[fieldId];
+        return next;
+      });
+    }
+  };
+
+  const validateField = (field: FormField): string | null => {
+    const val = answers[field.id];
+
+    // 1. Required Check
+    if (field.required) {
+      if (
+        val === undefined ||
+        val === null ||
+        val === "" ||
+        (Array.isArray(val) && val.length === 0) ||
+        (typeof val === "object" && Object.keys(val).length === 0)
+      ) {
+        return "This question is required";
+      }
+      if (field.type === "address" && typeof val === "object") {
+        if (!val.line1?.trim()) return "Street address line 1 is required";
+        if (!val.city?.trim()) return "City is required";
+      }
+      if (field.type === "date_range" && typeof val === "object") {
+        if (!val.start || !val.end) return "Both start and end dates are required";
+      }
+      if (field.type === "duration" && typeof val === "object") {
+        if (!val.hours && !val.minutes) return "Duration is required";
+      }
+      if (
+        (field.type === "multiple_choice_grid" || field.type === "checkbox_grid") &&
+        field.rows &&
+        field.rows.length > 0
+      ) {
+        const gridState = typeof val === "object" && val !== null ? val : {};
+        const unansweredRow = field.rows.find((row) => {
+          const rowVal = gridState[row];
+          return !rowVal || (Array.isArray(rowVal) && rowVal.length === 0);
+        });
+        if (unansweredRow) return `Please provide an answer for "${unansweredRow}"`;
+      }
+    }
+
+    // 2. Format Validations
+    if (val !== undefined && val !== null && val !== "") {
+      if (field.type === "email" && typeof val === "string") {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(val.trim())) {
+          return "Please enter a valid email address (e.g. name@example.com)";
+        }
+      }
+
+      if (field.type === "phone" && typeof val === "string") {
+        const digitsOnly = val.replace(/\D/g, "");
+        const phoneRegex = /^(\+?\d{1,4}[-.\s]?)?(\(?\d{2,4}\)?[-.\s]?)?\d{3,4}[-.\s]?\d{3,4}$/;
+        if (digitsOnly.length < 7 || digitsOnly.length > 16 || !phoneRegex.test(val.trim())) {
+          return "Please enter a valid phone number (e.g. +1 555-0123)";
+        }
+      }
+
+      if (
+        field.type === "number" ||
+        field.type === "decimal" ||
+        field.type === "currency" ||
+        field.type === "percentage"
+      ) {
+        const num = Number(val);
+        if (isNaN(num)) return "Please enter a valid numeric value";
+        if (field.min !== undefined && num < field.min) return `Value must be at least ${field.min}`;
+        if (field.max !== undefined && num > field.max) return `Value cannot exceed ${field.max}`;
+      }
+
+      // URL / Link validation (type === 'url' or label/placeholder contains URL/LinkedIn/Portfolio/Website)
+      const isUrlField =
+        field.type === "url" ||
+        (field.type === "short_text" &&
+          /(url|website|portfolio|linkedin|github|link\b)/i.test(
+            `${field.label || ""} ${field.placeholder || ""}`
+          ));
+
+      if (isUrlField && typeof val === "string" && val.trim().length > 0) {
+        const trimmed = val.trim();
+        const urlPattern =
+          /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/.*)?$/i;
+        if (!urlPattern.test(trimmed)) {
+          return "Please enter a valid URL (e.g. https://linkedin.com/in/username)";
+        }
+        try {
+          const formatted =
+            trimmed.startsWith("http://") || trimmed.startsWith("https://")
+              ? trimmed
+              : `https://${trimmed}`;
+          const parsed = new URL(formatted);
+          if (!parsed.hostname || !parsed.hostname.includes(".") || parsed.hostname.endsWith(".")) {
+            return "Please enter a valid URL (e.g. https://linkedin.com/in/username)";
+          }
+        } catch {
+          return "Please enter a valid URL (e.g. https://linkedin.com/in/username)";
+        }
+      }
+    }
+
+    return null;
+  };
+
+  const validateAll = (): boolean => {
+    const newErrors: Record<string, string> = {};
+    let isValid = true;
+    let firstInvalidId: string | null = null;
+
+    fields.forEach((field) => {
+      if (field.type === "divider" || field.type === "section_heading") return;
+      const err = validateField(field);
+      if (err) {
+        newErrors[field.id] = err;
+        isValid = false;
+        if (!firstInvalidId) firstInvalidId = field.id;
+      }
+    });
+
+    setErrors(newErrors);
+
+    if (firstInvalidId) {
+      const el = document.getElementById(`preview-field-${firstInvalidId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+
+    return isValid;
+  };
+
+  const handleNextStep = () => {
+    if (currentField) {
+      const err = validateField(currentField);
+      if (err) {
+        setErrors((prev) => ({ ...prev, [currentField.id]: err }));
+        return;
+      }
+    }
+    setCurrentStep((s) => s + 1);
+  };
+
+  const handleSubmit = () => {
+    if (style.toLowerCase() === "conversation") {
+      if (currentField) {
+        const err = validateField(currentField);
+        if (err) {
+          setErrors((prev) => ({ ...prev, [currentField.id]: err }));
+          return;
+        }
+      }
+      setSubmitted(true);
+    } else {
+      if (validateAll()) {
+        setSubmitted(true);
+      }
+    }
   };
 
   const currentField = fields[currentStep];
@@ -66,58 +256,80 @@ export function BuilderPreview({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col overflow-hidden animate-in fade-in duration-200"
-      style={backgroundStyle}
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 md:p-8 animate-in fade-in duration-200"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
       data-lenis-prevent="true"
     >
       <DynamicFontLoader theme={theme} />
 
-      {/* Preview Header */}
-      <div className="h-14 border-b border-[#EAE3D6] bg-white px-4 sm:px-6 flex items-center justify-between shrink-0 shadow-xs z-20">
-        <div className="flex items-center gap-2">
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#FFF0EB] text-[#FF5A36] border border-[#FFD8CC]">
-            Preview Mode
-          </span>
-          <span className="text-xs text-[#78716C] hidden sm:inline">
-            ({style.charAt(0).toUpperCase() + style.slice(1)} style)
-          </span>
-        </div>
-
-        <button
-          type="button"
-          onClick={onClose}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#1C1917] hover:bg-[#FAF8F5] border border-[#EAE3D6] transition-colors cursor-pointer"
-        >
-          <X className="w-4 h-4" />
-          <span>Exit Preview</span>
-        </button>
-      </div>
-
-      {/* Preview Content Area */}
+      {/* Modal Dialog Window */}
       <div
-        className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-8 flex items-center justify-center overscroll-contain"
-        data-lenis-prevent="true"
+        className="relative w-full max-w-5xl h-[92vh] max-h-[95vh] bg-[#FAF8F5] dark:bg-[#0B0F17] rounded-2xl sm:rounded-3xl shadow-2xl border border-[#EAE3D6] dark:border-[#1F2937] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
       >
-        <div
-          className={`w-full transition-all duration-300 ${
-            viewport === "mobile" ? "max-w-[390px]" : "max-w-2xl"
-          }`}
-        >
-          {submitted ? (
-            /* Success screen simulation */
-            <div
-              className="p-10 sm:p-14 text-center card-shadow space-y-4"
-              style={containerStyle}
+        {/* Modal Header */}
+        <div className="h-14 border-b border-[#EAE3D6] dark:border-[#1F2937] bg-white dark:bg-[#111827] px-4 sm:px-6 flex items-center justify-between shrink-0 shadow-xs z-30">
+          {/* Left: Mode Badge & Title */}
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FFF0EB] dark:bg-[#FF5A36]/10 text-[#FF5A36] border border-[#FFD8CC] dark:border-[#FF5A36]/20 shrink-0">
+              <Sparkles className="w-3.5 h-3.5" />
+              Live Preview
+            </span>
+            <span className="text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC] truncate hidden sm:inline">
+              {title || "Untitled Form"}
+            </span>
+          </div>
+
+          {/* Center: Interactive Device Viewport Toggle */}
+          <div className="flex items-center p-1 bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] rounded-xl">
+            <button
+              type="button"
+              onClick={() => setPreviewViewport("desktop")}
+              title="Desktop view"
+              className={`p-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                previewViewport === "desktop"
+                  ? "bg-white dark:bg-[#1E293B] text-[#1C1917] dark:text-[#F8FAFC] shadow-xs"
+                  : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
+              }`}
             >
-              <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto mb-2">
-                <CheckCircle2 className="w-8 h-8" />
-              </div>
-              <h2 style={headingStyle} className="tracking-tight">
-                Thank you!
-              </h2>
-              <p className="text-xs sm:text-sm text-[#78716C] max-w-sm mx-auto">
-                Your response was recorded in preview simulation mode.
-              </p>
+              <Monitor className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Desktop</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPreviewViewport("tablet")}
+              title="Tablet view"
+              className={`p-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                previewViewport === "tablet"
+                  ? "bg-white dark:bg-[#1E293B] text-[#1C1917] dark:text-[#F8FAFC] shadow-xs"
+                  : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
+              }`}
+            >
+              <Tablet className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Tablet</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPreviewViewport("mobile")}
+              title="Mobile view"
+              className={`p-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                previewViewport === "mobile"
+                  ? "bg-white dark:bg-[#1E293B] text-[#1C1917] dark:text-[#F8FAFC] shadow-xs"
+                  : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
+              }`}
+            >
+              <Smartphone className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Mobile</span>
+            </button>
+          </div>
+
+          {/* Right: Restart & Close */}
+          <div className="flex items-center gap-2 shrink-0">
+            {(submitted || currentStep > 0) && (
               <button
                 type="button"
                 onClick={() => {
@@ -125,231 +337,665 @@ export function BuilderPreview({
                   setAnswers({});
                   setCurrentStep(0);
                 }}
-                className="mt-4 px-4 py-2 text-xs font-semibold text-[#FF5A36] hover:underline cursor-pointer"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] hover:bg-[#FAF8F5] dark:hover:bg-[#161F30] transition-colors cursor-pointer"
+                title="Restart simulation"
               >
-                Restart Preview
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Reset</span>
               </button>
-            </div>
-          ) : style.toLowerCase() === "conversation" ? (
-            /* Conversation: One question at a time */
-            <div
-              className="p-8 sm:p-12 card-shadow space-y-8 min-h-[380px] flex flex-col justify-between"
-              style={containerStyle}
+            )}
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC] bg-[#FAF8F5] dark:bg-[#161F30] hover:bg-[#F5F2EB] dark:hover:bg-[#1E293B] border border-[#EAE3D6] dark:border-[#293548] transition-colors cursor-pointer"
             >
-              <div>
-                {/* Progress bar */}
-                <div className="flex items-center justify-between text-xs font-medium text-[#78716C] mb-6">
-                  <span>
-                    Question {currentStep + 1} of {fields.length || 1}
-                  </span>
-                  <span>
-                    {Math.round(((currentStep + 1) / (fields.length || 1)) * 100)}%
-                  </span>
-                </div>
-                <div className="w-full h-1.5 bg-[#F5F2EB] rounded-full overflow-hidden mb-8">
-                  <div
-                    className="h-full bg-[#FF5A36] transition-all duration-300"
-                    style={{
-                      width: `${((currentStep + 1) / (fields.length || 1)) * 100}%`,
-                      backgroundColor: theme.colors.primary || "#FF5A36",
-                    }}
-                  />
-                </div>
+              <X className="w-3.5 h-3.5" />
+              <span>Close</span>
+              <kbd className="hidden sm:inline-block text-[10px] text-[#A8A29E] dark:text-[#64748B] bg-white dark:bg-[#111827] border border-[#EAE3D6] dark:border-[#293548] px-1 py-0.5 rounded ml-0.5">
+                ESC
+              </kbd>
+            </button>
+          </div>
+        </div>
 
-                {currentField ? (
-                  <div className="space-y-4 animate-in fade-in duration-200">
-                    <h3 style={currentFieldStyles?.inputLabelStyle || headingStyle}>
-                      {currentField.label}
-                      {currentField.required && (
-                        currentFieldStyles?.requiredIndicator === "badge" ? (
-                          <span
-                            className="ml-2 px-2 py-0.5 rounded text-[10px] font-semibold border"
-                            style={{
-                              color: currentFieldStyles.requiredColor,
-                              borderColor: `${currentFieldStyles.requiredColor}40`,
-                              backgroundColor: `${currentFieldStyles.requiredColor}10`,
-                            }}
-                          >
-                            Required
-                          </span>
-                        ) : currentFieldStyles?.requiredIndicator === "dot" ? (
-                          <span
-                            className="ml-1 text-sm font-black"
-                            style={{ color: currentFieldStyles.requiredColor }}
-                          >
-                            •
-                          </span>
-                        ) : currentFieldStyles?.requiredIndicator === "none" ? null : (
-                          <span
-                            className="ml-1 font-bold"
-                            style={{ color: currentFieldStyles?.requiredColor || "#FF5A36" }}
-                          >
-                            *
-                          </span>
-                        )
-                      )}
-                    </h3>
-                    {currentField.description && (
-                      <p className="text-xs text-[#78716C]">
-                        {currentField.description}
-                      </p>
-                    )}
-
-                    {/* Input */}
-                    <div className="pt-2">
-                      {renderPreviewInput(currentField, answers, handleAnswerChange, theme)}
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-sm text-[#78716C]">No questions in form.</p>
-                )}
-              </div>
-
-              {/* Navigation buttons */}
-              <div className="flex items-center justify-between pt-6 border-t border-[#F5F2EB]">
-                <button
-                  type="button"
-                  onClick={() => setCurrentStep((s) => Math.max(0, s - 1))}
-                  disabled={currentStep === 0}
-                  className="px-3.5 py-1.5 text-xs font-semibold text-[#78716C] disabled:opacity-30 flex items-center gap-1 cursor-pointer"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" /> Back
-                </button>
-
-                {currentStep < fields.length - 1 ? (
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep((s) => s + 1)}
-                    style={buttonStyle}
-                    className="flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>Next</span> <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setSubmitted(true)}
-                    style={buttonStyle}
-                    className="cursor-pointer"
-                  >
-                    Submit
-                  </button>
-                )}
-              </div>
-            </div>
-          ) : (
-            /* Multi-field list view */
-            <div
-              className="p-8 sm:p-12 card-shadow space-y-6"
-              style={containerStyle}
-            >
-              <div className="border-b border-[#F5F2EB] pb-6 space-y-2">
-                <h1 style={headingStyle} className="tracking-tight">
-                  {title || "Untitled Form"}
-                </h1>
-                {description && (
-                  <p
-                    className="text-xs sm:text-sm"
-                    style={{ color: theme.colors.mutedText || "#78716C" }}
-                  >
-                    {description}
-                  </p>
-                )}
-              </div>
-
+        {/* Modal Body: Scrollable Canvas Canvas Area */}
+        <div
+          className="flex-1 min-h-0 overflow-y-auto px-4 py-8 sm:px-8 sm:py-12 flex justify-center overscroll-contain relative"
+          style={backgroundStyle}
+          data-lenis-prevent="true"
+        >
+          {/* Inner Viewport Frame */}
+          <div
+            className={`w-full transition-all duration-300 ${
+              previewViewport === "mobile"
+                ? "max-w-[390px]"
+                : previewViewport === "tablet"
+                ? "max-w-[640px]"
+                : "max-w-2xl"
+            }`}
+          >
+            {/* Form Header Banner (if configured) */}
+            {theme.branding.headerImageUrl && (
               <div
-                className="space-y-6"
+                className="w-full overflow-hidden relative z-0 shadow-sm transition-all"
                 style={{
-                  gap:
-                    theme.inputs?.fieldSpacing === "compact"
-                      ? "12px"
-                      : theme.inputs?.fieldSpacing === "relaxed"
-                      ? "24px"
-                      : theme.inputs?.fieldSpacing === "loose"
-                      ? "32px"
-                      : theme.inputs?.fieldSpacing === "custom" && theme.inputs.customFieldSpacing !== undefined
-                      ? `${theme.inputs.customFieldSpacing}px`
-                      : "16px",
+                  height:
+                    theme.branding.headerImageHeight === "sm"
+                      ? "130px"
+                      : theme.branding.headerImageHeight === "lg"
+                      ? "240px"
+                      : "180px",
+                  borderTopLeftRadius: containerStyle.borderBottomLeftRadius || containerStyle.borderRadius || "1.5rem",
+                  borderTopRightRadius: containerStyle.borderBottomRightRadius || containerStyle.borderRadius || "1.5rem",
+                  borderLeftWidth: containerStyle.borderLeftWidth || containerStyle.borderWidth || "1px",
+                  borderRightWidth: containerStyle.borderRightWidth || containerStyle.borderWidth || "1px",
+                  borderTopWidth: containerStyle.borderWidth || "1px",
+                  borderBottomWidth: "0px",
+                  borderStyle: containerStyle.borderStyle || "solid",
+                  borderColor: containerStyle.borderColor || "#EAE3D6",
+                  marginBottom: theme.branding.logoUrl && theme.branding.logoPosition !== "center-bottom" ? "-2.25rem" : "0px",
                 }}
               >
-                {fields.map((field, idx) => {
-                  if (field.type === "divider") {
-                    return <div key={field.id} className="h-px bg-[#EAE3D6] my-4" />;
-                  }
-                  if (field.type === "section_heading") {
-                    return (
-                      <div key={field.id} className="pt-4 pb-1 border-b border-[#F5F2EB]">
-                        <h3 className="text-base font-bold text-[#1C1917]">{field.label}</h3>
-                        {field.description && (
-                          <p className="text-xs text-[#78716C] mt-0.5">{field.description}</p>
+                <img
+                  src={theme.branding.headerImageUrl}
+                  alt="Header banner"
+                  className="w-full h-full"
+                  style={{ objectFit: theme.branding.headerImageFit || "cover" }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+              </div>
+            )}
+
+            {/* Main Form Card Container */}
+            <div
+              className="transition-all relative z-10"
+              style={containerStyle}
+            >
+              {/* Card Background Image & Blur Layer */}
+              <CardSurfaceBackground theme={theme} />
+
+              {/* Form Branding Logo (if configured) */}
+              {theme.branding.logoUrl && (
+                <div
+                  className={`flex relative z-20 ${
+                    theme.branding.logoPosition === "left"
+                      ? `justify-start ${theme.branding.headerImageUrl ? "-mt-8 sm:-mt-10 mb-6 pl-4 sm:pl-6" : "mb-6"}`
+                      : theme.branding.logoPosition === "right"
+                        ? `justify-end ${theme.branding.headerImageUrl ? "-mt-8 sm:-mt-10 mb-6 pr-4 sm:pr-6" : "mb-6"}`
+                        : theme.branding.logoPosition === "center-top"
+                          ? `justify-center ${theme.branding.headerImageUrl ? "-mt-24 sm:-mt-28 mb-12" : "-mt-6 sm:-mt-8 mb-6"}`
+                          : theme.branding.logoPosition === "center-bottom"
+                            ? `justify-center ${theme.branding.headerImageUrl ? "mt-4 mb-6" : "mt-2 mb-6"}`
+                            : `justify-center ${theme.branding.headerImageUrl ? "-mt-8 sm:-mt-10 mb-6" : "mb-6"}`
+                  }`}
+                >
+                  <div
+                    className={`inline-flex items-center justify-center transition-all select-none ${
+                      theme.branding.logoFrame === "circle"
+                        ? "rounded-full p-2 bg-black/5 dark:bg-white/10"
+                        : theme.branding.logoFrame === "badge"
+                          ? "rounded-2xl p-2 bg-black/5 dark:bg-white/10"
+                          : "p-0 bg-transparent shadow-none border-0 ring-0"
+                    }`}
+                  >
+                    <img
+                      src={theme.branding.logoUrl}
+                      alt="Form logo"
+                      className={`object-contain border-0 shadow-none ring-0 ${
+                        theme.branding.logoFrame === "circle" ? "rounded-full" : "rounded-xl"
+                      }`}
+                      style={{
+                        height:
+                          theme.branding.logoSize === "sm"
+                            ? "36px"
+                            : theme.branding.logoSize === "lg"
+                            ? "64px"
+                            : "48px",
+                        maxWidth:
+                          theme.branding.logoSize === "sm"
+                            ? "110px"
+                            : theme.branding.logoSize === "lg"
+                            ? "200px"
+                            : "150px",
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {submitted ? (
+                /* Success Screen Simulation */
+                <div className="py-8 text-center space-y-4 relative z-10">
+                  <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto mb-2 shadow-xs animate-in zoom-in-95 duration-200">
+                    <CheckCircle2 className="w-9 h-9" />
+                  </div>
+                  <h2 style={headingStyle} className="tracking-tight text-2xl font-bold">
+                    Thank you!
+                  </h2>
+                  <p
+                    className="text-xs sm:text-sm max-w-sm mx-auto leading-relaxed"
+                    style={{ color: theme.colors.mutedText || "#78716C" }}
+                  >
+                    Your submission was recorded in preview simulation mode.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubmitted(false);
+                      setAnswers({});
+                      setCurrentStep(0);
+                    }}
+                    style={buttonStyle}
+                    className="mt-4 cursor-pointer shadow-xs inline-block"
+                  >
+                    Submit Another Response
+                  </button>
+                </div>
+              ) : style.toLowerCase() === "conversation" ? (
+                /* Conversational Mode: Step by Step */
+                <div className="space-y-6 min-h-[320px] flex flex-col justify-between relative z-10">
+                  <div>
+                    {/* Progress Indicator */}
+                    <div className="flex items-center justify-between text-xs font-semibold text-[#78716C] mb-4">
+                      <span>
+                        Question {currentStep + 1} of {fields.length || 1}
+                      </span>
+                      <span>
+                        {Math.round(((currentStep + 1) / (fields.length || 1)) * 100)}%
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 bg-[#F5F2EB] rounded-full overflow-hidden mb-6">
+                      <div
+                        className="h-full transition-all duration-300"
+                        style={{
+                          width: `${((currentStep + 1) / (fields.length || 1)) * 100}%`,
+                          backgroundColor: theme.colors.primary || "#FF5A36",
+                        }}
+                      />
+                    </div>
+
+                    {currentField ? (
+                      <div className="space-y-4 animate-in fade-in duration-150">
+                        <h3 style={currentFieldStyles?.inputLabelStyle || headingStyle} className="text-base font-semibold">
+                          {currentField.label}
+                          {currentField.required && (
+                            currentFieldStyles?.requiredIndicator === "badge" ? (
+                              <span
+                                className="ml-2 px-2 py-0.5 rounded text-[10px] font-semibold border"
+                                style={{
+                                  color: currentFieldStyles.requiredColor,
+                                  borderColor: `${currentFieldStyles.requiredColor}40`,
+                                  backgroundColor: `${currentFieldStyles.requiredColor}10`,
+                                }}
+                              >
+                                Required
+                              </span>
+                            ) : currentFieldStyles?.requiredIndicator === "dot" ? (
+                              <span
+                                className="ml-1 text-sm font-black"
+                                style={{ color: currentFieldStyles.requiredColor }}
+                              >
+                                •
+                              </span>
+                            ) : currentFieldStyles?.requiredIndicator === "none" ? null : (
+                              <span
+                                className="ml-1 font-bold"
+                                style={{ color: currentFieldStyles?.requiredColor || "#FF5A36" }}
+                              >
+                                *
+                              </span>
+                            )
+                          )}
+                        </h3>
+
+                        {currentField.description && (
+                          <p className="text-xs" style={descriptionStyle}>
+                            {currentField.description}
+                          </p>
+                        )}
+
+                        <div className="pt-2">
+                          {renderPreviewInput(
+                            currentField,
+                            answers,
+                            handleAnswerChange,
+                            theme,
+                            errors[currentField.id]
+                          )}
+                        </div>
+
+                        {errors[currentField.id] && (
+                          <p
+                            className="text-xs font-semibold flex items-center gap-1 mt-1 animate-in fade-in"
+                            style={{ color: theme.inputs?.errorTextColor || "#EF4444" }}
+                          >
+                            <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                            <span>{errors[currentField.id]}</span>
+                          </p>
                         )}
                       </div>
-                    );
-                  }
+                    ) : (
+                      <p className="text-sm text-[#78716C]">No questions in form.</p>
+                    )}
+                  </div>
 
-                  const fieldStyles = getComputedFieldStyles(field, theme);
+                  {/* Step Navigation */}
+                  <div className="flex items-center justify-between pt-6 border-t border-[#F5F2EB]">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep((s) => Math.max(0, s - 1))}
+                      disabled={currentStep === 0}
+                      className="px-3.5 py-2 text-xs font-semibold text-[#78716C] disabled:opacity-30 flex items-center gap-1 cursor-pointer transition-colors hover:text-[#1C1917]"
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5" /> Back
+                    </button>
 
-                  return (
-                    <div key={field.id} style={fieldStyles.fieldCardStyle} className="space-y-2">
-                      <label
-                        className="block text-xs sm:text-sm"
-                        style={fieldStyles.inputLabelStyle}
+                    {currentStep < fields.length - 1 ? (
+                      <button
+                        type="button"
+                        onClick={handleNextStep}
+                        style={buttonStyle}
+                        className="flex items-center gap-1.5 cursor-pointer shadow-xs"
                       >
-                        {idx + 1}. {field.label}
-                        {field.required && (
-                          fieldStyles.requiredIndicator === "badge" ? (
-                            <span
-                              className="ml-2 px-2 py-0.5 rounded text-[10px] font-semibold border"
-                              style={{
-                                color: fieldStyles.requiredColor,
-                                borderColor: `${fieldStyles.requiredColor}40`,
-                                backgroundColor: `${fieldStyles.requiredColor}10`,
-                              }}
-                            >
-                              Required
-                            </span>
-                          ) : fieldStyles.requiredIndicator === "dot" ? (
-                            <span
-                              className="ml-1 text-sm font-black"
-                              style={{ color: fieldStyles.requiredColor }}
-                            >
-                              •
-                            </span>
-                          ) : fieldStyles.requiredIndicator === "none" ? null : (
-                            <span
-                              className="ml-1 font-bold"
-                              style={{ color: fieldStyles.requiredColor }}
-                            >
-                              *
-                            </span>
-                          )
-                        )}
-                      </label>
-                      {field.description && (
-                        <p className="text-[11px] text-[#78716C]">
-                          {field.description}
-                        </p>
-                      )}
-                      {renderPreviewInput(field, answers, handleAnswerChange, theme)}
-                    </div>
-                  );
-                })}
-              </div>
+                        <span>Next</span> <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleSubmit}
+                        style={buttonStyle}
+                        className="cursor-pointer shadow-xs"
+                      >
+                        Submit
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                /* Classic / Editorial / Multi-Question Form */
+                <div className="space-y-6 relative z-10">
+                  {/* Form Header */}
+                  <div
+                    className="border-b pb-6 space-y-2 relative z-10"
+                    style={{ borderBottomColor: theme.container.borderColor || theme.colors.border || "#F5F2EB" }}
+                  >
+                    <h1 style={headingStyle} className="tracking-tight text-xl sm:text-2xl font-bold">
+                      {title || "Untitled Form"}
+                    </h1>
+                    {description && (
+                      <p
+                        className="text-xs sm:text-sm leading-relaxed"
+                        style={descriptionStyle}
+                      >
+                        {description}
+                      </p>
+                    )}
+                  </div>
 
-              <div className="pt-6 border-t border-[#F5F2EB] flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setSubmitted(true)}
-                  style={buttonStyle}
-                  className="cursor-pointer"
-                >
-                  Submit Form
-                </button>
-              </div>
+                  {/* Form Fields List */}
+                  <div
+                    className="space-y-4 relative z-10"
+                    style={{
+                      gap: theme.inputs.customFieldSpacing
+                        ? `${theme.inputs.customFieldSpacing}px`
+                        : undefined,
+                    }}
+                  >
+                    {fields.length === 0 ? (
+                      <p className="text-sm text-[#78716C] py-4 text-center">
+                        This form has no questions yet.
+                      </p>
+                    ) : (
+                      fields.map((field, idx) => {
+                        if (field.type === "divider") {
+                          return <div key={field.id} className="h-px bg-[#EAE3D6] my-4" />;
+                        }
+                        if (field.type === "section_heading") {
+                          return (
+                            <div
+                              key={field.id}
+                              className="pt-4 pb-1 border-b"
+                              style={{ borderBottomColor: theme.fieldCard.borderColor || theme.container.borderColor || theme.colors.border || "#F5F2EB" }}
+                            >
+                              <h3 className="text-base font-bold text-[#1C1917]">{field.label}</h3>
+                              {field.description && (
+                                <p className="text-xs mt-0.5" style={descriptionStyle}>{field.description}</p>
+                              )}
+                            </div>
+                          );
+                        }
+
+                        const fieldStyles = getComputedFieldStyles(field, theme);
+                        const hasError = !!errors[field.id];
+
+                        return (
+                          <div
+                            key={field.id}
+                            id={`preview-field-${field.id}`}
+                            style={{
+                              ...fieldStyles.fieldCardStyle,
+                              borderColor: hasError
+                                ? theme.inputs?.errorBorderColor || "#EF4444"
+                                : fieldStyles.fieldCardStyle.borderColor,
+                            }}
+                            className="space-y-2.5 transition-all"
+                          >
+                            <label
+                              className="block text-xs sm:text-sm font-semibold"
+                              style={fieldStyles.inputLabelStyle}
+                            >
+                              {idx + 1}. {field.label}
+                              {field.required && (
+                                fieldStyles.requiredIndicator === "badge" ? (
+                                  <span
+                                    className="ml-2 px-2 py-0.5 rounded text-[10px] font-semibold border"
+                                    style={{
+                                      color: fieldStyles.requiredColor,
+                                      borderColor: `${fieldStyles.requiredColor}40`,
+                                      backgroundColor: `${fieldStyles.requiredColor}10`,
+                                    }}
+                                  >
+                                    Required
+                                  </span>
+                                ) : fieldStyles.requiredIndicator === "dot" ? (
+                                  <span
+                                    className="ml-1 text-sm font-black"
+                                    style={{ color: fieldStyles.requiredColor }}
+                                  >
+                                    •
+                                  </span>
+                                ) : fieldStyles.requiredIndicator === "none" ? null : (
+                                  <span
+                                    className="ml-1 font-bold"
+                                    style={{ color: fieldStyles.requiredColor }}
+                                  >
+                                    *
+                                  </span>
+                                )
+                              )}
+                            </label>
+
+                            {field.description && (
+                              <p className="text-[11px]" style={descriptionStyle}>
+                                {field.description}
+                              </p>
+                            )}
+
+                            {renderPreviewInput(
+                              field,
+                              answers,
+                              handleAnswerChange,
+                              theme,
+                              errors[field.id]
+                            )}
+
+                            {errors[field.id] && (
+                              <p
+                                className="text-xs font-semibold flex items-center gap-1 mt-1 animate-in fade-in"
+                                style={{ color: theme.inputs?.errorTextColor || "#EF4444" }}
+                              >
+                                <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                                <span>{errors[field.id]}</span>
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  {/* Form Submit Button */}
+                  {fields.length > 0 && (
+                    <div className="pt-6 border-t border-[#F5F2EB] flex justify-end">
+                      <button
+                        type="button"
+                        onClick={handleSubmit}
+                        style={buttonStyle}
+                        className="cursor-pointer shadow-xs"
+                      >
+                        Submit Response
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+interface FileUploadFieldControlProps {
+  field: FormField;
+  value: any;
+  onChange: (val: any) => void;
+  fieldStyles: any;
+  hasError?: boolean | string;
+  errorBorderColor?: string;
+}
+
+function FileUploadFieldControl({
+  field,
+  value,
+  onChange,
+  fieldStyles,
+  hasError,
+  errorBorderColor,
+}: FileUploadFieldControlProps) {
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const isImage = field.type === "image_upload";
+  const isVideo = field.type === "video_upload";
+  const isAudio = field.type === "audio_upload";
+
+  const accept = isImage
+    ? "image/*"
+    : isVideo
+    ? "video/*"
+    : isAudio
+    ? "audio/*"
+    : ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.png,.jpg,.jpeg";
+
+  const Icon = isImage ? ImageIcon : isVideo ? Video : isAudio ? Mic : Upload;
+
+  const handleFile = (file: File) => {
+    if (!file) return;
+
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const rawUrl = e.target?.result as string;
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const maxDim = 160;
+          let width = img.width;
+          let height = img.height;
+          if (width > height) {
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, width, height);
+          const thumbUrl = canvas.toDataURL("image/jpeg", 0.6);
+          onChange({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            dataUrl: thumbUrl,
+          });
+        };
+        img.onerror = () => {
+          onChange({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+          });
+        };
+        img.src = rawUrl;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      // Document / PDF / Resume / Video / Audio: Instant clean metadata (no massive base64 delay)
+      onChange({
+        name: file.name,
+        size: file.size,
+        type: file.type,
+      });
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const fileInfo =
+    typeof value === "object" && value !== null
+      ? value
+      : typeof value === "string" && value
+      ? { name: value }
+      : null;
+
+  return (
+    <div className="space-y-2">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={accept}
+        className="hidden"
+        onChange={(e) => {
+          if (e.target.files && e.target.files.length > 0) {
+            handleFile(e.target.files[0]);
+          }
+        }}
+      />
+      {fileInfo ? (
+        <div
+          style={{
+            ...fieldStyles.dropzoneStyle,
+            borderColor: hasError ? errorBorderColor : fieldStyles.dropzoneStyle.borderColor,
+            backgroundColor: `${fieldStyles.accentColor}08`,
+          }}
+          className="p-4 rounded-xl flex items-center justify-between gap-3 border transition-all"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            {fileInfo.dataUrl && (fileInfo.type?.startsWith("image/") || isImage) ? (
+              <img
+                src={fileInfo.dataUrl}
+                alt={fileInfo.name}
+                className="w-12 h-12 object-cover rounded-lg border border-[#EAE3D6] shrink-0"
+              />
+            ) : (
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs"
+                style={{
+                  backgroundColor: "rgba(255,255,255,0.9)",
+                  color: fieldStyles.accentColor,
+                  border: `1px solid ${fieldStyles.dropzoneStyle.borderColor}`,
+                }}
+              >
+                <Icon className="w-5 h-5" />
+              </div>
+            )}
+            <div className="min-w-0">
+              <p
+                className="text-xs font-semibold truncate"
+                style={{ color: fieldStyles.inputStyle.color }}
+              >
+                {fileInfo.name}
+              </p>
+              {fileInfo.size && (
+                <p className="text-[10px] opacity-70">
+                  {(fileInfo.size / (1024 * 1024)).toFixed(2)} MB
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="px-2.5 py-1 text-xs font-semibold rounded-lg border hover:bg-black/5 transition-all cursor-pointer"
+              style={{
+                borderColor: fieldStyles.dropzoneStyle.borderColor,
+                color: fieldStyles.accentColor,
+              }}
+            >
+              Change
+            </button>
+            <button
+              type="button"
+              onClick={() => onChange(null)}
+              className="p-1 text-xs text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all cursor-pointer"
+              title="Remove file"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={handleDrop}
+          style={{
+            ...fieldStyles.dropzoneStyle,
+            borderColor: hasError
+              ? errorBorderColor
+              : isDragging
+              ? fieldStyles.accentColor
+              : fieldStyles.dropzoneStyle.borderColor,
+            backgroundColor: isDragging
+              ? `${fieldStyles.accentColor}10`
+              : fieldStyles.dropzoneStyle.backgroundColor,
+          }}
+          className="p-6 text-center flex flex-col items-center justify-center space-y-2 cursor-pointer transition-all hover:opacity-90"
+        >
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center shadow-xs transition-transform hover:scale-110"
+            style={{
+              backgroundColor: "rgba(255,255,255,0.8)",
+              color: fieldStyles.accentColor,
+              border: `1px solid ${fieldStyles.dropzoneStyle.borderColor}`,
+            }}
+          >
+            <Icon className="w-5 h-5" />
+          </div>
+          <div className="text-xs font-semibold" style={{ color: fieldStyles.inputStyle.color }}>
+            {field.placeholder || "Click to browse or drag & drop file here"}
+          </div>
+          <div className="text-[10px] opacity-70">
+            {isImage
+              ? "PNG, JPG, WEBP, SVG up to 10MB"
+              : isVideo
+              ? "MP4, WebM, MOV up to 50MB"
+              : isAudio
+              ? "MP3, WAV, M4A up to 25MB"
+              : "PDF, DOCX, XLSX, TXT, ZIP up to 25MB"}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -358,7 +1004,8 @@ function renderPreviewInput(
   field: FormField,
   answers: Record<string, any>,
   onChange: (fieldId: string, val: any) => void,
-  theme: FormTheme
+  theme: FormTheme,
+  hasError?: string
 ) {
   const currentVal = answers[field.id];
   const fieldStyles = getComputedFieldStyles(field, theme);
@@ -376,9 +1023,7 @@ function renderPreviewInput(
               onClick={() => onChange(field.id, star)}
               style={fieldStyles.ratingStyle}
               className={`w-9 h-9 border flex items-center justify-center transition-all cursor-pointer ${
-                isFilled
-                  ? "border-amber-300"
-                  : "hover:text-amber-400"
+                isFilled ? "border-amber-300" : "hover:text-amber-400"
               }`}
             >
               <Star
@@ -817,45 +1462,22 @@ function renderPreviewInput(
     );
   }
 
-  // 12. File Upload / Image / Video / Audio
+  // 12. File Upload / Image / Video / Audio (Real File Dialog & Storage)
   if (
     field.type === "file_upload" ||
     field.type === "image_upload" ||
     field.type === "video_upload" ||
     field.type === "audio_upload"
   ) {
-    const Icon =
-      field.type === "image_upload"
-        ? ImageIcon
-        : field.type === "video_upload"
-        ? Video
-        : field.type === "audio_upload"
-        ? Mic
-        : Upload;
-
     return (
-      <div
-        onClick={() => onChange(field.id, "sample_uploaded_file.png")}
-        style={fieldStyles.dropzoneStyle}
-        className="p-6 text-center flex flex-col items-center justify-center space-y-2 cursor-pointer transition-all"
-      >
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center shadow-xs"
-          style={{
-            backgroundColor: "rgba(255,255,255,0.8)",
-            color: fieldStyles.accentColor,
-            border: `1px solid ${fieldStyles.dropzoneStyle.borderColor}`,
-          }}
-        >
-          <Icon className="w-5 h-5" />
-        </div>
-        <div className="text-xs font-semibold">
-          {currentVal ? `Attached: ${currentVal}` : "Click to select or drag & drop"}
-        </div>
-        <div className="text-[10px] opacity-70">
-          Up to 25MB file attachment simulated in preview
-        </div>
-      </div>
+      <FileUploadFieldControl
+        field={field}
+        value={currentVal}
+        onChange={(val) => onChange(field.id, val)}
+        fieldStyles={fieldStyles}
+        hasError={hasError}
+        errorBorderColor={theme.inputs?.errorBorderColor || "#EF4444"}
+      />
     );
   }
 
@@ -1054,6 +1676,45 @@ function renderPreviewInput(
     );
   }
 
+  // Phone Number input (Strict digit & phone format filtering)
+  if (field.type === "phone") {
+    return (
+      <input
+        type="tel"
+        inputMode="tel"
+        value={currentVal || ""}
+        onChange={(e) => {
+          // Strictly reject sentences and letter characters: allow digits, +, -, (, ), spaces, .
+          const cleaned = e.target.value.replace(/[^0-9+\s()\-.]/g, "");
+          onChange(field.id, cleaned);
+        }}
+        onKeyDown={(e) => {
+          const allowedKeys = [
+            "Backspace",
+            "Delete",
+            "ArrowLeft",
+            "ArrowRight",
+            "Tab",
+            "Enter",
+            "Home",
+            "End",
+          ];
+          if (
+            !allowedKeys.includes(e.key) &&
+            !e.ctrlKey &&
+            !e.metaKey &&
+            !/^[0-9+\s()\-.]*$/.test(e.key)
+          ) {
+            e.preventDefault();
+          }
+        }}
+        placeholder={field.placeholder || "+1 (555) 000-0000"}
+        style={fieldStyles.inputStyle}
+        className="w-full focus:outline-none"
+      />
+    );
+  }
+
   // Default text, password, number, etc.
   return (
     <input
@@ -1078,8 +1739,6 @@ function renderPreviewInput(
           ? "name@example.com"
           : field.type === "url"
           ? "https://..."
-          : field.type === "phone"
-          ? "+1 (555) 000-0000"
           : "Enter your answer...")
       }
       style={fieldStyles.inputStyle}

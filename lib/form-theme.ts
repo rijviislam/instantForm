@@ -29,6 +29,8 @@ export interface FormThemeTypography {
   fontWeight: "normal" | "medium" | "semibold" | "bold";
   lineHeight: "tight" | "normal" | "relaxed" | "loose";
   letterSpacing: "tighter" | "normal" | "wide" | "widest";
+  headingColor?: string;
+  descriptionColor?: string;
 }
 
 export interface FormThemeContainer {
@@ -48,6 +50,7 @@ export interface FormThemeContainer {
   overlayColor?: string;
   overlayOpacity?: number; // 0 - 100
   bgBlur?: number; // 0 - 24px
+  imageBlur?: number; // 0 - 40px
 
   // Sizing
   maxWidth: "sm" | "md" | "lg" | "xl" | "2xl" | "full" | "custom";
@@ -362,12 +365,17 @@ export interface FormThemeColors {
 
 export interface FormThemeBranding {
   logoUrl?: string;
-  logoPosition: "left" | "center" | "right";
+  logoPosition: "left" | "center" | "right" | "center-top" | "center-bottom";
   logoSize: "sm" | "md" | "lg";
+  logoFrame?: "badge" | "plain" | "circle";
   headerImageUrl?: string;
   headerImageHeight: "sm" | "md" | "lg";
   headerImageFit: "cover" | "contain";
   showInstantFormBadge: boolean;
+  showStyleBadge?: boolean;
+  badgeBackgroundColor?: string;
+  badgeTextColor?: string;
+  badgeBorderColor?: string;
 }
 
 export interface FormThemeLayout {
@@ -377,6 +385,8 @@ export interface FormThemeLayout {
 }
 
 export interface FormTheme {
+  colorMood?: "light" | "dark" | "auto" | "toggle";
+  allowRespondentMoodToggle?: boolean;
   background: FormThemeBackground;
   typography: FormThemeTypography;
   container: FormThemeContainer;
@@ -408,6 +418,8 @@ export const GOOGLE_FONTS_LIST = [
 ];
 
 export const DEFAULT_FORM_THEME: FormTheme = {
+  colorMood: "light",
+  allowRespondentMoodToggle: true,
   background: {
     type: "solid",
     color: "#FAF8F5",
@@ -432,6 +444,8 @@ export const DEFAULT_FORM_THEME: FormTheme = {
     fontWeight: "semibold",
     lineHeight: "normal",
     letterSpacing: "normal",
+    headingColor: "#1C1917",
+    descriptionColor: "#78716C",
   },
   container: {
     backgroundType: "solid",
@@ -448,6 +462,7 @@ export const DEFAULT_FORM_THEME: FormTheme = {
     overlayColor: "#000000",
     overlayOpacity: 0,
     bgBlur: 0,
+    imageBlur: 0,
     maxWidth: "2xl",
     customMaxWidth: 672,
     minHeight: "none",
@@ -626,9 +641,9 @@ export const DEFAULT_FORM_THEME: FormTheme = {
     dropzoneIconColor: "#FF5A36",
   },
   buttons: {
-    backgroundColor: "#1C1917",
+    backgroundColor: "#FF5A36",
     textColor: "#FFFFFF",
-    hoverBackgroundColor: "#292524",
+    hoverBackgroundColor: "#E04826",
     hoverTextColor: "#FFFFFF",
     borderRadius: "xl",
     borderWidth: "none",
@@ -653,10 +668,15 @@ export const DEFAULT_FORM_THEME: FormTheme = {
     logoUrl: "",
     logoPosition: "center",
     logoSize: "md",
+    logoFrame: "plain",
     headerImageUrl: "",
     headerImageHeight: "md",
     headerImageFit: "cover",
     showInstantFormBadge: true,
+    showStyleBadge: true,
+    badgeBackgroundColor: "#FFF0EB",
+    badgeTextColor: "#FF5A36",
+    badgeBorderColor: "#FFD8CC",
   },
   layout: {
     fieldSpacing: "normal",
@@ -961,9 +981,9 @@ export const THEME_PRESETS: Array<{
         fontWeight: "normal",
       },
       buttons: {
-        backgroundColor: "#1C1917",
+        backgroundColor: "#FF5A36",
         textColor: "#FFFFFF",
-        hoverBackgroundColor: "#292524",
+        hoverBackgroundColor: "#E04826",
         hoverTextColor: "#FFFFFF",
         borderRadius: "xl",
         borderWidth: "none",
@@ -1540,44 +1560,179 @@ export const INPUT_STYLE_PRESETS: Array<{
 ];
 
 /**
- * Merge saved or incoming theme with complete defaults
+ * Transforms a FormTheme to a complete high-contrast Dark or Light mode palette
  */
-export function resolveFormTheme(savedTheme?: any, style?: FormStyle): FormTheme {
-  if (!savedTheme && style) {
-    // If no custom theme saved yet, match default preset to the legacy style option
-    const preset = THEME_PRESETS.find((p) => p.id === style) || THEME_PRESETS[0];
+export function applyThemeMood(theme: FormTheme, mood: "light" | "dark"): FormTheme {
+  const resolved = resolveFormTheme(theme);
+  const primary = resolved.colors.primary || "#FF5A36";
+
+  if (mood === "dark") {
     return {
-      ...DEFAULT_FORM_THEME,
-      ...preset.theme,
-      background: { ...DEFAULT_FORM_THEME.background, ...(preset.theme.background || {}) },
-      typography: { ...DEFAULT_FORM_THEME.typography, ...(preset.theme.typography || {}) },
-      container: { ...DEFAULT_FORM_THEME.container, ...(preset.theme.container || {}) },
-      fieldCard: { ...DEFAULT_FORM_THEME.fieldCard, ...(preset.theme.fieldCard || {}) },
-      inputs: { ...DEFAULT_FORM_THEME.inputs, ...(preset.theme.inputs || {}) },
-      buttons: { ...DEFAULT_FORM_THEME.buttons, ...(preset.theme.buttons || {}) },
-      colors: { ...DEFAULT_FORM_THEME.colors, ...(preset.theme.colors || {}) },
-      branding: { ...DEFAULT_FORM_THEME.branding, ...(preset.theme.branding || {}) },
-      layout: { ...DEFAULT_FORM_THEME.layout, ...(preset.theme.layout || {}) },
+      ...resolved,
+      colorMood: "dark",
+      background: {
+        ...resolved.background,
+        type: "solid",
+        color: "#0B0F17",
+      },
+      container: {
+        ...resolved.container,
+        backgroundColor: "#111827",
+        borderColor: "#1F2937",
+        backgroundOpacity: 100,
+      },
+      colors: {
+        ...resolved.colors,
+        text: "#F8FAFC",
+        mutedText: "#94A3B8",
+        border: "#1F2937",
+        surface: "#111827",
+      },
+      typography: {
+        ...resolved.typography,
+        headingColor: "#F8FAFC",
+        descriptionColor: "#94A3B8",
+      },
+      inputs: {
+        ...resolved.inputs,
+        backgroundColor: "#161F30",
+        borderColor: "#293548",
+        textColor: "#F8FAFC",
+        labelColor: "#F8FAFC",
+        placeholderColor: "#64748B",
+        dropzoneBgColor: "rgba(22, 31, 48, 0.7)",
+        dropzoneBorderColor: "#293548",
+        dropzoneTextColor: "#F8FAFC",
+      },
+      fieldCard: {
+        ...resolved.fieldCard,
+        backgroundColor: "#161F30",
+        borderColor: "#293548",
+      },
+      branding: {
+        ...resolved.branding,
+        badgeBackgroundColor: "rgba(255, 90, 54, 0.15)",
+        badgeTextColor: "#FF5A36",
+        badgeBorderColor: "rgba(255, 90, 54, 0.3)",
+      },
     };
   }
 
-  const raw = savedTheme || {};
+  // Light mood
   return {
+    ...resolved,
+    colorMood: "light",
+    background: {
+      ...resolved.background,
+      type: "solid",
+      color: "#FAF8F5",
+    },
+    container: {
+      ...resolved.container,
+      backgroundColor: "#FFFFFF",
+      borderColor: "#EAE3D6",
+      backgroundOpacity: 100,
+    },
+    colors: {
+      ...resolved.colors,
+      text: "#1C1917",
+      mutedText: "#78716C",
+      border: "#EAE3D6",
+      surface: "#FFFFFF",
+    },
+    typography: {
+      ...resolved.typography,
+      headingColor: "#1C1917",
+      descriptionColor: "#78716C",
+    },
+    inputs: {
+      ...resolved.inputs,
+      backgroundColor: "#FAF8F5",
+      borderColor: "#EAE3D6",
+      textColor: "#1C1917",
+      labelColor: "#1C1917",
+      placeholderColor: "#A8A29E",
+      dropzoneBgColor: "rgba(250, 248, 245, 0.6)",
+      dropzoneBorderColor: "#EAE3D6",
+      dropzoneTextColor: "#1C1917",
+    },
+    fieldCard: {
+      ...resolved.fieldCard,
+      backgroundColor: "#FAF8F5",
+      borderColor: "#EAE3D6",
+    },
+    branding: {
+      ...resolved.branding,
+      badgeBackgroundColor: "#FFF0EB",
+      badgeTextColor: "#FF5A36",
+      badgeBorderColor: "#FFD8CC",
+    },
+  };
+}
+
+/**
+ * Merge saved or incoming theme with complete defaults
+ */
+export function resolveFormTheme(savedTheme?: any, style?: FormStyle): FormTheme {
+  const styleStr = (style || "").toLowerCase();
+  const matchedPreset = THEME_PRESETS.find(
+    (p) =>
+      p.id.toLowerCase() === styleStr ||
+      p.id.toLowerCase().startsWith(styleStr) ||
+      p.name.toLowerCase().includes(styleStr) ||
+      p.id.toLowerCase().replace(/[^a-z]/g, "") === styleStr.replace(/[^a-z]/g, "")
+  ) || THEME_PRESETS[0];
+
+  const presetTheme = matchedPreset.theme || {};
+  const raw = savedTheme || {};
+
+  const primaryColor =
+    raw.colors?.primary ||
+    raw.buttons?.backgroundColor ||
+    presetTheme.colors?.primary ||
+    DEFAULT_FORM_THEME.colors.primary;
+
+  const accentColor =
+    raw.colors?.accent ||
+    presetTheme.colors?.accent ||
+    DEFAULT_FORM_THEME.colors.accent;
+
+  const surfaceColor =
+    raw.container?.backgroundColor ||
+    raw.colors?.surface ||
+    presetTheme.container?.backgroundColor ||
+    presetTheme.colors?.surface ||
+    DEFAULT_FORM_THEME.container.backgroundColor;
+
+  return {
+    colorMood: raw.colorMood || (presetTheme as any).colorMood || DEFAULT_FORM_THEME.colorMood,
+    allowRespondentMoodToggle:
+      raw.allowRespondentMoodToggle !== undefined
+        ? raw.allowRespondentMoodToggle
+        : (presetTheme as any).allowRespondentMoodToggle !== undefined
+        ? (presetTheme as any).allowRespondentMoodToggle
+        : DEFAULT_FORM_THEME.allowRespondentMoodToggle,
     background: {
       ...DEFAULT_FORM_THEME.background,
+      ...(presetTheme.background || {}),
       ...(raw.background || {}),
     },
     typography: {
       ...DEFAULT_FORM_THEME.typography,
+      ...(presetTheme.typography || {}),
       ...(raw.typography || {}),
     },
     container: {
       ...DEFAULT_FORM_THEME.container,
+      ...(presetTheme.container || {}),
       ...(raw.container || {}),
+      backgroundColor: surfaceColor,
     },
     fieldCard: {
       ...DEFAULT_FORM_THEME.fieldCard,
+      ...(presetTheme.fieldCard || {}),
       ...(raw.fieldCard || {}),
+      selectedRingColor: primaryColor,
       selectedBackgroundColor:
         raw.fieldCard?.selectedBackgroundColor === "#FFFFFF" || raw.fieldCard?.selectedBackgroundColor === "#ffffff"
           ? undefined
@@ -1589,22 +1744,35 @@ export function resolveFormTheme(savedTheme?: any, style?: FormStyle): FormTheme
     },
     inputs: {
       ...DEFAULT_FORM_THEME.inputs,
+      ...(presetTheme.inputs || {}),
       ...(raw.inputs || {}),
+      focusBorderColor: raw.inputs?.focusBorderColor || primaryColor,
+      focusRingColor: raw.inputs?.focusRingColor || `${primaryColor}33`,
     },
     buttons: {
       ...DEFAULT_FORM_THEME.buttons,
+      ...(presetTheme.buttons || {}),
       ...(raw.buttons || {}),
+      backgroundColor: raw.buttons?.backgroundColor || primaryColor,
     },
     colors: {
       ...DEFAULT_FORM_THEME.colors,
+      ...(presetTheme.colors || {}),
       ...(raw.colors || {}),
+      primary: primaryColor,
+      accent: accentColor,
+      surface: surfaceColor,
     },
     branding: {
       ...DEFAULT_FORM_THEME.branding,
+      ...(presetTheme.branding || {}),
       ...(raw.branding || {}),
+      badgeBackgroundColor: raw.branding?.badgeBackgroundColor || accentColor,
+      badgeTextColor: raw.branding?.badgeTextColor || primaryColor,
     },
     layout: {
       ...DEFAULT_FORM_THEME.layout,
+      ...(presetTheme.layout || {}),
       ...(raw.layout || {}),
     },
   };
@@ -2182,7 +2350,9 @@ export function getThemeComputedStyles(theme: FormTheme) {
       cardBgCss = `linear-gradient(${c.gradientDirection || "135deg"}, ${c.gradientFrom || "#FFFFFF"} 0%, ${c.gradientVia ? c.gradientVia + " 50%," : ""} ${c.gradientTo || "#FAF8F5"} 100%)`;
     }
   } else if (c.backgroundType === "image" && c.imageUrl) {
-    cardBgImage = `url("${c.imageUrl}")`;
+    // When backgroundType is "image", the card renders an inner background div
+    // layer to allow blur & overlay filters without blurring form inputs and typography
+    cardBgImage = undefined;
     cardBgCss = undefined;
   }
 
@@ -2232,6 +2402,8 @@ export function getThemeComputedStyles(theme: FormTheme) {
       ? `${c.customMaxWidth}px`
       : maxWidthMap[c.maxWidth] || "42rem";
 
+  const hasBanner = Boolean(theme.branding?.headerImageUrl && theme.branding.headerImageUrl.trim() !== "");
+
   const containerStyle: React.CSSProperties = {
     background: cardBgCss,
     backgroundImage: cardBgImage,
@@ -2239,9 +2411,19 @@ export function getThemeComputedStyles(theme: FormTheme) {
     backgroundPosition: c.imagePosition || "center",
     backgroundSize: c.imageSize || "cover",
     backgroundRepeat: c.imageRepeat || "no-repeat",
-    borderRadius: computedBorderRadius,
-    borderWidth: (c.borderTop === false || c.borderRight === false || c.borderBottom === false || c.borderLeft === false) ? undefined : defaultBorderWidth,
-    borderTopWidth: (c.borderTop === false || c.borderRight === false || c.borderBottom === false || c.borderLeft === false) ? (c.borderTop === false ? "0px" : defaultBorderWidth) : undefined,
+    borderRadius: hasBanner
+      ? `0px 0px ${computedBorderRadius} ${computedBorderRadius}`
+      : computedBorderRadius,
+    borderTopLeftRadius: hasBanner ? "0px" : undefined,
+    borderTopRightRadius: hasBanner ? "0px" : undefined,
+    borderBottomLeftRadius: hasBanner ? computedBorderRadius : undefined,
+    borderBottomRightRadius: hasBanner ? computedBorderRadius : undefined,
+    position: "relative",
+    overflow: "hidden",
+    borderWidth: (c.borderTop === false || c.borderRight === false || c.borderBottom === false || c.borderLeft === false || hasBanner) ? undefined : defaultBorderWidth,
+    borderTopWidth: hasBanner
+      ? "0px"
+      : (c.borderTop === false || c.borderRight === false || c.borderBottom === false || c.borderLeft === false) ? (c.borderTop === false ? "0px" : defaultBorderWidth) : undefined,
     borderRightWidth: (c.borderTop === false || c.borderRight === false || c.borderBottom === false || c.borderLeft === false) ? (c.borderRight === false ? "0px" : defaultBorderWidth) : undefined,
     borderBottomWidth: (c.borderTop === false || c.borderRight === false || c.borderBottom === false || c.borderLeft === false) ? (c.borderBottom === false ? "0px" : defaultBorderWidth) : undefined,
     borderLeftWidth: (c.borderTop === false || c.borderRight === false || c.borderBottom === false || c.borderLeft === false) ? (c.borderLeft === false ? "0px" : defaultBorderWidth) : undefined,
@@ -2288,7 +2470,7 @@ export function getThemeComputedStyles(theme: FormTheme) {
     fontFamily: fontFamilyCss,
   };
 
-  // 6. Heading Style
+  // 6. Heading & Description Style
   const headingSizeMap = {
     base: "1.125rem",
     lg: "1.25rem",
@@ -2297,12 +2479,29 @@ export function getThemeComputedStyles(theme: FormTheme) {
     "3xl": "2.25rem",
   };
 
+  const headingColor = theme.typography.headingColor || theme.colors.text || "#1C1917";
+  const descriptionColor = theme.typography.descriptionColor || theme.colors.mutedText || "#78716C";
+
   const headingStyle: React.CSSProperties = {
     fontFamily: headingFontFamilyCss,
     fontSize: headingSizeMap[theme.typography.headingSize] || "1.875rem",
     fontWeight: theme.typography.fontWeight === "bold" ? 700 : theme.typography.fontWeight === "medium" ? 500 : 600,
-    color: theme.colors.text || "#1C1917",
+    color: headingColor,
     letterSpacing: theme.typography.letterSpacing === "tighter" ? "-0.05em" : theme.typography.letterSpacing === "wide" ? "0.05em" : theme.typography.letterSpacing === "widest" ? "0.1em" : "normal",
+  };
+
+  const descriptionStyle: React.CSSProperties = {
+    color: descriptionColor,
+  };
+
+  // 7. Interactive Flow Style Badge
+  const badgeBackgroundColor = theme.branding.badgeBackgroundColor || theme.colors.accent || "#FFF0EB";
+  const badgeTextColor = theme.branding.badgeTextColor || theme.colors.primary || "#FF5A36";
+  const badgeBorderColor = theme.branding.badgeBorderColor || (theme.colors.primary ? `${theme.colors.primary}40` : "#FFD8CC");
+  const badgeStyle: React.CSSProperties = {
+    backgroundColor: badgeBackgroundColor,
+    color: badgeTextColor,
+    borderColor: badgeBorderColor,
   };
 
   return {
@@ -2329,6 +2528,13 @@ export function getThemeComputedStyles(theme: FormTheme) {
     requiredIndicator: fieldCustomStyles.requiredIndicator,
     buttonStyle,
     headingStyle,
+    descriptionStyle,
+    headingColor,
+    descriptionColor,
+    badgeStyle,
+    badgeBackgroundColor,
+    badgeTextColor,
+    badgeBorderColor,
     fontFamilyCss,
     headingFontFamilyCss,
   };

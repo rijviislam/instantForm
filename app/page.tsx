@@ -14,7 +14,7 @@ import { Footer } from "@/components/landing/Footer";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#1C1917] selection:bg-[#FFE5DE] selection:text-[#E44825]">
+    <div className="min-h-screen flex flex-col bg-[#FAF8F5] dark:bg-[#0B0F17] text-[#1C1917] dark:text-[#F8FAFC] selection:bg-[#FFE5DE] dark:selection:bg-[#FF5A36]/30 selection:text-[#E44825] dark:selection:text-[#FF6B4A] transition-colors duration-200">
       {/* 1. Sticky / Floating Navigation */}
       <Navbar />
 

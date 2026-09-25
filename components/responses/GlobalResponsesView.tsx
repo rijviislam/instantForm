@@ -34,12 +34,12 @@ export function GlobalResponsesView() {
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#EAE3D6]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#EAE3D6] dark:border-[#1F2937]">
         <div>
-          <h1 className="font-serif-editorial text-3xl sm:text-4xl font-normal text-[#1C1917] tracking-tight">
+          <h1 className="font-serif-editorial text-3xl sm:text-4xl font-normal text-[#1C1917] dark:text-[#F8FAFC] tracking-tight">
             Responses
           </h1>
-          <p className="text-xs sm:text-sm text-[#57534E] mt-1">
+          <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#94A3B8] mt-1">
             Real-time response tracking and submission overview across all your forms.
           </p>
         </div>
@@ -58,21 +58,21 @@ export function GlobalResponsesView() {
 
       {/* Content */}
       {isLoading ? (
-        <div className="rounded-3xl bg-white border border-[#EAE3D6] p-12 text-center card-shadow animate-pulse space-y-3">
-          <div className="h-6 w-32 bg-[#FAF8F5] rounded mx-auto" />
-          <div className="h-4 w-48 bg-[#FAF8F5] rounded mx-auto" />
+        <div className="rounded-3xl bg-white dark:bg-[#111827] border border-[#EAE3D6] dark:border-[#1F2937] p-12 text-center card-shadow animate-pulse space-y-3">
+          <div className="h-6 w-32 bg-[#FAF8F5] dark:bg-[#1F2937] rounded mx-auto" />
+          <div className="h-4 w-48 bg-[#FAF8F5] dark:bg-[#1F2937] rounded mx-auto" />
         </div>
       ) : responses.length === 0 ? (
-        <div className="rounded-3xl bg-white border border-[#EAE3D6] p-12 sm:p-16 text-center card-shadow flex flex-col items-center justify-center">
-          <div className="w-14 h-14 rounded-2xl bg-[#FFF0EB] border border-[#FFD8CC] text-[#FF5A36] flex items-center justify-center mb-4">
+        <div className="rounded-3xl bg-white dark:bg-[#111827] border border-[#EAE3D6] dark:border-[#1F2937] p-12 sm:p-16 text-center card-shadow flex flex-col items-center justify-center">
+          <div className="w-14 h-14 rounded-2xl bg-[#FFF0EB] dark:bg-[#FF5A36]/15 border border-[#FFD8CC] dark:border-[#FF5A36]/30 text-[#FF5A36] dark:text-[#FF6B4A] flex items-center justify-center mb-4">
             <Inbox className="w-7 h-7" />
           </div>
 
-          <h2 className="font-serif-editorial text-2xl font-normal text-[#1C1917] tracking-tight">
+          <h2 className="font-serif-editorial text-2xl font-normal text-[#1C1917] dark:text-[#F8FAFC] tracking-tight">
             No responses recorded yet
           </h2>
 
-          <p className="text-xs sm:text-sm text-[#57534E] max-w-sm mt-2 mb-6 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#94A3B8] max-w-sm mt-2 mb-6 leading-relaxed">
             Submissions and analytics will appear here automatically once respondents complete your published forms.
           </p>
 
@@ -83,29 +83,29 @@ export function GlobalResponsesView() {
           </Link>
         </div>
       ) : (
-        <div className="rounded-3xl bg-white border border-[#EAE3D6] card-shadow divide-y divide-[#EAE3D6] overflow-hidden">
+        <div className="rounded-3xl bg-white dark:bg-[#111827] border border-[#EAE3D6] dark:border-[#1F2937] card-shadow divide-y divide-[#EAE3D6] dark:divide-[#1F2937] overflow-hidden">
           {responses.map((item) => (
             <Link
               key={item.id}
               href={`/forms/${item.formId}/responses`}
-              className="p-5 sm:p-6 flex items-center justify-between gap-4 hover:bg-[#FAF8F5] transition-colors group cursor-pointer"
+              className="p-5 sm:p-6 flex items-center justify-between gap-4 hover:bg-[#FAF8F5] dark:hover:bg-[#1E293B]/70 transition-colors group cursor-pointer"
             >
               <div className="space-y-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-[#1C1917] group-hover:text-[#FF5A36] transition-colors font-serif-editorial">
+                  <span className="text-sm font-semibold text-[#1C1917] dark:text-[#F8FAFC] group-hover:text-[#FF5A36] dark:group-hover:text-[#FF6B4A] transition-colors font-serif-editorial">
                     {item.formTitle}
                   </span>
-                  <span className="text-[11px] text-[#A8A29E] flex items-center gap-1">
+                  <span className="text-[11px] text-[#A8A29E] dark:text-[#64748B] flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     {formatRelativeTime(item.submittedAt)}
                   </span>
                 </div>
-                <p className="text-xs text-[#57534E] truncate">
+                <p className="text-xs text-[#57534E] dark:text-[#94A3B8] truncate">
                   {item.answersSummary}
                 </p>
               </div>
 
-              <ChevronRight className="w-4 h-4 text-[#A8A29E] group-hover:text-[#FF5A36] group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+              <ChevronRight className="w-4 h-4 text-[#A8A29E] dark:text-[#64748B] group-hover:text-[#FF5A36] dark:group-hover:text-[#FF6B4A] group-hover:translate-x-0.5 transition-all flex-shrink-0" />
             </Link>
           ))}
         </div>
@@ -113,4 +113,3 @@ export function GlobalResponsesView() {
     </div>
   );
 }
-

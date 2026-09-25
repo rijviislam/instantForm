@@ -181,7 +181,7 @@ export function Hero() {
         <h1
           id="hero-headline"
           ref={headlineRef}
-          className="font-serif-editorial text-4xl sm:text-6xl md:text-7xl lg:text-[76px] font-normal tracking-tight text-[#1C1917] max-w-4xl leading-[1.08] sm:leading-[1.06]"
+          className="font-serif-editorial text-4xl sm:text-6xl md:text-7xl lg:text-[76px] font-normal tracking-tight text-[#1C1917] dark:text-[#F8FAFC] max-w-4xl leading-[1.08] sm:leading-[1.06]"
         >
           Build forms that feel{" "}
           <span className="italic font-medium text-[#FF5A36] relative inline-block">
@@ -206,7 +206,7 @@ export function Hero() {
         {/* Supporting text */}
         <p
           id="hero-desc"
-          className="mt-6 text-base sm:text-lg md:text-xl text-[#57534E] max-w-2xl font-normal leading-relaxed"
+          className="mt-6 text-base sm:text-lg md:text-xl text-[#57534E] dark:text-[#94A3B8] max-w-2xl font-normal leading-relaxed"
         >
           Create, publish, share, and understand responses—without wrestling with
           a boring form builder. Fast, beautiful, and delightfully simple.
@@ -235,7 +235,7 @@ export function Hero() {
             variant="secondary"
             size="lg"
             className="w-full sm:w-auto"
-            iconLeft={<LayoutTemplate className="w-4 h-4 text-[#57534E]" />}
+            iconLeft={<LayoutTemplate className="w-4 h-4 text-[#57534E] dark:text-[#94A3B8]" />}
             onClick={() => {
               const el = document.getElementById("templates");
               el?.scrollIntoView({ behavior: "smooth" });
@@ -246,15 +246,15 @@ export function Hero() {
         </div>
 
         {/* Hero trust micro-badges */}
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-[#78716C] ">
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-[#78716C] dark:text-[#94A3B8]">
           <span className="flex items-center gap-1.5">
             <Zap className="w-3.5 h-3.5 text-[#FF5A36]" /> Ready in 60 seconds
           </span>
-          <span className="hidden sm:inline text-[#D6CEC1]">•</span>
+          <span className="hidden sm:inline text-[#D6CEC1] dark:text-[#334155]">•</span>
           <span className="flex items-center gap-1.5">
             <ShieldCheck className="w-3.5 h-3.5 text-[#FF5A36]" /> 100% No-code required
           </span>
-          <span className="hidden sm:inline text-[#D6CEC1]">•</span>
+          <span className="hidden sm:inline text-[#D6CEC1] dark:text-[#334155]">•</span>
           <span className="flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-[#FF5A36]" /> Free template library
           </span>

@@ -48,7 +48,14 @@ export async function authenticate(
       return;
     }
 
-    const user = await UserService.findById(decoded.userId);
+    let user = await UserService.findById(decoded.userId);
+
+    if (!user && decoded.email) {
+      user = await UserService.ensureUser({
+        id: decoded.userId,
+        email: decoded.email,
+      });
+    }
 
     if (!user) {
       res.status(401).json({

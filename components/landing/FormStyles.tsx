@@ -103,7 +103,7 @@ export function FormStyles() {
     <section
       ref={sectionRef}
       id="form-styles"
-      className="py-24 md:py-32 bg-[#FAF8F5] relative overflow-hidden"
+      className="py-24 md:py-32 bg-[#FAF8F5] dark:bg-[#0B0F17] relative overflow-hidden transition-colors duration-200"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
@@ -115,12 +115,12 @@ export function FormStyles() {
           >
             Beautiful by Default
           </Badge>
-          <h2 className="font-serif-editorial text-3xl sm:text-5xl md:text-6xl text-[#1C1917] tracking-tight font-normal leading-[1.1]">
+          <h2 className="font-serif-editorial text-3xl sm:text-5xl md:text-6xl text-[#1C1917] dark:text-[#F8FAFC] tracking-tight font-normal leading-[1.1]">
             One form.{" "}
             <span className="italic font-medium text-[#FF5A36]">Five different</span>{" "}
             personalities.
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-[#57534E] leading-relaxed">
+          <p className="mt-4 text-base sm:text-lg text-[#57534E] dark:text-[#94A3B8] leading-relaxed">
             Every audience is unique. Switch the entire visual personality of your form in a single click without touching the question structure.
           </p>
         </div>
@@ -136,8 +136,8 @@ export function FormStyles() {
                 onClick={() => setActiveStyle(style.key)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                   isActive
-                    ? "bg-[#1C1917] text-white shadow-md scale-105"
-                    : "bg-white text-[#57534E] border border-[#EAE3D6] hover:bg-[#F4EFE6] hover:text-[#1C1917]"
+                    ? "bg-[#1C1917] dark:bg-[#FF5A36] text-white shadow-md scale-105"
+                    : "bg-white dark:bg-[#161F30] text-[#57534E] dark:text-[#94A3B8] border border-[#EAE3D6] dark:border-[#293548] hover:bg-[#F4EFE6] dark:hover:bg-[#1E293B] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
                 }`}
               >
                 {style.icon}
@@ -149,47 +149,47 @@ export function FormStyles() {
 
         {/* Interactive Main Style Showcase */}
         <div className="max-w-4xl mx-auto mb-16">
-          <div className="bg-white rounded-3xl border border-[#EAE3D6] p-6 sm:p-10 card-shadow transition-all duration-300">
+          <div className="bg-white dark:bg-[#111827] rounded-3xl border border-[#EAE3D6] dark:border-[#1F2937] p-6 sm:p-10 card-shadow transition-all duration-300">
             {/* Style 01: CLASSIC */}
             {activeStyle === "classic" && (
               <div className="space-y-6 animate-in fade-in duration-300">
-                <div className="flex items-center justify-between border-b border-[#EAE3D6] pb-4">
+                <div className="flex items-center justify-between border-b border-[#EAE3D6] dark:border-[#1F2937] pb-4">
                   <div>
                     <span className="text-xs font-bold text-[#FF5A36] uppercase tracking-wider">
                       Classic Theme
                     </span>
-                    <h3 className="font-serif-editorial text-2xl sm:text-3xl text-[#1C1917] font-medium">
+                    <h3 className="font-serif-editorial text-2xl sm:text-3xl text-[#1C1917] dark:text-[#F8FAFC] font-medium">
                       Event RSVP & Workshop Intake
                     </h3>
                   </div>
-                  <span className="text-xs font-semibold text-[#78716C] bg-[#FAF8F5] px-3 py-1 rounded-full border border-[#EAE3D6]">
+                  <span className="text-xs font-semibold text-[#78716C] dark:text-[#94A3B8] bg-[#FAF8F5] dark:bg-[#161F30] px-3 py-1 rounded-full border border-[#EAE3D6] dark:border-[#293548]">
                     Standard Layout
                   </span>
                 </div>
 
                 <div className="space-y-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-[#292524]">
+                    <label className="text-xs font-semibold text-[#292524] dark:text-[#E2E8F0]">
                       Full Name *
                     </label>
                     <input
                       type="text"
                       readOnly
                       value="Elena Rostova"
-                      className="w-full text-sm p-3 rounded-xl bg-[#FAF8F5] border border-[#EAE3D6] text-[#1C1917]"
+                      className="w-full text-sm p-3 rounded-xl bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] text-[#1C1917] dark:text-[#F8FAFC]"
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-[#292524]">
+                    <label className="text-xs font-semibold text-[#292524] dark:text-[#E2E8F0]">
                       Will you attend in-person or virtually?
                     </label>
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="p-3 rounded-xl bg-[#FFF0EB] border border-[#FF5A36] text-xs font-semibold text-[#FF5A36] flex items-center justify-between">
+                      <div className="p-3 rounded-xl bg-[#FFF0EB] dark:bg-[#FF5A36]/20 border border-[#FF5A36] text-xs font-semibold text-[#FF5A36] flex items-center justify-between">
                         <span>In-person (San Francisco)</span>
                         <Check className="w-3.5 h-3.5" />
                       </div>
-                      <div className="p-3 rounded-xl bg-[#FAF8F5] border border-[#EAE3D6] text-xs font-medium text-[#57534E]">
+                      <div className="p-3 rounded-xl bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] text-xs font-medium text-[#57534E] dark:text-[#94A3B8]">
                         Virtual Livestream
                       </div>
                     </div>
@@ -199,7 +199,7 @@ export function FormStyles() {
                 <div className="pt-2 flex justify-end">
                   <button
                     type="button"
-                    className="px-6 py-2.5 rounded-full bg-[#FF5A36] text-white text-xs font-semibold"
+                    className="px-6 py-2.5 rounded-full bg-[#FF5A36] text-white text-xs font-semibold hover:bg-[#E44825] transition-colors"
                   >
                     Confirm RSVP
                   </button>
@@ -210,10 +210,10 @@ export function FormStyles() {
             {/* Style 02: CONVERSATION */}
             {activeStyle === "conversation" && (
               <div className="py-6 sm:py-8 space-y-6 text-center animate-in fade-in duration-300">
-                <div className="inline-flex items-center gap-1 text-xs font-bold text-[#FF5A36] bg-[#FFF0EB] px-3 py-1 rounded-full uppercase tracking-wider">
+                <div className="inline-flex items-center gap-1 text-xs font-bold text-[#FF5A36] bg-[#FFF0EB] dark:bg-[#FF5A36]/20 px-3 py-1 rounded-full uppercase tracking-wider">
                   Question 1 of 4 • Press Enter ↵
                 </div>
-                <h3 className="font-serif-editorial text-3xl sm:text-4xl text-[#1C1917] font-medium max-w-xl mx-auto">
+                <h3 className="font-serif-editorial text-3xl sm:text-4xl text-[#1C1917] dark:text-[#F8FAFC] font-medium max-w-xl mx-auto">
                   What is the primary goal of your new project?
                 </h3>
                 <div className="max-w-md mx-auto pt-2">
@@ -221,13 +221,13 @@ export function FormStyles() {
                     type="text"
                     readOnly
                     value="Launch a high-converting waitlist page"
-                    className="w-full text-base sm:text-lg p-3.5 border-b-2 border-[#FF5A36] bg-transparent text-center text-[#1C1917] font-medium focus:outline-hidden"
+                    className="w-full text-base sm:text-lg p-3.5 border-b-2 border-[#FF5A36] bg-transparent text-center text-[#1C1917] dark:text-[#F8FAFC] font-medium focus:outline-hidden"
                   />
                 </div>
-                <div className="flex items-center justify-center gap-3 pt-4 text-xs text-[#78716C]">
+                <div className="flex items-center justify-center gap-3 pt-4 text-xs text-[#78716C] dark:text-[#94A3B8]">
                   <button
                     type="button"
-                    className="px-5 py-2 rounded-full bg-[#FF5A36] text-white font-semibold flex items-center gap-1.5"
+                    className="px-5 py-2 rounded-full bg-[#FF5A36] text-white font-semibold flex items-center gap-1.5 hover:bg-[#E44825] transition-colors"
                   >
                     Next Question <ArrowRight className="w-3.5 h-3.5" />
                   </button>
@@ -242,16 +242,16 @@ export function FormStyles() {
                   <div className="w-8 h-8 rounded-full bg-[#0D9488] text-white flex items-center justify-center text-xs font-bold shrink-0">
                     IF
                   </div>
-                  <div className="bg-[#E6F4F1] border border-[#B2DFDB] p-3.5 rounded-2xl rounded-tl-xs text-xs sm:text-sm text-[#004D40]">
+                  <div className="bg-[#E6F4F1] dark:bg-[#0D9488]/20 border border-[#B2DFDB] dark:border-[#0D9488]/30 p-3.5 rounded-2xl rounded-tl-xs text-xs sm:text-sm text-[#004D40] dark:text-[#5EEAD4]">
                     👋 Hey there! Welcome to the beta. What should we call you?
                   </div>
                 </div>
 
                 <div className="flex items-start justify-end gap-3">
-                  <div className="bg-[#1C1917] text-white p-3.5 rounded-2xl rounded-tr-xs text-xs sm:text-sm">
+                  <div className="bg-[#1C1917] dark:bg-[#1E293B] text-white p-3.5 rounded-2xl rounded-tr-xs text-xs sm:text-sm">
                     Hi! I&apos;m Jordan, founder at Acme Labs.
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-[#FAF8F5] border border-[#EAE3D6] flex items-center justify-center text-xs font-bold shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] text-[#1C1917] dark:text-[#F8FAFC] flex items-center justify-center text-xs font-bold shrink-0">
                     JD
                   </div>
                 </div>
@@ -260,7 +260,7 @@ export function FormStyles() {
                   <div className="w-8 h-8 rounded-full bg-[#0D9488] text-white flex items-center justify-center text-xs font-bold shrink-0">
                     IF
                   </div>
-                  <div className="bg-[#E6F4F1] border border-[#B2DFDB] p-3.5 rounded-2xl rounded-tl-xs text-xs sm:text-sm text-[#004D40]">
+                  <div className="bg-[#E6F4F1] dark:bg-[#0D9488]/20 border border-[#B2DFDB] dark:border-[#0D9488]/30 p-3.5 rounded-2xl rounded-tl-xs text-xs sm:text-sm text-[#004D40] dark:text-[#5EEAD4]">
                     Awesome to meet you Jordan! What team size do you manage?
                   </div>
                 </div>
@@ -270,7 +270,7 @@ export function FormStyles() {
                     type="text"
                     readOnly
                     value="10 to 50 people"
-                    className="flex-1 text-xs p-2.5 rounded-full bg-[#FAF8F5] border border-[#EAE3D6] text-[#1C1917]"
+                    className="flex-1 text-xs p-2.5 rounded-full bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] text-[#1C1917] dark:text-[#F8FAFC]"
                   />
                   <button
                     type="button"
@@ -284,33 +284,33 @@ export function FormStyles() {
 
             {/* Style 04: EDITORIAL */}
             {activeStyle === "editorial" && (
-              <div className="space-y-6 max-w-xl mx-auto py-4 bg-[#FDFBF7] p-6 rounded-2xl border border-[#E8DFC8] animate-in fade-in duration-300">
+              <div className="space-y-6 max-w-xl mx-auto py-4 bg-[#FDFBF7] dark:bg-[#161A22] p-6 rounded-2xl border border-[#E8DFC8] dark:border-[#2E3646] animate-in fade-in duration-300">
                 <div className="text-center space-y-1">
-                  <span className="font-serif-editorial italic text-xs tracking-widest text-[#854D0E] uppercase">
+                  <span className="font-serif-editorial italic text-xs tracking-widest text-[#854D0E] dark:text-[#FBBF24] uppercase">
                     Vol. IV — Issue 2026
                   </span>
-                  <h3 className="font-serif-editorial text-3xl sm:text-4xl text-[#1C1917] font-normal">
+                  <h3 className="font-serif-editorial text-3xl sm:text-4xl text-[#1C1917] dark:text-[#F8FAFC] font-normal">
                     Creative Residency Application
                   </h3>
-                  <p className="font-serif-editorial italic text-xs text-[#78716C]">
+                  <p className="font-serif-editorial italic text-xs text-[#78716C] dark:text-[#94A3B8]">
                     Please furnish your portfolio and artistic philosophy below.
                   </p>
                 </div>
 
                 <div className="space-y-3 font-serif-editorial">
-                  <div className="border-b border-[#D6CEC1] pb-2">
-                    <span className="text-xs uppercase text-[#78716C] tracking-wider block">
+                  <div className="border-b border-[#D6CEC1] dark:border-[#2E3646] pb-2">
+                    <span className="text-xs uppercase text-[#78716C] dark:text-[#94A3B8] tracking-wider block">
                       Candidate Portfolio Link
                     </span>
-                    <span className="text-base text-[#1C1917]">
+                    <span className="text-base text-[#1C1917] dark:text-[#F8FAFC]">
                       https://atelier-studio.design/archive
                     </span>
                   </div>
-                  <div className="border-b border-[#D6CEC1] pb-2">
-                    <span className="text-xs uppercase text-[#78716C] tracking-wider block">
+                  <div className="border-b border-[#D6CEC1] dark:border-[#2E3646] pb-2">
+                    <span className="text-xs uppercase text-[#78716C] dark:text-[#94A3B8] tracking-wider block">
                       Medium & Discipline
                     </span>
-                    <span className="text-base text-[#1C1917]">
+                    <span className="text-base text-[#1C1917] dark:text-[#F8FAFC]">
                       Typography, Spatial Installation, Generative Art
                     </span>
                   </div>
@@ -319,7 +319,7 @@ export function FormStyles() {
                 <div className="text-center pt-2">
                   <button
                     type="button"
-                    className="px-6 py-2.5 rounded-full bg-[#292524] text-[#FAF8F5] text-xs font-semibold tracking-wider uppercase font-sans-modern"
+                    className="px-6 py-2.5 rounded-full bg-[#292524] dark:bg-[#FF5A36] text-[#FAF8F5] dark:text-white text-xs font-semibold tracking-wider uppercase font-sans-modern"
                   >
                     Submit Portfolio
                   </button>
@@ -330,30 +330,30 @@ export function FormStyles() {
             {/* Style 05: MINIMAL */}
             {activeStyle === "minimal" && (
               <div className="space-y-6 max-w-lg mx-auto py-4 animate-in fade-in duration-300 font-mono text-xs">
-                <div className="border-b border-black pb-2 flex justify-between items-baseline">
-                  <span className="font-bold uppercase tracking-widest text-black">
+                <div className="border-b border-black dark:border-white/30 pb-2 flex justify-between items-baseline">
+                  <span className="font-bold uppercase tracking-widest text-black dark:text-white">
                     FEEDBACK_V1.0
                   </span>
-                  <span className="text-[#78716C]">[STATUS: READY]</span>
+                  <span className="text-[#78716C] dark:text-[#94A3B8]">[STATUS: READY]</span>
                 </div>
 
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-black font-bold">01.</span>
-                    <span className="text-[#1C1917]">Rate API reliability (1-5):</span>
-                    <span className="ml-auto font-bold text-black">[ 5 / 5 ]</span>
+                    <span className="text-black dark:text-white font-bold">01.</span>
+                    <span className="text-[#1C1917] dark:text-[#E2E8F0]">Rate API reliability (1-5):</span>
+                    <span className="ml-auto font-bold text-black dark:text-[#5EEAD4]">[ 5 / 5 ]</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-black font-bold">02.</span>
-                    <span className="text-[#1C1917]">Latency satisfaction:</span>
-                    <span className="ml-auto font-bold text-black">[ 12ms OK ]</span>
+                    <span className="text-black dark:text-white font-bold">02.</span>
+                    <span className="text-[#1C1917] dark:text-[#E2E8F0]">Latency satisfaction:</span>
+                    <span className="ml-auto font-bold text-black dark:text-[#5EEAD4]">[ 12ms OK ]</span>
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-black flex justify-end">
+                <div className="pt-3 border-t border-black dark:border-white/30 flex justify-end">
                   <button
                     type="button"
-                    className="px-4 py-2 bg-black text-white text-[11px] font-bold uppercase tracking-wider"
+                    className="px-4 py-2 bg-black dark:bg-white text-white dark:text-black text-[11px] font-bold uppercase tracking-wider"
                   >
                     SEND_PAYLOAD
                   </button>
@@ -373,30 +373,30 @@ export function FormStyles() {
                 onClick={() => setActiveStyle(style.key)}
                 className={`style-card p-5 rounded-2xl border transition-all duration-300 cursor-pointer flex flex-col justify-between ${
                   isSelected
-                    ? "bg-white border-[#FF5A36] shadow-lg shadow-[#FF5A36]/10 -translate-y-1"
-                    : "bg-white/80 border-[#EAE3D6] hover:bg-white hover:border-[#D6CEC1]"
+                    ? "bg-white dark:bg-[#111827] border-[#FF5A36] shadow-lg shadow-[#FF5A36]/10 -translate-y-1"
+                    : "bg-white/80 dark:bg-[#111827]/80 border-[#EAE3D6] dark:border-[#1F2937] hover:bg-white dark:hover:bg-[#161F30] hover:border-[#D6CEC1] dark:hover:border-[#293548]"
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="w-8 h-8 rounded-xl bg-[#FAF8F5] border border-[#EAE3D6] flex items-center justify-center text-[#FF5A36]">
+                    <span className="w-8 h-8 rounded-xl bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] flex items-center justify-center text-[#FF5A36]">
                       {style.icon}
                     </span>
                     {isSelected && (
-                      <span className="text-[10px] font-bold text-[#FF5A36] bg-[#FFF0EB] px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] font-bold text-[#FF5A36] bg-[#FFF0EB] dark:bg-[#FF5A36]/20 px-2 py-0.5 rounded-full">
                         Active
                       </span>
                     )}
                   </div>
-                  <h4 className="font-serif-editorial text-lg text-[#1C1917] font-medium">
+                  <h4 className="font-serif-editorial text-lg text-[#1C1917] dark:text-[#F8FAFC] font-medium">
                     {style.name}
                   </h4>
-                  <p className="text-[11px] text-[#78716C] mt-1 leading-snug">
+                  <p className="text-[11px] text-[#78716C] dark:text-[#94A3B8] mt-1 leading-snug">
                     {style.tagline}
                   </p>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-[#EAE3D6]/70 flex items-center justify-between text-[11px] font-semibold text-[#57534E]">
+                <div className="mt-4 pt-3 border-t border-[#EAE3D6]/70 dark:border-[#1F2937] flex items-center justify-between text-[11px] font-semibold text-[#57534E] dark:text-[#94A3B8]">
                   <span>Preview</span>
                   <ArrowRight className="w-3 h-3 text-[#FF5A36]" />
                 </div>

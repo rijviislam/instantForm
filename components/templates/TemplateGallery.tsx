@@ -60,8 +60,6 @@ export function TemplateGallery() {
     }
   }, [toastMessage]);
 
-  // "Use Template" Flow:
-  // Creates a brand-new user-owned Draft form with copied structure and navigates to builder edit route
   const handleUseTemplate = async (template: TemplateItem) => {
     try {
       setUsingTemplateId(template.id);
@@ -79,15 +77,31 @@ export function TemplateGallery() {
         // Redirect to form builder placeholder
         router.push(`/forms/${res.data.id}/edit`);
       } else {
+        if (
+          res.error === "Authentication required" ||
+          res.error === "Invalid or expired token" ||
+          res.error === "User not found"
+        ) {
+          setToastMessage({
+            text: "Please sign in to use templates.",
+            type: "error",
+          });
+          setTimeout(() => {
+            router.push("/login?callbackUrl=/templates");
+          }, 1200);
+          setUsingTemplateId(null);
+          return;
+        }
+
         setToastMessage({
           text: res.message || "Failed to create form from template.",
           type: "error",
         });
         setUsingTemplateId(null);
       }
-    } catch (error) {
+    } catch (err) {
       setToastMessage({
-        text: "An unexpected error occurred while creating form.",
+        text: "An unexpected error occurred. Please try again.",
         type: "error",
       });
       setUsingTemplateId(null);
@@ -98,7 +112,7 @@ export function TemplateGallery() {
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl bg-[#1C1917] text-white shadow-xl text-xs sm:text-sm font-medium animate-in slide-in-from-bottom-3 duration-200">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl bg-[#1C1917] dark:bg-[#1E293B] text-white shadow-xl text-xs sm:text-sm font-medium border border-transparent dark:border-[#334155] animate-in slide-in-from-bottom-3 duration-200">
           {toastMessage.type === "success" ? (
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           ) : (
@@ -109,12 +123,12 @@ export function TemplateGallery() {
       )}
 
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#EAE3D6]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#EAE3D6] dark:border-[#1F2937]">
         <div>
-          <h1 className="font-serif-editorial text-3xl sm:text-4xl font-normal text-[#1C1917] tracking-tight">
+          <h1 className="font-serif-editorial text-3xl sm:text-4xl font-normal text-[#1C1917] dark:text-[#F8FAFC] tracking-tight">
             Template Gallery
           </h1>
-          <p className="text-xs sm:text-sm text-[#57534E] mt-1">
+          <p className="text-xs sm:text-sm text-[#57534E] dark:text-[#94A3B8] mt-1">
             Choose from our curated collection of designer templates crafted for high conversion.
           </p>
         </div>
@@ -143,7 +157,7 @@ export function TemplateGallery() {
               className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer whitespace-nowrap ${
                 isActive
                   ? "bg-[#FF5A36] text-white shadow-xs shadow-[#FF5A36]/20"
-                  : "bg-white text-[#57534E] border border-[#EAE3D6] hover:bg-[#FAF8F5] hover:text-[#1C1917]"
+                  : "bg-white dark:bg-[#111827] text-[#57534E] dark:text-[#94A3B8] border border-[#EAE3D6] dark:border-[#1F2937] hover:bg-[#FAF8F5] dark:hover:bg-[#1E293B] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
               }`}
             >
               {category}
@@ -158,35 +172,35 @@ export function TemplateGallery() {
           {[1, 2, 3, 4, 5, 6].map((idx) => (
             <div
               key={idx}
-              className="rounded-3xl bg-white border border-[#EAE3D6] p-6 sm:p-7 card-shadow animate-pulse space-y-4"
+              className="rounded-3xl bg-white dark:bg-[#111827] border border-[#EAE3D6] dark:border-[#1F2937] p-6 sm:p-7 card-shadow animate-pulse space-y-4"
             >
               <div className="flex items-center justify-between">
-                <div className="h-5 w-16 bg-[#FAF8F5] border border-[#EAE3D6] rounded-full" />
-                <div className="h-5 w-20 bg-[#FAF8F5] border border-[#EAE3D6] rounded-full" />
+                <div className="h-5 w-16 bg-[#FAF8F5] dark:bg-[#1F2937] border border-[#EAE3D6] dark:border-[#374151] rounded-full" />
+                <div className="h-5 w-20 bg-[#FAF8F5] dark:bg-[#1F2937] border border-[#EAE3D6] dark:border-[#374151] rounded-full" />
               </div>
-              <div className="h-36 bg-[#FAF8F5] border border-[#EAE3D6] rounded-2xl" />
-              <div className="h-6 w-3/4 bg-[#FAF8F5] rounded-md" />
-              <div className="h-4 w-full bg-[#FAF8F5] rounded-md" />
-              <div className="pt-4 border-t border-[#EAE3D6] flex justify-between">
-                <div className="h-8 w-16 bg-[#FAF8F5] rounded-md" />
-                <div className="h-8 w-24 bg-[#FAF8F5] rounded-md" />
+              <div className="h-36 bg-[#FAF8F5] dark:bg-[#1F2937] border border-[#EAE3D6] dark:border-[#374151] rounded-2xl" />
+              <div className="h-6 w-3/4 bg-[#FAF8F5] dark:bg-[#1F2937] rounded-md" />
+              <div className="h-4 w-full bg-[#FAF8F5] dark:bg-[#1F2937] rounded-md" />
+              <div className="pt-4 border-t border-[#EAE3D6] dark:border-[#1F2937] flex justify-between">
+                <div className="h-8 w-16 bg-[#FAF8F5] dark:bg-[#1F2937] rounded-md" />
+                <div className="h-8 w-24 bg-[#FAF8F5] dark:bg-[#1F2937] rounded-md" />
               </div>
             </div>
           ))}
         </div>
       ) : errorMessage ? (
-        <div className="rounded-3xl bg-red-50 border border-red-200 p-8 text-center text-red-700">
+        <div className="rounded-3xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/40 p-8 text-center text-red-700 dark:text-red-400">
           <p className="text-sm font-semibold">{errorMessage}</p>
           <Button variant="outline" size="sm" onClick={fetchTemplates} className="mt-4">
             Try again
           </Button>
         </div>
       ) : templates.length === 0 ? (
-        <div className="rounded-3xl bg-white border border-[#EAE3D6] p-12 text-center">
-          <h3 className="text-lg font-semibold text-[#1C1917]">
+        <div className="rounded-3xl bg-white dark:bg-[#111827] border border-[#EAE3D6] dark:border-[#1F2937] p-12 text-center">
+          <h3 className="text-lg font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
             No templates found
           </h3>
-          <p className="text-xs text-[#57534E] mt-1">
+          <p className="text-xs text-[#57534E] dark:text-[#94A3B8] mt-1">
             No templates currently match the selected category.
           </p>
           <Button
@@ -223,4 +237,3 @@ export function TemplateGallery() {
     </div>
   );
 }
-

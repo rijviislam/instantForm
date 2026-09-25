@@ -140,6 +140,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
       }
 
+      // Ensure apiToken is ALWAYS signed for any authenticated session
+      if (!token.apiToken && (token.id || token.sub) && token.email) {
+        try {
+          const secret =
+            process.env.JWT_SECRET ||
+            process.env.AUTH_SECRET ||
+            "default_fallback_secret";
+          const jwtLib = (await import("jsonwebtoken")).default;
+          token.apiToken = jwtLib.sign(
+            { userId: (token.id || token.sub) as string, email: token.email as string },
+            secret,
+            { expiresIn: "30d" }
+          );
+        } catch (err) {
+          console.warn("Could not sign fallback apiToken in jwt callback:", err);
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {

@@ -116,7 +116,7 @@ export function DashboardView({ user, apiToken }: DashboardViewProps) {
       {error && (
         <div
           role="alert"
-          className="p-4 rounded-2xl bg-[#FFF0EB] border border-[#FFD8CC] text-[#E44825] text-xs sm:text-sm flex items-center justify-between gap-3 shadow-2xs"
+          className="p-4 rounded-2xl bg-[#FFF0EB] dark:bg-[#FF5A36]/15 border border-[#FFD8CC] dark:border-[#FF5A36]/30 text-[#E44825] dark:text-[#FF6B4A] text-xs sm:text-sm flex items-center justify-between gap-3 shadow-2xs"
         >
           <div className="flex items-center gap-2.5">
             <AlertCircle className="w-4 h-4 shrink-0" />
@@ -125,7 +125,7 @@ export function DashboardView({ user, apiToken }: DashboardViewProps) {
           <button
             type="button"
             onClick={handleRetry}
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-xs font-semibold text-[#1C1917] border border-[#E7E2D8] hover:bg-[#FAF8F5] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white dark:bg-[#1E293B] text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC] border border-[#E7E2D8] dark:border-[#334155] hover:bg-[#FAF8F5] dark:hover:bg-[#0F172A] transition-colors cursor-pointer"
           >
             <RefreshCw className="w-3 h-3" />
             <span>Retry</span>
@@ -134,23 +134,23 @@ export function DashboardView({ user, apiToken }: DashboardViewProps) {
       )}
 
       {/* 1. Header Banner & Call-to-Actions */}
-      <div className="rounded-3xl bg-white border border-[#E7E2D8] p-6 sm:p-10 shadow-2xs relative overflow-hidden">
+      <div className="rounded-3xl bg-white dark:bg-[#111827] border border-[#E7E2D8] dark:border-[#1F2937] p-6 sm:p-10 shadow-2xs relative overflow-hidden">
         {/* Ambient background glow */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-[#FF5A36]/10 via-[#FFA07A]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-[#FF5A36]/10 via-[#FFA07A]/5 to-transparent dark:from-[#FF5A36]/15 dark:via-transparent rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFF0EB] text-[#FF5A36] text-xs font-semibold uppercase tracking-wider border border-[#FFD8CC]">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFF0EB] dark:bg-[#FF5A36]/15 text-[#FF5A36] dark:text-[#FF6B4A] text-xs font-semibold uppercase tracking-wider border border-[#FFD8CC] dark:border-[#FF5A36]/30">
               <Sparkles className="w-3.5 h-3.5" />
               <span>{getGreeting()}</span>
             </div>
 
-            <h1 className="font-serif-editorial text-3xl sm:text-5xl font-normal text-[#1C1917] tracking-tight leading-[1.1]">
+            <h1 className="font-serif-editorial text-3xl sm:text-5xl font-normal text-[#1C1917] dark:text-[#F8FAFC] tracking-tight leading-[1.1]">
               Create a form in{" "}
-              <span className="italic font-medium text-[#FF5A36]">seconds</span>.
+              <span className="italic font-medium text-[#FF5A36] dark:text-[#FF6B4A]">seconds</span>.
             </h1>
 
-            <p className="text-sm sm:text-base text-[#57534E] leading-relaxed pt-1">
+            <p className="text-sm sm:text-base text-[#57534E] dark:text-[#94A3B8] leading-relaxed pt-1">
               Start from scratch or choose a template to create your next form.
             </p>
           </div>

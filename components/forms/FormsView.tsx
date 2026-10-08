@@ -17,6 +17,7 @@ import { FormCard } from "./FormCard";
 import { FormFilters, FilterStatus } from "./FormFilters";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
 import { EmptyForms } from "./EmptyForms";
+import { ShareFormModal } from "@/components/builder/ShareFormModal";
 
 export function FormsView() {
   const [forms, setForms] = useState<FormItem[]>([]);
@@ -43,6 +44,10 @@ export function FormsView() {
   // Deletion modal state
   const [formToDelete, setFormToDelete] = useState<FormItem | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Share modal state
+  const [formToShare, setFormToShare] = useState<FormItem | null>(null);
+  const [isInitialPublish, setIsInitialPublish] = useState(false);
 
   // Debounce search input
   useEffect(() => {
@@ -116,7 +121,8 @@ export function FormsView() {
 
   // Publish / Unpublish toggle handler
   const handleTogglePublish = async (form: FormItem) => {
-    const isCurrentlyPublished = form.status === "PUBLISHED" || form.isPublished;
+    const isCurrentlyPublished =
+      form.status?.toUpperCase() === "PUBLISHED" || Boolean(form.isPublished);
     const action = isCurrentlyPublished ? unpublishFormApi : publishFormApi;
 
     // Optimistic update
@@ -134,12 +140,23 @@ export function FormsView() {
 
     const res = await action(form.id);
     if (res.success) {
+      const nextPublished = !isCurrentlyPublished;
       setToastMessage({
         text: isCurrentlyPublished
           ? `"${form.title}" unpublished.`
           : `"${form.title}" is now published!`,
         type: "success",
       });
+
+      if (nextPublished) {
+        setIsInitialPublish(true);
+        setFormToShare({
+          ...form,
+          status: "PUBLISHED",
+          isPublished: true,
+          slug: res.data?.slug || form.slug,
+        });
+      }
     } else {
       // Revert optimistic update
       fetchForms();
@@ -268,6 +285,10 @@ export function FormsView() {
                 form={form}
                 onDuplicate={handleDuplicate}
                 onTogglePublish={handleTogglePublish}
+                onShare={(f) => {
+                  setIsInitialPublish(false);
+                  setFormToShare(f);
+                }}
                 onDeleteRequest={(f) => setFormToDelete(f)}
               />
             ))}
@@ -320,6 +341,18 @@ export function FormsView() {
         onConfirm={handleConfirmDelete}
         onCancel={() => setFormToDelete(null)}
       />
+
+      {/* Share / Published Modal */}
+      {formToShare && (
+        <ShareFormModal
+          isOpen={!!formToShare}
+          slug={formToShare.slug}
+          formId={formToShare.id}
+          formTitle={formToShare.title}
+          isInitialPublish={isInitialPublish}
+          onClose={() => setFormToShare(null)}
+        />
+      )}
     </div>
   );
 }

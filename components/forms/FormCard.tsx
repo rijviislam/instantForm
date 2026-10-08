@@ -13,6 +13,9 @@ import {
   Clock,
   MessageSquare,
   Sparkles,
+  Share2,
+  ExternalLink,
+  Check,
 } from "lucide-react";
 import { FormItem } from "@/lib/api-client";
 import { formatRelativeTime } from "@/lib/date-utils";
@@ -22,6 +25,7 @@ interface FormCardProps {
   onDuplicate: (form: FormItem) => void;
   onTogglePublish: (form: FormItem) => void;
   onDeleteRequest: (form: FormItem) => void;
+  onShare?: (form: FormItem) => void;
 }
 
 export function FormCard({
@@ -29,8 +33,10 @@ export function FormCard({
   onDuplicate,
   onTogglePublish,
   onDeleteRequest,
+  onShare,
 }: FormCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -47,9 +53,26 @@ export function FormCard({
     };
   }, [menuOpen]);
 
-  const isPublished = form.status === "PUBLISHED" || form.isPublished;
+  const isPublished =
+    form.status?.toUpperCase() === "PUBLISHED" || Boolean(form.isPublished);
   const isArchived = form.status === "ARCHIVED";
   const isDraft = !isPublished && !isArchived;
+
+  const publicUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/f/${form.slug || "form"}`
+      : `/f/${form.slug || "form"}`;
+
+  const handleCopyLink = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(publicUrl);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy link", err);
+    }
+  };
 
   const styleDisplay = form.style
     ? form.style.charAt(0).toUpperCase() + form.style.slice(1)
@@ -119,6 +142,56 @@ export function FormCard({
                   <Eye className="w-3.5 h-3.5 text-[#78716C] dark:text-[#94A3B8]" />
                   <span>Preview</span>
                 </Link>
+
+                {isPublished && (
+                  <>
+                    {onShare && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuOpen(false);
+                          onShare(form);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-[#FF5A36] hover:bg-[#FFF5F2] dark:hover:bg-[#FF5A36]/10 rounded-xl transition-colors text-left cursor-pointer"
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                        <span>Share Form</span>
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        handleCopyLink(e);
+                        setMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-[#1C1917] dark:text-[#F8FAFC] hover:bg-[#FAF8F5] dark:hover:bg-[#0F172A] rounded-xl transition-colors text-left cursor-pointer"
+                    >
+                      {copiedLink ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-500" />
+                          <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Copied Link!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5 text-[#78716C] dark:text-[#94A3B8]" />
+                          <span>Copy Public Link</span>
+                        </>
+                      )}
+                    </button>
+
+                    <a
+                      href={`/f/${form.slug || "form"}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-[#1C1917] dark:text-[#F8FAFC] hover:bg-[#FAF8F5] dark:hover:bg-[#0F172A] rounded-xl transition-colors"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5 text-[#78716C] dark:text-[#94A3B8]" />
+                      <span>Open Live Form</span>
+                    </a>
+                  </>
+                )}
 
                 <button
                   type="button"

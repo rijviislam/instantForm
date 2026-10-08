@@ -17,6 +17,7 @@ import { BuilderCanvas } from "./BuilderCanvas";
 import { FieldSettingsPanel } from "./FieldSettingsPanel";
 import { BuilderPreview } from "./BuilderPreview";
 import { DynamicFontLoader } from "./DynamicFontLoader";
+import { ShareFormModal } from "./ShareFormModal";
 import { Plus, Sliders } from "lucide-react";
 
 interface FormBuilderProps {
@@ -46,6 +47,8 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
   const [viewport, setViewport] = useState<ViewportMode>("desktop");
   const [isPreview, setIsPreview] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [isInitialPublish, setIsInitialPublish] = useState(false);
 
   // Mobile / Tablet drawer toggles
   const [showLeftDrawer, setShowLeftDrawer] = useState(false);
@@ -340,7 +343,8 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
   // Publish / Unpublish Toggle
   const handlePublishToggle = async () => {
     setIsPublishing(true);
-    const isCurrentlyPublished = form.status === "PUBLISHED" || form.isPublished;
+    const isCurrentlyPublished =
+      form.status?.toUpperCase() === "PUBLISHED" || Boolean(form.isPublished);
 
     try {
       await updateFormApi(form.id, {
@@ -357,12 +361,20 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
         : await publishFormApi(form.id);
 
       if (res.success && res.data) {
+        const nextPublished = !isCurrentlyPublished;
+        const updatedSlug = res.data?.slug || form.slug;
+
         setForm((prev) => ({
           ...prev,
-          status: isCurrentlyPublished ? "DRAFT" : "PUBLISHED",
-          isPublished: !isCurrentlyPublished,
-          slug: res.data?.slug || prev.slug,
+          status: nextPublished ? "PUBLISHED" : "DRAFT",
+          isPublished: nextPublished,
+          slug: updatedSlug,
         }));
+
+        if (nextPublished) {
+          setIsInitialPublish(true);
+          setShowShareModal(true);
+        }
       }
     } catch (err) {
       console.error("Publish toggle failed", err);
@@ -373,6 +385,9 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
   const selectedField =
     form.fields.find((f) => f.id === selectedFieldId) || null;
 
+  const isFormPublished =
+    form.status?.toUpperCase() === "PUBLISHED" || Boolean(form.isPublished);
+
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#FAF8F5]" data-lenis-prevent="true">
       {/* Dynamic Font Loader */}
@@ -382,7 +397,7 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
       <BuilderTopBar
         slug={form.slug}
         title={form.title}
-        isPublished={form.status === "published"}
+        isPublished={isFormPublished}
         saveState={saveState}
         viewport={viewport}
         isPreview={isPreview}
@@ -401,6 +416,10 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
         }}
         onTogglePreview={() => setIsPreview(!isPreview)}
         onPublishToggle={handlePublishToggle}
+        onShare={() => {
+          setIsInitialPublish(false);
+          setShowShareModal(true);
+        }}
         onManualSave={handleManualSave}
         isPublishing={isPublishing}
       />
@@ -530,6 +549,16 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
           onClose={() => setIsPreview(false)}
         />
       )}
+
+      {/* Share / Published Success Modal */}
+      <ShareFormModal
+        isOpen={showShareModal}
+        slug={form.slug}
+        formId={form.id}
+        formTitle={form.title}
+        isInitialPublish={isInitialPublish}
+        onClose={() => setShowShareModal(false)}
+      />
     </div>
   );
 }

@@ -76,7 +76,7 @@ export function RecentFormsList({ forms, isLoading = false }: RecentFormsListPro
             {forms.map((form) => (
               <div
                 key={form.id}
-                onClick={() => router.push(`/forms`)}
+                onClick={() => router.push(`/forms/${form.id}/edit`)}
                 className="flex items-center justify-between p-3.5 rounded-2xl border border-[#F4EFE6] dark:border-[#1F2937] hover:border-[#E7E2D8] dark:hover:border-[#374151] hover:bg-[#FAF8F5] dark:hover:bg-[#1E293B]/70 transition-all cursor-pointer group"
               >
                 <div className="flex items-center gap-3 min-w-0">

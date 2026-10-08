@@ -20,6 +20,7 @@ import {
   Moon,
   Sparkles,
   Sliders,
+  Share2,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
@@ -39,6 +40,7 @@ interface BuilderTopBarProps {
   canRedo?: boolean;
   onTitleChange: (newTitle: string) => void;
   onPublishToggle: () => void;
+  onShare?: () => void;
   onTogglePreview: () => void;
   onViewportChange: (mode: ViewportMode) => void;
   onColorMoodToggle?: () => void;
@@ -60,6 +62,7 @@ export function BuilderTopBar({
   canRedo = false,
   onTitleChange,
   onPublishToggle,
+  onShare,
   onTogglePreview,
   onViewportChange,
   onColorMoodToggle,
@@ -248,7 +251,19 @@ export function BuilderTopBar({
       <div className="flex items-center gap-2">
         {/* Public Form Link (when published) */}
         {isPublished && (
-          <div className="hidden lg:flex items-center gap-1">
+          <div className="flex items-center gap-1">
+            {onShare && (
+              <button
+                type="button"
+                onClick={onShare}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-[#FF5A36] bg-[#FFF5F2] dark:bg-[#FF5A36]/10 border border-[#FFE2DB] dark:border-[#FF5A36]/30 hover:bg-[#FFEAE5] dark:hover:bg-[#FF5A36]/20 rounded-xl transition-all cursor-pointer shadow-2xs"
+                title="Share & Embed published form"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Share</span>
+              </button>
+            )}
+
             <button
               type="button"
               onClick={handleCopyPublicUrl}
@@ -258,12 +273,12 @@ export function BuilderTopBar({
               {copiedUrl ? (
                 <>
                   <Check className="w-3.5 h-3.5 text-emerald-500" />
-                  <span>Copied</span>
+                  <span className="hidden md:inline text-emerald-600 dark:text-emerald-400 font-semibold">Copied</span>
                 </>
               ) : (
                 <>
                   <Copy className="w-3.5 h-3.5" />
-                  <span>Copy Link</span>
+                  <span className="hidden md:inline">Copy Link</span>
                 </>
               )}
             </button>

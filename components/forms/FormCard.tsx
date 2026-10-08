@@ -17,7 +17,7 @@ import {
   ExternalLink,
   Check,
 } from "lucide-react";
-import { FormItem } from "@/lib/api-client";
+import { FormItem, getPublicFormUrl } from "@/lib/api-client";
 import { formatRelativeTime } from "@/lib/date-utils";
 
 interface FormCardProps {
@@ -58,10 +58,7 @@ export function FormCard({
   const isArchived = form.status === "ARCHIVED";
   const isDraft = !isPublished && !isArchived;
 
-  const publicUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/f/${form.slug || "form"}`
-      : `/f/${form.slug || "form"}`;
+  const publicUrl = getPublicFormUrl(form.slug);
 
   const handleCopyLink = async (e: React.MouseEvent) => {
     e.stopPropagation();

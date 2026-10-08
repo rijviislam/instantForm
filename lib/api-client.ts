@@ -1,6 +1,21 @@
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 
+export function getAppBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL.replace(/\/+$/, "");
+  }
+  if (typeof window !== "undefined" && window.location.origin) {
+    return window.location.origin;
+  }
+  return "https://instant-form-beryl.vercel.app";
+}
+
+export function getPublicFormUrl(slug: string): string {
+  const base = getAppBaseUrl();
+  return `${base}/f/${slug || "form"}`;
+}
+
 export interface ApiResponse<T = unknown> {
   success: boolean;
   message?: string;

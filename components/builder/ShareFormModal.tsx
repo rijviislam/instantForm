@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { Button } from "@/components/ui/Button";
+import { getPublicFormUrl } from "@/lib/api-client";
 
 interface ShareFormModalProps {
   isOpen: boolean;
@@ -40,12 +41,7 @@ export function ShareFormModal({
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedEmbed, setCopiedEmbed] = useState(false);
 
-  const origin =
-    typeof window !== "undefined" && window.location.origin
-      ? window.location.origin
-      : "https://instant-form-beryl.vercel.app";
-
-  const publicUrl = `${origin}/f/${slug || "form"}`;
+  const publicUrl = getPublicFormUrl(slug);
 
   const embedSnippet = `<iframe\n  src="${publicUrl}"\n  width="100%"\n  height="700px"\n  frameborder="0"\n  style="border: none; border-radius: 16px; max-width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.08);"\n  title="${formTitle || "InstantForm"}"\n></iframe>`;
 

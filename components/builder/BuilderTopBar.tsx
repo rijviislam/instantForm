@@ -23,6 +23,7 @@ import {
   Share2,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { getPublicFormUrl } from "@/lib/api-client";
 
 export type SaveState = "saved" | "saving" | "unsaved" | "error";
 export type ViewportMode = "desktop" | "tablet" | "mobile";
@@ -83,9 +84,7 @@ export function BuilderTopBar({
     setIsEditingTitle(false);
   };
 
-  const publicUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/f/${slug}`
-    : `/f/${slug}`;
+  const publicUrl = getPublicFormUrl(slug);
 
   const handleCopyPublicUrl = async () => {
     try {

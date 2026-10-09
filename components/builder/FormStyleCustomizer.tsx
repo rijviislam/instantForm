@@ -156,7 +156,17 @@ export function FormStyleCustomizer({
   };
 
   const handleApplyPreset = (presetTheme: Partial<FormTheme>) => {
-    onChange(resolveFormTheme({ ...theme, ...presetTheme }));
+    const resolved = resolveFormTheme(presetTheme);
+    // Retain branding logo and header image if preset doesn't supply them
+    if (theme.branding?.logoUrl && !presetTheme.branding?.logoUrl) {
+      resolved.branding = {
+        ...resolved.branding,
+        logoUrl: theme.branding.logoUrl,
+        logoPosition: theme.branding.logoPosition,
+        headerImageUrl: theme.branding.headerImageUrl,
+      };
+    }
+    onChange(resolved);
   };
 
   const handleResetToDefault = () => {
@@ -514,17 +524,33 @@ export function FormStyleCustomizer({
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
-                    value={theme.background.color}
+                    value={theme.background.color?.startsWith("#") ? theme.background.color : "#FAF8F5"}
                     onChange={(e) => {
-                      updateSubKey("background", { color: e.target.value });
+                      updateMultiple({
+                        background: {
+                          color: e.target.value,
+                          type: "solid",
+                          gradientFrom: e.target.value,
+                          gradientTo: e.target.value,
+                        },
+                        colors: { background: e.target.value },
+                      });
                     }}
                     className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer p-0.5"
                   />
                   <input
                     type="text"
-                    value={theme.background.color}
+                    value={theme.background.color || "#FAF8F5"}
                     onChange={(e) => {
-                      updateSubKey("background", { color: e.target.value });
+                      updateMultiple({
+                        background: {
+                          color: e.target.value,
+                          type: "solid",
+                          gradientFrom: e.target.value,
+                          gradientTo: e.target.value,
+                        },
+                        colors: { background: e.target.value },
+                      });
                     }}
                     className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-[#FAF8F5]"
                   />
@@ -539,7 +565,15 @@ export function FormStyleCustomizer({
                     type="color"
                     value={theme.container.backgroundColor?.startsWith("#") ? theme.container.backgroundColor : "#FFFFFF"}
                     onChange={(e) => {
-                      updateSubKey("container", { backgroundColor: e.target.value });
+                      updateMultiple({
+                        container: {
+                          backgroundColor: e.target.value,
+                          backgroundType: "solid",
+                          gradientFrom: e.target.value,
+                          gradientTo: e.target.value,
+                        },
+                        colors: { surface: e.target.value },
+                      });
                     }}
                     className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer p-0.5"
                   />
@@ -547,7 +581,15 @@ export function FormStyleCustomizer({
                     type="text"
                     value={theme.container.backgroundColor || "#FFFFFF"}
                     onChange={(e) => {
-                      updateSubKey("container", { backgroundColor: e.target.value });
+                      updateMultiple({
+                        container: {
+                          backgroundColor: e.target.value,
+                          backgroundType: "solid",
+                          gradientFrom: e.target.value,
+                          gradientTo: e.target.value,
+                        },
+                        colors: { surface: e.target.value },
+                      });
                     }}
                     className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-[#FAF8F5]"
                   />
@@ -3978,48 +4020,145 @@ export function FormStyleCustomizer({
 
               {/* 10. SPECIAL CONTROLS */}
               {activeInputSubTab === "controls" && (
-                <div className="space-y-3">
-                  {/* Checkbox / Radio Accent Color */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-stone-700">Checkbox & Radio Color</span>
-                    <div className="flex items-center gap-2">
+                <div className="space-y-4">
+                  {/* Rating Stars Configuration */}
+                  <div className="p-3 bg-[#FAF8F5] rounded-xl border border-[#EAE3D6] space-y-3">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-[#1C1917]">
+                      <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                      <span>Rating Stars Design</span>
+                    </div>
+
+                    {/* Rating Star Active Color */}
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-[#78716C]">Active Star Fill Color</span>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={theme.inputs.ratingActiveColor || "#F59E0B"}
+                          onChange={(e) => updateSubKey("inputs", { ratingActiveColor: e.target.value })}
+                          className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={theme.inputs.ratingActiveColor || "#F59E0B"}
+                          onChange={(e) => updateSubKey("inputs", { ratingActiveColor: e.target.value })}
+                          className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-white text-[#1C1917]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Rating Star Inactive Color */}
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-[#78716C]">Inactive Star Outline Color</span>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={theme.inputs.ratingInactiveColor || "#EAE3D6"}
+                          onChange={(e) => updateSubKey("inputs", { ratingInactiveColor: e.target.value })}
+                          className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={theme.inputs.ratingInactiveColor || "#EAE3D6"}
+                          onChange={(e) => updateSubKey("inputs", { ratingInactiveColor: e.target.value })}
+                          className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-white text-[#1C1917]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Star Icon Size Slider */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-[#78716C]">Star Icon Size</span>
+                        <span className="font-mono text-[#1C1917]">{theme.inputs.ratingSize || 20}px</span>
+                      </div>
                       <input
-                        type="color"
-                        value={theme.inputs.accentColor || theme.colors.primary}
-                        onChange={(e) => updateSubKey("inputs", { accentColor: e.target.value })}
-                        className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer"
-                      />
-                      <input
-                        type="text"
-                        value={theme.inputs.accentColor || theme.colors.primary}
-                        onChange={(e) => updateSubKey("inputs", { accentColor: e.target.value })}
-                        className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-[#FAF8F5]"
+                        type="range"
+                        min="16"
+                        max="36"
+                        value={theme.inputs.ratingSize || 20}
+                        onChange={(e) => updateSubKey("inputs", { ratingSize: Number(e.target.value) })}
+                        className="w-full accent-[#FF5A36]"
                       />
                     </div>
                   </div>
 
-                  {/* Rating Color */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-stone-700">Rating Star Color</span>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={theme.inputs.ratingActiveColor || "#F59E0B"}
-                        onChange={(e) => updateSubKey("inputs", { ratingActiveColor: e.target.value })}
-                        className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer"
-                      />
-                      <input
-                        type="text"
-                        value={theme.inputs.ratingActiveColor || "#F59E0B"}
-                        onChange={(e) => updateSubKey("inputs", { ratingActiveColor: e.target.value })}
-                        className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-[#FAF8F5]"
-                      />
+                  {/* Checkbox & Radio Controls */}
+                  <div className="p-3 bg-[#FAF8F5] rounded-xl border border-[#EAE3D6] space-y-3">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-[#1C1917]">
+                      <CircleDot className="w-3.5 h-3.5 text-[#FF5A36]" />
+                      <span>Checkboxes & Radio Design</span>
+                    </div>
+
+                    {/* Accent / Selected Color */}
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-[#78716C]">Selected / Accent Color</span>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={theme.inputs.accentColor || theme.colors.primary}
+                          onChange={(e) => updateSubKey("inputs", { accentColor: e.target.value })}
+                          className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={theme.inputs.accentColor || theme.colors.primary}
+                          onChange={(e) => updateSubKey("inputs", { accentColor: e.target.value })}
+                          className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-white text-[#1C1917]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Checkmark Icon Color */}
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-[#78716C]">Checkmark Icon Color</span>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={theme.inputs.checkIconColor || "#FFFFFF"}
+                          onChange={(e) => updateSubKey("inputs", { checkIconColor: e.target.value })}
+                          className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={theme.inputs.checkIconColor || "#FFFFFF"}
+                          onChange={(e) => updateSubKey("inputs", { checkIconColor: e.target.value })}
+                          className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-white text-[#1C1917]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Checkbox Corner Radius */}
+                    <div className="space-y-1">
+                      <label className="block text-[11px] text-[#78716C]">Checkbox Corner Radius</label>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {[
+                          { id: "none", label: "Square", icon: "0px" },
+                          { id: "sm", label: "Subtle", icon: "4px" },
+                          { id: "md", label: "Rounded", icon: "6px" },
+                          { id: "full", label: "Pill", icon: "Round" },
+                        ].map((item) => (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => updateSubKey("inputs", { checkboxRadius: item.id as any })}
+                            className={`py-1.5 px-1 rounded-lg text-[11px] font-medium border text-center transition-all cursor-pointer ${
+                              (theme.inputs.checkboxRadius || "sm") === item.id
+                                ? "border-[#FF5A36] bg-[#FFF0EB] text-[#FF5A36] font-semibold shadow-2xs"
+                                : "border-[#EAE3D6] bg-white text-[#78716C] hover:border-[#D6D3D1]"
+                            }`}
+                          >
+                            <div>{item.label}</div>
+                            <div className="text-[9px] opacity-70">{item.icon}</div>
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
                   {/* Dropzone Border Color */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-stone-700">Dropzone Border Color</span>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-[#78716C]">Dropzone Border Color</span>
                     <div className="flex items-center gap-2">
                       <input
                         type="color"
@@ -4037,6 +4176,262 @@ export function FormStyleCustomizer({
                   </div>
                 </div>
               )}
+            </div>
+          )}
+        </div>
+
+        {/* Dedicated Checkboxes, Radio & Rating Controls Section */}
+        <div className="border border-[#EAE3D6] rounded-xl overflow-hidden bg-white">
+          <button
+            type="button"
+            onClick={() => toggleSection("specialControls")}
+            className="w-full p-2.5 bg-[#FAF8F5] flex items-center justify-between font-semibold text-[#1C1917] hover:bg-[#F5F2EB] transition-colors cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
+              <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+              <span>Rating, Checkbox & Radio Controls</span>
+            </div>
+            {activeSection === "specialControls" ? (
+              <ChevronDown className="w-3.5 h-3.5 text-[#78716C]" />
+            ) : (
+              <ChevronRight className="w-3.5 h-3.5 text-[#78716C]" />
+            )}
+          </button>
+
+          {activeSection === "specialControls" && (
+            <div className="p-3 space-y-4 bg-white">
+              {/* Star Rating Section */}
+              <div className="p-3 bg-[#FAF8F5] rounded-xl border border-[#EAE3D6] space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-[#1C1917]">
+                    <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                    <span>Star Rating Styling</span>
+                  </div>
+                  {/* Live Star Preview */}
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star
+                        key={s}
+                        style={{
+                          width: `${Math.min(theme.inputs.ratingSize || 20, 16)}px`,
+                          height: `${Math.min(theme.inputs.ratingSize || 20, 16)}px`,
+                          fill: s <= 4 ? (theme.inputs.ratingActiveColor || "#F59E0B") : "none",
+                          color: s <= 4 ? (theme.inputs.ratingActiveColor || "#F59E0B") : (theme.inputs.ratingInactiveColor || "#EAE3D6"),
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Rating Active Color */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-stone-700">Active Star Fill Color</span>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={theme.inputs.ratingActiveColor || "#F59E0B"}
+                        onChange={(e) => updateSubKey("inputs", { ratingActiveColor: e.target.value })}
+                        className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={theme.inputs.ratingActiveColor || "#F59E0B"}
+                        onChange={(e) => updateSubKey("inputs", { ratingActiveColor: e.target.value })}
+                        className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-white"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Quick Color Presets for Stars */}
+                  <div className="flex items-center gap-1.5 pt-1">
+                    {[
+                      { name: "Gold", hex: "#F59E0B" },
+                      { name: "Amber", hex: "#D97706" },
+                      { name: "Coral", hex: "#FF5A36" },
+                      { name: "Emerald", hex: "#10B981" },
+                      { name: "Purple", hex: "#8B5CF6" },
+                      { name: "Rose", hex: "#F43F5E" },
+                    ].map((col) => (
+                      <button
+                        key={col.hex}
+                        type="button"
+                        onClick={() => updateSubKey("inputs", { ratingActiveColor: col.hex })}
+                        title={col.name}
+                        style={{ backgroundColor: col.hex }}
+                        className={`w-5 h-5 rounded-full border border-black/10 transition-transform hover:scale-110 cursor-pointer ${
+                          (theme.inputs.ratingActiveColor || "#F59E0B") === col.hex ? "ring-2 ring-black/20 scale-110" : ""
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Rating Inactive Color */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-stone-700">Inactive Star Outline Color</span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={theme.inputs.ratingInactiveColor || "#EAE3D6"}
+                      onChange={(e) => updateSubKey("inputs", { ratingInactiveColor: e.target.value })}
+                      className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={theme.inputs.ratingInactiveColor || "#EAE3D6"}
+                      onChange={(e) => updateSubKey("inputs", { ratingInactiveColor: e.target.value })}
+                      className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-white"
+                    />
+                  </div>
+                </div>
+
+                {/* Star Size Slider */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-[#78716C]">Star Icon Size</span>
+                    <span className="font-mono text-[#1C1917]">{theme.inputs.ratingSize || 20}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="16"
+                    max="36"
+                    value={theme.inputs.ratingSize || 20}
+                    onChange={(e) => updateSubKey("inputs", { ratingSize: Number(e.target.value) })}
+                    className="w-full accent-[#FF5A36]"
+                  />
+                </div>
+              </div>
+
+              {/* Checkboxes & Radio Section */}
+              <div className="p-3 bg-[#FAF8F5] rounded-xl border border-[#EAE3D6] space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-[#1C1917]">
+                    <CircleDot className="w-4 h-4 text-[#FF5A36]" />
+                    <span>Checkboxes & Radio Buttons</span>
+                  </div>
+
+                  {/* Live Checkbox Preview */}
+                  <div className="flex items-center gap-2">
+                    <div
+                      style={{
+                        backgroundColor: theme.inputs.accentColor || theme.colors.primary,
+                        borderColor: theme.inputs.accentColor || theme.colors.primary,
+                        borderRadius:
+                          theme.inputs.checkboxRadius === "none"
+                            ? "0px"
+                            : theme.inputs.checkboxRadius === "md"
+                            ? "0.375rem"
+                            : theme.inputs.checkboxRadius === "full"
+                            ? "9999px"
+                            : "0.25rem",
+                      }}
+                      className="w-4 h-4 border flex items-center justify-center text-white"
+                    >
+                      <Check className="w-3 h-3 stroke-[3]" style={{ color: theme.inputs.checkIconColor || "#FFFFFF" }} />
+                    </div>
+                    <div
+                      style={{
+                        backgroundColor: theme.inputs.accentColor || theme.colors.primary,
+                        borderColor: theme.inputs.accentColor || theme.colors.primary,
+                      }}
+                      className="w-4 h-4 rounded-full border flex items-center justify-center"
+                    >
+                      <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Accent Color */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-stone-700">Selected / Accent Color</span>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={theme.inputs.accentColor || theme.colors.primary}
+                        onChange={(e) => updateSubKey("inputs", { accentColor: e.target.value })}
+                        className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        value={theme.inputs.accentColor || theme.colors.primary}
+                        onChange={(e) => updateSubKey("inputs", { accentColor: e.target.value })}
+                        className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-white"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Quick Color Presets for Checkbox */}
+                  <div className="flex items-center gap-1.5 pt-1">
+                    {[
+                      { name: "Coral", hex: "#FF5A36" },
+                      { name: "Indigo", hex: "#4F46E5" },
+                      { name: "Emerald", hex: "#10B981" },
+                      { name: "Cyan", hex: "#06B6D4" },
+                      { name: "Dark", hex: "#18181B" },
+                      { name: "Amber", hex: "#F59E0B" },
+                    ].map((col) => (
+                      <button
+                        key={col.hex}
+                        type="button"
+                        onClick={() => updateSubKey("inputs", { accentColor: col.hex })}
+                        title={col.name}
+                        style={{ backgroundColor: col.hex }}
+                        className={`w-5 h-5 rounded-full border border-black/10 transition-transform hover:scale-110 cursor-pointer ${
+                          (theme.inputs.accentColor || theme.colors.primary) === col.hex ? "ring-2 ring-black/20 scale-110" : ""
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Checkmark Icon Color */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-stone-700">Checkmark Icon Color</span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={theme.inputs.checkIconColor || "#FFFFFF"}
+                      onChange={(e) => updateSubKey("inputs", { checkIconColor: e.target.value })}
+                      className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={theme.inputs.checkIconColor || "#FFFFFF"}
+                      onChange={(e) => updateSubKey("inputs", { checkIconColor: e.target.value })}
+                      className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-white"
+                    />
+                  </div>
+                </div>
+
+                {/* Checkbox Corner Radius */}
+                <div className="space-y-1">
+                  <label className="block text-[11px] text-[#78716C]">Checkbox Corner Radius</label>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {[
+                      { id: "none", label: "Square", radius: "0px" },
+                      { id: "sm", label: "Subtle", radius: "4px" },
+                      { id: "md", label: "Rounded", radius: "6px" },
+                      { id: "full", label: "Pill / Circle", radius: "Round" },
+                    ].map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => updateSubKey("inputs", { checkboxRadius: item.id as any })}
+                        className={`py-1.5 px-1 rounded-lg text-[11px] font-medium border text-center transition-all cursor-pointer ${
+                          (theme.inputs.checkboxRadius || "sm") === item.id
+                            ? "border-[#FF5A36] bg-[#FFF0EB] text-[#FF5A36] font-semibold shadow-2xs"
+                            : "border-[#EAE3D6] bg-white text-[#78716C] hover:border-[#D6D3D1]"
+                        }`}
+                      >
+                        <div>{item.label}</div>
+                        <div className="text-[9px] opacity-70">{item.radius}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>

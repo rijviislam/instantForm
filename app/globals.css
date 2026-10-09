@@ -76,6 +76,12 @@
     background: #ff5a36;
     color: #ffffff;
   }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: inherit;
+    opacity: 0.55;
+  }
 }
 
 /* Custom editorial typography styles */

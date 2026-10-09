@@ -870,3 +870,125 @@ export async function getUserAllResponsesApi(
     };
   }
 }
+
+export interface FormIntegrations {
+  storeLocalResponses?: boolean;
+  googleSheetsEnabled?: boolean;
+  googleSheetsWebhookUrl?: string;
+  spreadsheetId?: string;
+  spreadsheetUrl?: string;
+  spreadsheetTitle?: string;
+  lastSyncedAt?: string;
+  webhookEnabled?: boolean;
+  webhookUrl?: string;
+}
+
+export async function testIntegrationApi(
+  formId: string,
+  data: { url: string; type: "googleSheets" | "webhook"; formTitle?: string },
+  token?: string
+): Promise<ApiResponse<any>> {
+  try {
+    const headers = await getAuthHeaders(token);
+    const res = await fetch(`${API_BASE_URL}/api/forms/${formId}/test-integration`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(data),
+    });
+    return await res.json();
+  } catch (error: any) {
+    console.error("API testIntegration network error:", error);
+    return {
+      success: false,
+      error: error.message || "Network Error",
+      message: "Failed to connect to integration endpoint.",
+    };
+  }
+}
+
+export async function connectGoogleSheetsApi(
+  formId: string,
+  token?: string
+): Promise<
+  ApiResponse<{
+    spreadsheetUrl?: string;
+    spreadsheetId?: string;
+    spreadsheetTitle?: string;
+    requiresGoogleAuth?: boolean;
+  }> & { requiresGoogleAuth?: boolean }
+> {
+  try {
+    const headers = await getAuthHeaders(token);
+    const res = await fetch(`${API_BASE_URL}/api/forms/${formId}/google-sheets/connect`, {
+      method: "POST",
+      headers,
+    });
+    return await res.json();
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || "Network error",
+    };
+  }
+}
+
+export async function linkGoogleSheetApi(
+  formId: string,
+  sheetUrlOrId: string,
+  token?: string
+): Promise<ApiResponse<{ spreadsheetUrl?: string; spreadsheetId?: string; spreadsheetTitle?: string }>> {
+  try {
+    const headers = await getAuthHeaders(token);
+    const res = await fetch(`${API_BASE_URL}/api/forms/${formId}/google-sheets/link-sheet`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ sheetUrlOrId }),
+    });
+    return await res.json();
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || "Network error",
+    };
+  }
+}
+
+export async function syncAllGoogleSheetsApi(
+  formId: string,
+  token?: string
+): Promise<ApiResponse<{ syncedCount?: number }>> {
+  try {
+    const headers = await getAuthHeaders(token);
+    const res = await fetch(`${API_BASE_URL}/api/forms/${formId}/google-sheets/sync-all`, {
+      method: "POST",
+      headers,
+    });
+    return await res.json();
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || "Network error",
+    };
+  }
+}
+
+export async function disconnectGoogleSheetsApi(
+  formId: string,
+  token?: string
+): Promise<ApiResponse<any>> {
+  try {
+    const headers = await getAuthHeaders(token);
+    const res = await fetch(`${API_BASE_URL}/api/forms/${formId}/google-sheets/disconnect`, {
+      method: "POST",
+      headers,
+    });
+    return await res.json();
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || "Network error",
+    };
+  }
+}
+
+

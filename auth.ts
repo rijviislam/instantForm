@@ -12,6 +12,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         process.env.AUTH_GOOGLE_SECRET ||
         process.env.GOOGLE_CLIENT_SECRET ||
         "",
+      authorization: {
+        params: {
+          scope:
+            "openid profile email https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file",
+          access_type: "offline",
+          prompt: "consent",
+        },
+      },
       allowDangerousEmailAccountLinking: true,
     }),
     GitHub({
@@ -88,6 +96,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               image: user.image,
               provider: account.provider,
               providerAccountId: account.providerAccountId,
+              accessToken: account.access_token,
+              refreshToken: account.refresh_token,
+              expiresAt: account.expires_at,
+              scope: account.scope,
             }),
           });
 
@@ -127,6 +139,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               image: user?.image || token.picture,
               provider: account.provider,
               providerAccountId: account.providerAccountId,
+              accessToken: account.access_token,
+              refreshToken: account.refresh_token,
+              expiresAt: account.expires_at,
+              scope: account.scope,
             }),
           });
 

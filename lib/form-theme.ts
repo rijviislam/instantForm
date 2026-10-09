@@ -1564,7 +1564,8 @@ export const INPUT_STYLE_PRESETS: Array<{
  */
 export function applyThemeMood(theme: FormTheme, mood: "light" | "dark"): FormTheme {
   const resolved = resolveFormTheme(theme);
-  const primary = resolved.colors.primary || "#FF5A36";
+  const primary = resolved.colors.primary || resolved.buttons?.backgroundColor || "#FF5A36";
+  const accent = resolved.colors.accent || primary;
 
   if (mood === "dark") {
     return {
@@ -1578,14 +1579,16 @@ export function applyThemeMood(theme: FormTheme, mood: "light" | "dark"): FormTh
       container: {
         ...resolved.container,
         backgroundColor: "#111827",
-        borderColor: "#1F2937",
+        borderColor: "rgba(255, 255, 255, 0.08)",
         backgroundOpacity: 100,
       },
       colors: {
         ...resolved.colors,
+        primary,
+        accent,
         text: "#F8FAFC",
         mutedText: "#94A3B8",
-        border: "#1F2937",
+        border: "rgba(255, 255, 255, 0.1)",
         surface: "#111827",
       },
       typography: {
@@ -1595,25 +1598,37 @@ export function applyThemeMood(theme: FormTheme, mood: "light" | "dark"): FormTh
       },
       inputs: {
         ...resolved.inputs,
-        backgroundColor: "#161F30",
-        borderColor: "#293548",
+        backgroundColor: "#0F172A",
+        borderColor: "rgba(255, 255, 255, 0.12)",
         textColor: "#F8FAFC",
         labelColor: "#F8FAFC",
-        placeholderColor: "#64748B",
-        dropzoneBgColor: "rgba(22, 31, 48, 0.7)",
-        dropzoneBorderColor: "#293548",
+        placeholderColor: "#94A3B8",
+        dropzoneBgColor: "rgba(15, 23, 42, 0.7)",
+        dropzoneBorderColor: "rgba(255, 255, 255, 0.15)",
         dropzoneTextColor: "#F8FAFC",
+        ratingActiveColor: resolved.inputs.ratingActiveColor || "#F59E0B",
+        ratingInactiveColor: "#334155",
+        focusBorderColor: primary,
+        focusRingColor: `${primary}40`,
+        accentColor: primary,
+        checkIconColor: resolved.inputs.checkIconColor || "#FFFFFF",
       },
       fieldCard: {
         ...resolved.fieldCard,
-        backgroundColor: "#161F30",
-        borderColor: "#293548",
+        backgroundColor: "#1E293B",
+        borderColor: "rgba(255, 255, 255, 0.08)",
+        selectedRingColor: primary,
+      },
+      buttons: {
+        ...resolved.buttons,
+        backgroundColor: resolved.buttons.backgroundColor || primary,
+        textColor: resolved.buttons.textColor || "#FFFFFF",
       },
       branding: {
         ...resolved.branding,
-        badgeBackgroundColor: "rgba(255, 90, 54, 0.15)",
-        badgeTextColor: "#FF5A36",
-        badgeBorderColor: "rgba(255, 90, 54, 0.3)",
+        badgeBackgroundColor: `${primary}26`,
+        badgeTextColor: primary,
+        badgeBorderColor: `${primary}4d`,
       },
     };
   }
@@ -1635,6 +1650,8 @@ export function applyThemeMood(theme: FormTheme, mood: "light" | "dark"): FormTh
     },
     colors: {
       ...resolved.colors,
+      primary,
+      accent,
       text: "#1C1917",
       mutedText: "#78716C",
       border: "#EAE3D6",
@@ -1655,17 +1672,29 @@ export function applyThemeMood(theme: FormTheme, mood: "light" | "dark"): FormTh
       dropzoneBgColor: "rgba(250, 248, 245, 0.6)",
       dropzoneBorderColor: "#EAE3D6",
       dropzoneTextColor: "#1C1917",
+      ratingActiveColor: resolved.inputs.ratingActiveColor || "#F59E0B",
+      ratingInactiveColor: "#EAE3D6",
+      focusBorderColor: primary,
+      focusRingColor: `${primary}33`,
+      accentColor: primary,
+      checkIconColor: resolved.inputs.checkIconColor || "#FFFFFF",
     },
     fieldCard: {
       ...resolved.fieldCard,
       backgroundColor: "#FAF8F5",
       borderColor: "#EAE3D6",
+      selectedRingColor: primary,
+    },
+    buttons: {
+      ...resolved.buttons,
+      backgroundColor: resolved.buttons.backgroundColor || primary,
+      textColor: resolved.buttons.textColor || "#FFFFFF",
     },
     branding: {
       ...resolved.branding,
-      badgeBackgroundColor: "#FFF0EB",
-      badgeTextColor: "#FF5A36",
-      badgeBorderColor: "#FFD8CC",
+      badgeBackgroundColor: `${primary}1a`,
+      badgeTextColor: primary,
+      badgeBorderColor: `${primary}33`,
     },
   };
 }
@@ -1902,12 +1931,14 @@ export function computeFieldCustomStyles(
   const isBorderDisabled = inp.borderEnabled === false;
   const isBottomOnly = inp.bottomBorderOnly === true;
 
+  const isGradientInput = inp.backgroundType === "gradient";
   const inputStyle: React.CSSProperties = {
-    background: bgCss,
-    color: inp.textColor || "#1C1917",
+    backgroundColor: isGradientInput ? undefined : (inp.backgroundType === "transparent" ? "transparent" : inp.backgroundColor || themeColors?.surface || "#FAF8F5"),
+    backgroundImage: isGradientInput ? bgCss : undefined,
+    color: inp.textColor || themeColors?.text || "#1C1917",
     borderRadius: isBottomOnly ? "0px" : computedBorderRadius,
     borderStyle: isBorderDisabled ? "none" : inp.borderStyle || "solid",
-    borderColor: inp.borderColor || "#EAE3D6",
+    borderColor: inp.borderColor || themeColors?.border || "#EAE3D6",
     borderWidth: isBorderDisabled ? "0px" : isBottomOnly ? "0px" : defaultBorderWidth,
     borderBottomWidth: isBorderDisabled ? "0px" : defaultBorderWidth,
     borderTopWidth: isBorderDisabled || isBottomOnly || inp.borderTop === false ? "0px" : defaultBorderWidth,
@@ -1986,9 +2017,9 @@ export function computeFieldCustomStyles(
   };
 
   const dropzoneStyle: React.CSSProperties = {
-    background: inp.dropzoneBgColor || "rgba(250, 248, 245, 0.6)",
-    borderColor: inp.dropzoneBorderColor || inp.borderColor || "#EAE3D6",
-    color: inp.dropzoneTextColor || inp.textColor || "#1C1917",
+    backgroundColor: inp.dropzoneBgColor || (themeColors?.surface === "#111827" ? "rgba(15, 23, 42, 0.7)" : "rgba(250, 248, 245, 0.6)"),
+    borderColor: inp.dropzoneBorderColor || inp.borderColor || themeColors?.border || "#EAE3D6",
+    color: inp.dropzoneTextColor || inp.textColor || themeColors?.text || "#1C1917",
     borderRadius: computedBorderRadius,
     borderWidth: "2px",
     borderStyle: "dashed",
@@ -2000,6 +2031,9 @@ export function computeFieldCustomStyles(
 
   const ratingStyle: React.CSSProperties = {
     color: inp.ratingActiveColor || "#F59E0B",
+    backgroundColor: inp.backgroundType === "transparent" ? "transparent" : inp.backgroundColor || themeColors?.surface || "#FFFFFF",
+    borderColor: inp.borderColor || themeColors?.border || "#EAE3D6",
+    borderRadius: computedBorderRadius,
   };
 
   const checkboxRadiusMap = {
@@ -2011,14 +2045,14 @@ export function computeFieldCustomStyles(
 
   const checkboxStyle: React.CSSProperties = {
     borderRadius: checkboxRadiusMap[inp.checkboxRadius || "sm"] || "0.25rem",
-    borderColor: inp.borderColor || "#EAE3D6",
-    background: inp.backgroundType === "transparent" ? "transparent" : inp.backgroundColor || "#FFFFFF",
+    borderColor: inp.borderColor || themeColors?.border || "#EAE3D6",
+    backgroundColor: inp.backgroundType === "transparent" ? "transparent" : inp.backgroundColor || themeColors?.surface || "#FFFFFF",
     color: inp.checkIconColor || "#FFFFFF",
   };
 
   const radioStyle: React.CSSProperties = {
-    borderColor: inp.borderColor || "#EAE3D6",
-    background: inp.backgroundType === "transparent" ? "transparent" : inp.backgroundColor || "#FFFFFF",
+    borderColor: inp.borderColor || themeColors?.border || "#EAE3D6",
+    backgroundColor: inp.backgroundType === "transparent" ? "transparent" : inp.backgroundColor || themeColors?.surface || "#FFFFFF",
   };
 
   return {
@@ -2030,6 +2064,7 @@ export function computeFieldCustomStyles(
     ratingActiveColor: inp.ratingActiveColor || "#F59E0B",
     ratingInactiveColor: inp.ratingInactiveColor || "#EAE3D6",
     ratingSize: inp.ratingSize || 20,
+    checkIconColor: inp.checkIconColor || "#FFFFFF",
     checkboxStyle,
     radioStyle,
     computedBorderRadius,
@@ -2159,8 +2194,10 @@ export function computeFieldCardStyles(
   }
 
   // Base normal card style
+  const isGradientCard = fc.backgroundType === "gradient";
   const cardStyle: React.CSSProperties = {
-    background: computedBackground,
+    backgroundColor: isGradientCard ? undefined : (fc.backgroundType === "transparent" ? "transparent" : computedBackground),
+    backgroundImage: isGradientCard ? computedBackground : undefined,
     borderRadius: computedBorderRadius,
     borderWidth: fc.individualBorders ? undefined : (fc.borderEnabled === false ? "0px" : computedBorderWidth),
     borderTopWidth: fc.individualBorders ? (fc.borderTop === false || fc.borderEnabled === false ? "0px" : computedBorderWidth) : undefined,
@@ -2191,12 +2228,12 @@ export function computeFieldCardStyles(
 
   const selectedCardStyle: React.CSSProperties = {
     ...cardStyle,
-    background:
+    backgroundColor:
       fc.selectedBackgroundColor &&
       fc.selectedBackgroundColor !== "#FFFFFF" &&
       fc.selectedBackgroundColor !== "#ffffff"
         ? fc.selectedBackgroundColor
-        : cardStyle.background,
+        : cardStyle.backgroundColor,
     borderColor:
       fc.selectedBorderColor && fc.selectedBorderColor !== "transparent"
         ? fc.selectedBorderColor
@@ -2262,22 +2299,18 @@ export function getComputedFieldStyles(
 export function getThemeComputedStyles(theme: FormTheme) {
   // 1. Background Style
   const bg = theme.background;
-  let backgroundCss = bg.color || "#FAF8F5";
-
-  if (bg.type === "gradient") {
-    if (bg.gradientType === "radial") {
-      backgroundCss = `radial-gradient(circle, ${bg.gradientFrom || "#FAF8F5"} 0%, ${bg.gradientVia ? bg.gradientVia + " 50%," : ""} ${bg.gradientTo || "#FFF0EB"} 100%)`;
-    } else {
-      backgroundCss = `linear-gradient(${bg.gradientDirection || "135deg"}, ${bg.gradientFrom || "#FAF8F5"} 0%, ${bg.gradientVia ? bg.gradientVia + " 50%," : ""} ${bg.gradientTo || "#FFF0EB"} 100%)`;
-    }
-  } else if (bg.type === "image" && bg.imageUrl) {
-    backgroundCss = `url("${bg.imageUrl}")`;
-  }
+  const isImageBg = bg.type === "image" && Boolean(bg.imageUrl);
+  const isGradientBg = bg.type === "gradient";
 
   const backgroundStyle: React.CSSProperties = {
-    background: bg.type === "image" && bg.imageUrl ? undefined : backgroundCss,
-    backgroundImage: bg.type === "image" && bg.imageUrl ? `url("${bg.imageUrl}")` : undefined,
-    backgroundColor: bg.type === "image" ? bg.color || "#FAF8F5" : undefined,
+    backgroundColor: isImageBg ? bg.color || "#FAF8F5" : isGradientBg ? undefined : (bg.color || "#FAF8F5"),
+    backgroundImage: isImageBg
+      ? `url("${bg.imageUrl}")`
+      : isGradientBg
+      ? (bg.gradientType === "radial"
+          ? `radial-gradient(circle, ${bg.gradientFrom || "#FAF8F5"} 0%, ${bg.gradientVia ? bg.gradientVia + " 50%," : ""} ${bg.gradientTo || "#FFF0EB"} 100%)`
+          : `linear-gradient(${bg.gradientDirection || "135deg"}, ${bg.gradientFrom || "#FAF8F5"} 0%, ${bg.gradientVia ? bg.gradientVia + " 50%," : ""} ${bg.gradientTo || "#FFF0EB"} 100%)`)
+      : undefined,
     backgroundPosition: bg.imagePosition || "center",
     backgroundSize: bg.imageSize || "cover",
     backgroundRepeat: bg.imageRepeat || "no-repeat",
@@ -2403,11 +2436,20 @@ export function getThemeComputedStyles(theme: FormTheme) {
       : maxWidthMap[c.maxWidth] || "42rem";
 
   const hasBanner = Boolean(theme.branding?.headerImageUrl && theme.branding.headerImageUrl.trim() !== "");
+  const isGradientContainer = c.backgroundType === "gradient";
+  const isImageContainer = c.backgroundType === "image" && Boolean(c.imageUrl);
 
   const containerStyle: React.CSSProperties = {
-    background: cardBgCss,
-    backgroundImage: cardBgImage,
-    backgroundColor: c.backgroundType === "image" ? c.backgroundColor || "#FFFFFF" : undefined,
+    backgroundColor: isImageContainer
+      ? c.backgroundColor || "#FFFFFF"
+      : isGradientContainer
+      ? undefined
+      : c.backgroundColor || "#FFFFFF",
+    backgroundImage: isGradientContainer
+      ? (c.gradientType === "radial"
+          ? `radial-gradient(circle, ${c.gradientFrom || "#FFFFFF"} 0%, ${c.gradientVia ? c.gradientVia + " 50%," : ""} ${c.gradientTo || "#FAF8F5"} 100%)`
+          : `linear-gradient(${c.gradientDirection || "135deg"}, ${c.gradientFrom || "#FFFFFF"} 0%, ${c.gradientVia ? c.gradientVia + " 50%," : ""} ${c.gradientTo || "#FAF8F5"} 100%)`)
+      : undefined,
     backgroundPosition: c.imagePosition || "center",
     backgroundSize: c.imageSize || "cover",
     backgroundRepeat: c.imageRepeat || "no-repeat",
@@ -2518,6 +2560,10 @@ export function getThemeComputedStyles(theme: FormTheme) {
     textareaStyle: fieldCustomStyles.textareaStyle,
     dropzoneStyle: fieldCustomStyles.dropzoneStyle,
     ratingStyle: fieldCustomStyles.ratingStyle,
+    ratingActiveColor: fieldCustomStyles.ratingActiveColor,
+    ratingInactiveColor: fieldCustomStyles.ratingInactiveColor,
+    ratingSize: fieldCustomStyles.ratingSize,
+    checkIconColor: fieldCustomStyles.checkIconColor,
     checkboxStyle: fieldCustomStyles.checkboxStyle,
     radioStyle: fieldCustomStyles.radioStyle,
     focusBorderColor: fieldCustomStyles.focusBorderColor,

@@ -13,6 +13,8 @@ import {
   Code2,
   BoxSelect,
   Link2,
+  Star,
+  CircleDot,
 } from "lucide-react";
 import { FormField, FormStyle } from "@/lib/api-client";
 import { FormTheme, resolveFormTheme, INPUT_STYLE_PRESETS, FIELD_CARD_STYLE_PRESETS } from "@/lib/form-theme";
@@ -61,6 +63,17 @@ export function FieldSettingsPanel({
   const setActiveTab = (tab: "field" | "form" | "style") => {
     setInternalTab(tab);
     if (onTabChange) onTabChange(tab);
+  };
+
+  const updateThemeInputs = (updates: Partial<FormTheme["inputs"]>) => {
+    if (!formTheme || !onUpdateTheme) return;
+    onUpdateTheme({
+      ...formTheme,
+      inputs: {
+        ...formTheme.inputs,
+        ...updates,
+      },
+    });
   };
 
   const handleAddOption = () => {
@@ -400,6 +413,93 @@ export function FieldSettingsPanel({
               </div>
             )}
 
+            {/* Star Rating Design & Settings */}
+            {selectedField.type === "rating" && (
+              <div className="space-y-3 pt-2 border-t border-[#F5F2EB] dark:border-[#1F2937]">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
+                  <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                  <span>Rating Star Design</span>
+                </div>
+
+                {/* Max Stars */}
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-medium text-[#78716C] dark:text-[#94A3B8]">
+                    Number of Stars
+                  </label>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {[3, 5, 7, 10].map((count) => (
+                      <button
+                        key={count}
+                        type="button"
+                        onClick={() => onUpdateField(selectedField.id, { max: count })}
+                        className={`py-1.5 text-xs font-semibold rounded-xl border transition-all cursor-pointer ${
+                          (selectedField.max || 5) === count
+                            ? "bg-[#FF5A36] text-white border-[#FF5A36]"
+                            : "bg-[#FAF8F5] dark:bg-[#161F30] border-[#EAE3D6] dark:border-[#293548] text-[#1C1917] dark:text-[#F8FAFC]"
+                        }`}
+                      >
+                        {count} Stars
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Rating Active Star Color */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-[#78716C] dark:text-[#94A3B8]">Active Star Fill</span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={formTheme?.inputs?.ratingActiveColor || "#F59E0B"}
+                      onChange={(e) => updateThemeInputs({ ratingActiveColor: e.target.value })}
+                      className="w-7 h-7 rounded-lg border border-[#EAE3D6] dark:border-[#293548] cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={formTheme?.inputs?.ratingActiveColor || "#F59E0B"}
+                      onChange={(e) => updateThemeInputs({ ratingActiveColor: e.target.value })}
+                      className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] dark:border-[#293548] bg-[#FAF8F5] dark:bg-[#161F30] text-[#1C1917] dark:text-[#F8FAFC]"
+                    />
+                  </div>
+                </div>
+
+                {/* Rating Inactive Star Color */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-[#78716C] dark:text-[#94A3B8]">Inactive Outline</span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={formTheme?.inputs?.ratingInactiveColor || "#EAE3D6"}
+                      onChange={(e) => updateThemeInputs({ ratingInactiveColor: e.target.value })}
+                      className="w-7 h-7 rounded-lg border border-[#EAE3D6] dark:border-[#293548] cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={formTheme?.inputs?.ratingInactiveColor || "#EAE3D6"}
+                      onChange={(e) => updateThemeInputs({ ratingInactiveColor: e.target.value })}
+                      className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] dark:border-[#293548] bg-[#FAF8F5] dark:bg-[#161F30] text-[#1C1917] dark:text-[#F8FAFC]"
+                    />
+                  </div>
+                </div>
+
+                {/* Rating Size Slider */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-[#78716C] dark:text-[#94A3B8]">Star Icon Size</span>
+                    <span className="font-mono text-[#1C1917] dark:text-[#F8FAFC]">{formTheme?.inputs?.ratingSize || 20}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="16"
+                    max="36"
+                    value={formTheme?.inputs?.ratingSize || 20}
+                    onChange={(e) => updateThemeInputs({ ratingSize: Number(e.target.value) })}
+                    className="w-full accent-[#FF5A36]"
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Linear Scale Min/Max Labels */}
             {selectedField.type === "linear_scale" && (
               <div className="space-y-3 pt-2 border-t border-[#F5F2EB] dark:border-[#1F2937]">
@@ -430,6 +530,65 @@ export function FieldSettingsPanel({
                     />
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Checkbox & Radio Styling Controls */}
+            {(selectedField.type === "single_choice" || selectedField.type === "multiple_choice") && (
+              <div className="space-y-3 pt-2 border-t border-[#F5F2EB] dark:border-[#1F2937]">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-[#1C1917] dark:text-[#F8FAFC]">
+                  <CircleDot className="w-3.5 h-3.5 text-[#FF5A36]" />
+                  <span>Control Colors & Shapes</span>
+                </div>
+
+                {/* Accent Color */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-[#78716C] dark:text-[#94A3B8]">Selected Color</span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={formTheme?.inputs?.accentColor || formTheme?.colors?.primary || "#FF5A36"}
+                      onChange={(e) => updateThemeInputs({ accentColor: e.target.value })}
+                      className="w-7 h-7 rounded-lg border border-[#EAE3D6] dark:border-[#293548] cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={formTheme?.inputs?.accentColor || formTheme?.colors?.primary || "#FF5A36"}
+                      onChange={(e) => updateThemeInputs({ accentColor: e.target.value })}
+                      className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] dark:border-[#293548] bg-[#FAF8F5] dark:bg-[#161F30] text-[#1C1917] dark:text-[#F8FAFC]"
+                    />
+                  </div>
+                </div>
+
+                {/* Checkbox Corner Radius (for multiple choice) */}
+                {selectedField.type === "multiple_choice" && (
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-[#78716C] dark:text-[#94A3B8]">
+                      Checkbox Shape
+                    </label>
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {[
+                        { id: "none", label: "Square" },
+                        { id: "sm", label: "Subtle" },
+                        { id: "md", label: "Rounded" },
+                        { id: "full", label: "Circle" },
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => updateThemeInputs({ checkboxRadius: item.id as any })}
+                          className={`py-1 px-1 rounded-lg text-[11px] font-medium border text-center transition-all cursor-pointer ${
+                            (formTheme?.inputs?.checkboxRadius || "sm") === item.id
+                              ? "border-[#FF5A36] bg-[#FFF0EB] text-[#FF5A36] font-semibold shadow-2xs"
+                              : "border-[#EAE3D6] dark:border-[#293548] bg-[#FAF8F5] dark:bg-[#161F30] text-[#78716C] dark:text-[#94A3B8]"
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

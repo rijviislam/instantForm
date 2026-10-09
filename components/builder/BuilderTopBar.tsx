@@ -41,6 +41,7 @@ interface BuilderTopBarProps {
   canRedo?: boolean;
   onTitleChange: (newTitle: string) => void;
   onPublishToggle: () => void;
+  onUnpublish?: () => void;
   onShare?: () => void;
   onTogglePreview: () => void;
   onViewportChange: (mode: ViewportMode) => void;
@@ -63,6 +64,7 @@ export function BuilderTopBar({
   canRedo = false,
   onTitleChange,
   onPublishToggle,
+  onUnpublish,
   onShare,
   onTogglePreview,
   onViewportChange,
@@ -336,23 +338,58 @@ export function BuilderTopBar({
           <span className="hidden xs:inline">{isPreview ? "Exit Preview" : "Preview"}</span>
         </Button>
 
-        {/* Publish / Unpublish Button */}
-        <Button
-          variant={isPublished ? "secondary" : "primary"}
-          size="sm"
-          onClick={onPublishToggle}
-          disabled={isPublishing}
-          iconLeft={
-            isPublishing ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            ) : (
-              <Globe className="w-3.5 h-3.5" />
-            )
-          }
-          className={!isPublished ? "shadow-md shadow-[#FF5A36]/20" : ""}
-        >
-          {isPublishing ? "Updating..." : isPublished ? "Unpublish" : "Publish"}
-        </Button>
+        {/* Publish / Publish Changes / Unpublish Action */}
+        {isPublished ? (
+          <div className="flex items-center gap-1.5">
+            {onUnpublish && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onUnpublish}
+                disabled={isPublishing}
+                className="text-[#78716C] dark:text-[#94A3B8] hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/50 cursor-pointer"
+                title="Unpublish this form to make it a private draft"
+              >
+                <span>Unpublish</span>
+              </Button>
+            )}
+
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={onPublishToggle}
+              disabled={isPublishing}
+              iconLeft={
+                isPublishing ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Globe className="w-3.5 h-3.5" />
+                )
+              }
+              className="shadow-md shadow-[#FF5A36]/20 cursor-pointer"
+              title="Publish your newest changes live to the public form"
+            >
+              <span>{isPublishing ? "Updating..." : "Publish Changes"}</span>
+            </Button>
+          </div>
+        ) : (
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={onPublishToggle}
+            disabled={isPublishing}
+            iconLeft={
+              isPublishing ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Globe className="w-3.5 h-3.5" />
+              )
+            }
+            className="shadow-md shadow-[#FF5A36]/20 cursor-pointer"
+          >
+            <span>{isPublishing ? "Publishing..." : "Publish"}</span>
+          </Button>
+        )}
       </div>
     </header>
   );

@@ -209,6 +209,10 @@ export class UserService {
     image?: string | null;
     provider: string;
     providerAccountId: string;
+    accessToken?: string;
+    refreshToken?: string;
+    expiresAt?: number;
+    scope?: string;
   }): Promise<SafeUser> {
     const normalizedEmail = data.email.trim().toLowerCase();
 
@@ -251,12 +255,21 @@ export class UserService {
                 providerAccountId: data.providerAccountId,
               },
             },
-            update: {},
+            update: {
+              access_token: data.accessToken || undefined,
+              refresh_token: data.refreshToken || undefined,
+              expires_at: data.expiresAt || undefined,
+              scope: data.scope || undefined,
+            },
             create: {
               userId: user.id,
               type: "oauth",
               provider: data.provider,
               providerAccountId: data.providerAccountId,
+              access_token: data.accessToken || null,
+              refresh_token: data.refreshToken || null,
+              expires_at: data.expiresAt || null,
+              scope: data.scope || null,
             },
           });
         } catch {

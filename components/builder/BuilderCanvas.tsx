@@ -615,6 +615,7 @@ function renderCanvasFieldMockup(
   const checkboxStyle = fieldStyles?.checkboxStyle;
   const radioStyle = fieldStyles?.radioStyle;
   const accentColor = fieldStyles?.accentColor || "#FF5A36";
+  const checkIconColor = fieldStyles?.checkIconColor || "#FFFFFF";
 
   // Custom Input Field
   if (field.type === "custom_input") {
@@ -721,13 +722,16 @@ function renderCanvasFieldMockup(
           >
             <div
               className="w-4 h-4 rounded-full border flex items-center justify-center shrink-0"
-              style={radioStyle}
+              style={{
+                borderColor: oIdx === 0 ? accentColor : (radioStyle?.borderColor || "#D6D3D1"),
+                backgroundColor: oIdx === 0 ? accentColor : "transparent",
+              }}
             >
               {oIdx === 0 && (
-                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: accentColor }} />
+                <div className="w-1.5 h-1.5 rounded-full bg-white" />
               )}
             </div>
-            <span>{opt}</span>
+            <span style={{ color: oIdx === 0 ? accentColor : inputStyle?.color }}>{opt}</span>
           </div>
         ))}
       </div>
@@ -749,11 +753,15 @@ function renderCanvasFieldMockup(
           >
             <div
               className="w-4 h-4 border flex items-center justify-center shrink-0"
-              style={checkboxStyle}
+              style={{
+                borderRadius: checkboxStyle?.borderRadius || "0.25rem",
+                borderColor: oIdx === 0 ? accentColor : (checkboxStyle?.borderColor || "#D6D3D1"),
+                backgroundColor: oIdx === 0 ? accentColor : "transparent",
+              }}
             >
-              {oIdx === 0 && <Check className="w-3 h-3 stroke-[3]" style={{ color: accentColor }} />}
+              {oIdx === 0 && <Check className="w-3 h-3 stroke-[3]" style={{ color: checkIconColor }} />}
             </div>
-            <span>{opt}</span>
+            <span style={{ color: oIdx === 0 ? accentColor : inputStyle?.color }}>{opt}</span>
           </div>
         ))}
       </div>
@@ -825,18 +833,21 @@ function renderCanvasFieldMockup(
 
   // 9. Star Rating
   if (field.type === "rating") {
+    const starCount = field.max || 5;
     const starSize = ratingSize;
     const activeColor = ratingActiveColor;
     const inactiveColor = ratingInactiveColor;
     return (
-      <div className="flex items-center gap-1.5 pt-1">
-        {[1, 2, 3, 4, 5].map((star) => (
+      <div className="flex items-center gap-1.5 pt-1 flex-wrap">
+        {Array.from({ length: starCount }, (_, i) => i + 1).map((star) => (
           <div
             key={star}
-            className="p-2 border border-black/5 flex items-center justify-center shadow-2xs"
+            className="p-2 border border-black/5 flex items-center justify-center shadow-2xs rounded-xl"
             style={{
               borderRadius: inputStyle?.borderRadius || "0.75rem",
               background: inputStyle?.background || "#FFFFFF",
+              minWidth: `${Math.max(starSize + 16, 36)}px`,
+              height: `${Math.max(starSize + 16, 36)}px`,
             }}
           >
             <Star

@@ -363,7 +363,16 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
   // 1. Already Submitted State Screen (One submission per respondent)
   if (hasPreviouslySubmitted && !isSubmitted) {
     return (
-      <div className="w-full flex items-center justify-center p-4">
+      <div className="w-full min-h-screen flex items-center justify-center p-4 relative" style={backgroundStyle}>
+        {theme.background.overlayOpacity > 0 && (
+          <div
+            className="absolute inset-0 pointer-events-none transition-all z-0"
+            style={{
+              backgroundColor: theme.background.overlayColor || "#000000",
+              opacity: theme.background.overlayOpacity / 100,
+            }}
+          />
+        )}
         <DynamicFontLoader theme={theme} />
 
         {/* Respondent Mood Toggle Floating Button */}
@@ -416,7 +425,16 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
   // 2. Immediate Success State Screen
   if (isSubmitted) {
     return (
-      <div className="w-full flex items-center justify-center p-4">
+      <div className="w-full min-h-screen flex items-center justify-center p-4 relative" style={backgroundStyle}>
+        {theme.background.overlayOpacity > 0 && (
+          <div
+            className="absolute inset-0 pointer-events-none transition-all z-0"
+            style={{
+              backgroundColor: theme.background.overlayColor || "#000000",
+              opacity: theme.background.overlayOpacity / 100,
+            }}
+          />
+        )}
         <DynamicFontLoader theme={theme} />
 
         {/* Respondent Mood Toggle Floating Button */}
@@ -471,7 +489,16 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
     );
 
     return (
-      <div className="w-full flex flex-col items-center justify-center p-4 relative">
+      <div className="w-full min-h-screen flex flex-col items-center justify-center p-4 relative" style={backgroundStyle}>
+        {theme.background.overlayOpacity > 0 && (
+          <div
+            className="absolute inset-0 pointer-events-none transition-all z-0"
+            style={{
+              backgroundColor: theme.background.overlayColor || "#000000",
+              opacity: theme.background.overlayOpacity / 100,
+            }}
+          />
+        )}
         <DynamicFontLoader theme={theme} />
 
         {/* Respondent Mood Toggle Floating Button */}
@@ -688,7 +715,16 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
 
   // 3. Multi-Field Card Styles
   return (
-    <div className="w-full flex flex-col items-center justify-center p-4 relative">
+    <div className="w-full min-h-screen flex flex-col items-center justify-center p-4 relative" style={backgroundStyle}>
+      {theme.background.overlayOpacity > 0 && (
+        <div
+          className="absolute inset-0 pointer-events-none transition-all z-0"
+          style={{
+            backgroundColor: theme.background.overlayColor || "#000000",
+            opacity: theme.background.overlayOpacity / 100,
+          }}
+        />
+      )}
       <DynamicFontLoader theme={theme} />
 
       {/* Respondent Mood Toggle Floating Button */}
@@ -1220,25 +1256,36 @@ function renderPublicInput(
 
   // 1. Star Rating
   if (field.type === "rating") {
+    const starCount = field.max || 5;
+    const activeColor = fieldStyles.ratingActiveColor || fieldStyles.ratingStyle?.color || "#F59E0B";
+    const inactiveColor = fieldStyles.ratingInactiveColor || "#EAE3D6";
+    const starSize = fieldStyles.ratingSize || 20;
+
     return (
-      <div className="flex items-center gap-2 pt-1">
-        {[1, 2, 3, 4, 5].map((star) => {
+      <div className="flex items-center gap-2 pt-1 flex-wrap">
+        {Array.from({ length: starCount }, (_, i) => i + 1).map((star) => {
           const isFilled = (value || 0) >= star;
           return (
             <button
               key={star}
               type="button"
               onClick={() => onChange(star)}
-              style={fieldStyles.ratingStyle}
-              className={`w-10 h-10 border flex items-center justify-center transition-all cursor-pointer ${
-                isFilled ? "scale-105" : "hover:opacity-80"
+              style={{
+                ...fieldStyles.ratingStyle,
+                color: isFilled ? activeColor : inactiveColor,
+                minWidth: `${Math.max(starSize + 16, 38)}px`,
+                height: `${Math.max(starSize + 16, 38)}px`,
+              }}
+              className={`border rounded-xl flex items-center justify-center transition-all cursor-pointer ${
+                isFilled ? "scale-105 shadow-2xs" : "hover:opacity-80"
               }`}
             >
               <Star
-                className="w-5 h-5"
                 style={{
-                  fill: isFilled ? fieldStyles.ratingStyle.color : "none",
-                  color: isFilled ? fieldStyles.ratingStyle.color : `${fieldStyles.ratingStyle.color}60`,
+                  width: `${starSize}px`,
+                  height: `${starSize}px`,
+                  fill: isFilled ? activeColor : "none",
+                  color: isFilled ? activeColor : inactiveColor,
                 }}
               />
             </button>
@@ -1328,6 +1375,7 @@ function renderPublicInput(
 
   // 4. Single choice (Radio)
   if (field.type === "single_choice") {
+    const accentColor = fieldStyles.accentColor || theme.colors.primary || "#FF5A36";
     return (
       <div className="space-y-2">
         {(field.options || ["Option 1", "Option 2", "Option 3"]).map((opt) => (
@@ -1339,25 +1387,25 @@ function renderPublicInput(
               borderColor: hasError
                 ? errorBorderColor
                 : value === opt
-                ? fieldStyles.accentColor
+                ? accentColor
                 : fieldStyles.radioStyle.borderColor,
               backgroundColor:
-                value === opt ? `${fieldStyles.accentColor}10` : fieldStyles.radioStyle.backgroundColor,
+                value === opt ? `${accentColor}10` : fieldStyles.radioStyle.backgroundColor,
             }}
             className="flex items-center gap-3 p-3 cursor-pointer transition-all"
           >
             <div
               style={{
-                borderColor: value === opt ? fieldStyles.accentColor : "#D6D3D1",
-                backgroundColor: value === opt ? fieldStyles.accentColor : "transparent",
+                borderColor: value === opt ? accentColor : (fieldStyles.radioStyle.borderColor || "#D6D3D1"),
+                backgroundColor: value === opt ? accentColor : "transparent",
               }}
-              className="w-4 h-4 rounded-full border flex items-center justify-center shrink-0"
+              className="w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors"
             >
               {value === opt && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
             </div>
             <span
               className="text-xs font-medium"
-              style={{ color: value === opt ? fieldStyles.accentColor : fieldStyles.inputStyle.color }}
+              style={{ color: value === opt ? accentColor : fieldStyles.inputStyle.color }}
             >
               {opt}
             </span>
@@ -1370,6 +1418,9 @@ function renderPublicInput(
   // 5. Multiple choice (Checkboxes)
   if (field.type === "multiple_choice") {
     const selected: string[] = Array.isArray(value) ? value : [];
+    const accentColor = fieldStyles.accentColor || theme.colors.primary || "#FF5A36";
+    const checkIconColor = fieldStyles.checkIconColor || "#FFFFFF";
+
     return (
       <div className="space-y-2">
         {(field.options || ["Option 1", "Option 2", "Option 3"]).map((opt) => {
@@ -1388,27 +1439,27 @@ function renderPublicInput(
                 borderColor: hasError
                   ? errorBorderColor
                   : isChecked
-                  ? fieldStyles.accentColor
+                  ? accentColor
                   : fieldStyles.checkboxStyle.borderColor,
                 backgroundColor:
-                  isChecked ? `${fieldStyles.accentColor}10` : fieldStyles.checkboxStyle.backgroundColor,
+                  isChecked ? `${accentColor}10` : fieldStyles.checkboxStyle.backgroundColor,
               }}
               className="flex items-center gap-3 p-3 cursor-pointer transition-all"
             >
               <div
                 style={{
                   borderRadius: fieldStyles.checkboxStyle.borderRadius,
-                  borderColor: isChecked ? fieldStyles.accentColor : "#D6D3D1",
-                  backgroundColor: isChecked ? fieldStyles.accentColor : "transparent",
-                  color: "#FFFFFF",
+                  borderColor: isChecked ? accentColor : (fieldStyles.checkboxStyle.borderColor || "#D6D3D1"),
+                  backgroundColor: isChecked ? accentColor : (fieldStyles.checkboxStyle.backgroundColor || "transparent"),
+                  color: checkIconColor,
                 }}
-                className="w-4 h-4 border flex items-center justify-center shrink-0"
+                className="w-4 h-4 border flex items-center justify-center shrink-0 transition-colors"
               >
-                {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                {isChecked && <Check className="w-3 h-3 stroke-[3]" style={{ color: checkIconColor }} />}
               </div>
               <span
                 className="text-xs font-medium"
-                style={{ color: isChecked ? fieldStyles.accentColor : fieldStyles.inputStyle.color }}
+                style={{ color: isChecked ? accentColor : fieldStyles.inputStyle.color }}
               >
                 {opt}
               </span>

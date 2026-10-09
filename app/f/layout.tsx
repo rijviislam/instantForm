@@ -7,28 +7,14 @@ export default function PublicFormLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-[#1C1917] flex flex-col justify-between selection:bg-[#FF5A36]/20 selection:text-[#FF5A36]">
-      {/* Minimal Top Brand Badge */}
-      <header className="py-4 px-6 flex items-center justify-between">
-        <Link
-          href="/"
-          target="_blank"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#78716C] hover:text-[#1C1917] transition-colors"
-        >
-          <div className="w-5 h-5 rounded-md bg-[#FF5A36] text-white flex items-center justify-center font-bold text-[10px]">
-            iF
-          </div>
-          <span>InstantForm</span>
-        </Link>
-      </header>
-
+    <div className="min-h-screen flex flex-col justify-between selection:bg-[#FF5A36]/20 selection:text-[#FF5A36]">
       {/* Main Respondent Content */}
-      <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6">
+      <main className="flex-1 flex flex-col items-center justify-center w-full min-h-screen">
         {children}
       </main>
 
       {/* Minimal Footer */}
-      <footer className="py-4 text-center text-[11px] text-[#A8A29E]">
+      <footer className="py-4 text-center text-[11px] text-[#A8A29E] relative z-20">
         Powered by{" "}
         <Link
           href="/"

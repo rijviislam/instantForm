@@ -153,7 +153,17 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
 // POST /api/auth/oauth-sync
 router.post("/oauth-sync", async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, email, image, provider, providerAccountId } = req.body;
+    const {
+      name,
+      email,
+      image,
+      provider,
+      providerAccountId,
+      accessToken,
+      refreshToken,
+      expiresAt,
+      scope,
+    } = req.body;
 
     if (!email || !provider || !providerAccountId) {
       res.status(400).json({
@@ -170,6 +180,10 @@ router.post("/oauth-sync", async (req: Request, res: Response): Promise<void> =>
       image,
       provider,
       providerAccountId,
+      accessToken,
+      refreshToken,
+      expiresAt: typeof expiresAt === "number" ? expiresAt : undefined,
+      scope,
     });
 
     const token = jwt.sign(

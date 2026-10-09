@@ -524,17 +524,33 @@ export function FormStyleCustomizer({
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
-                    value={theme.background.color}
+                    value={theme.background.color?.startsWith("#") ? theme.background.color : "#FAF8F5"}
                     onChange={(e) => {
-                      updateSubKey("background", { color: e.target.value });
+                      updateMultiple({
+                        background: {
+                          color: e.target.value,
+                          type: "solid",
+                          gradientFrom: e.target.value,
+                          gradientTo: e.target.value,
+                        },
+                        colors: { background: e.target.value },
+                      });
                     }}
                     className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer p-0.5"
                   />
                   <input
                     type="text"
-                    value={theme.background.color}
+                    value={theme.background.color || "#FAF8F5"}
                     onChange={(e) => {
-                      updateSubKey("background", { color: e.target.value });
+                      updateMultiple({
+                        background: {
+                          color: e.target.value,
+                          type: "solid",
+                          gradientFrom: e.target.value,
+                          gradientTo: e.target.value,
+                        },
+                        colors: { background: e.target.value },
+                      });
                     }}
                     className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-[#FAF8F5]"
                   />
@@ -549,7 +565,15 @@ export function FormStyleCustomizer({
                     type="color"
                     value={theme.container.backgroundColor?.startsWith("#") ? theme.container.backgroundColor : "#FFFFFF"}
                     onChange={(e) => {
-                      updateSubKey("container", { backgroundColor: e.target.value });
+                      updateMultiple({
+                        container: {
+                          backgroundColor: e.target.value,
+                          backgroundType: "solid",
+                          gradientFrom: e.target.value,
+                          gradientTo: e.target.value,
+                        },
+                        colors: { surface: e.target.value },
+                      });
                     }}
                     className="w-7 h-7 rounded-lg border border-[#EAE3D6] cursor-pointer p-0.5"
                   />
@@ -557,7 +581,15 @@ export function FormStyleCustomizer({
                     type="text"
                     value={theme.container.backgroundColor || "#FFFFFF"}
                     onChange={(e) => {
-                      updateSubKey("container", { backgroundColor: e.target.value });
+                      updateMultiple({
+                        container: {
+                          backgroundColor: e.target.value,
+                          backgroundType: "solid",
+                          gradientFrom: e.target.value,
+                          gradientTo: e.target.value,
+                        },
+                        colors: { surface: e.target.value },
+                      });
                     }}
                     className="w-20 px-2 py-1 text-[11px] font-mono rounded-lg border border-[#EAE3D6] bg-[#FAF8F5]"
                   />

@@ -36,6 +36,7 @@ export default async function FormResponsesPage({
         formId={id}
         formTitle={formTitle}
         formSlug={formSlug}
+        initialForm={res.data}
       />
     </AppShell>
   );

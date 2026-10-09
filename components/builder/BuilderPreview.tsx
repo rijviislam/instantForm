@@ -1037,11 +1037,14 @@ function renderPreviewInput(
               onClick={() => onChange(field.id, star)}
               style={{
                 ...fieldStyles.ratingStyle,
+                backgroundColor: fieldStyles.inputStyle?.backgroundColor || "#FFFFFF",
+                borderColor: fieldStyles.inputStyle?.borderColor || "#EAE3D6",
+                borderRadius: fieldStyles.inputStyle?.borderRadius || "0.75rem",
                 color: isFilled ? activeColor : inactiveColor,
                 minWidth: `${Math.max(starSize + 16, 38)}px`,
                 height: `${Math.max(starSize + 16, 38)}px`,
               }}
-              className={`border rounded-xl flex items-center justify-center transition-all cursor-pointer ${
+              className={`border flex items-center justify-center transition-all cursor-pointer ${
                 isFilled ? "scale-105 shadow-2xs" : "hover:opacity-80"
               }`}
             >

@@ -340,44 +340,66 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
     }
   };
 
-  // Publish / Unpublish Toggle
-  const handlePublishToggle = async () => {
+  // Publish Form / Publish Live Changes
+  const handlePublish = async () => {
     setIsPublishing(true);
+    setSaveState("saving");
     const isCurrentlyPublished =
       form.status?.toUpperCase() === "PUBLISHED" || Boolean(form.isPublished);
 
     try {
-      await updateFormApi(form.id, {
-        title: form.title,
-        description: form.description,
-        slug: form.slug,
-        style: form.style,
-        theme: form.theme,
-        fields: form.fields,
+      // 1. Save all latest form changes, theme, style, fields to backend
+      const current = formRef.current;
+      await updateFormApi(current.id, {
+        title: current.title,
+        description: current.description,
+        slug: current.slug,
+        style: current.style,
+        theme: current.theme,
+        fields: current.fields,
       });
 
-      const res = isCurrentlyPublished
-        ? await unpublishFormApi(form.id)
-        : await publishFormApi(form.id);
+      // 2. Ensure form status is published
+      const res = await publishFormApi(current.id);
 
       if (res.success && res.data) {
-        const nextPublished = !isCurrentlyPublished;
-        const updatedSlug = res.data?.slug || form.slug;
+        const updatedSlug = res.data?.slug || current.slug;
 
         setForm((prev) => ({
           ...prev,
-          status: nextPublished ? "PUBLISHED" : "DRAFT",
-          isPublished: nextPublished,
+          status: "PUBLISHED",
+          isPublished: true,
           slug: updatedSlug,
         }));
+        setSaveState("saved");
+        isDirtyRef.current = false;
 
-        if (nextPublished) {
+        if (!isCurrentlyPublished) {
           setIsInitialPublish(true);
           setShowShareModal(true);
         }
       }
     } catch (err) {
-      console.error("Publish toggle failed", err);
+      console.error("Publish failed", err);
+      setSaveState("error");
+    }
+    setIsPublishing(false);
+  };
+
+  // Unpublish Form (convert back to Draft)
+  const handleUnpublish = async () => {
+    setIsPublishing(true);
+    try {
+      const res = await unpublishFormApi(form.id);
+      if (res.success) {
+        setForm((prev) => ({
+          ...prev,
+          status: "DRAFT",
+          isPublished: false,
+        }));
+      }
+    } catch (err) {
+      console.error("Unpublish failed", err);
     }
     setIsPublishing(false);
   };
@@ -415,7 +437,8 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
           handleUpdateForm({ theme: updatedTheme });
         }}
         onTogglePreview={() => setIsPreview(!isPreview)}
-        onPublishToggle={handlePublishToggle}
+        onPublishToggle={handlePublish}
+        onUnpublish={handleUnpublish}
         onShare={() => {
           setIsInitialPublish(false);
           setShowShareModal(true);

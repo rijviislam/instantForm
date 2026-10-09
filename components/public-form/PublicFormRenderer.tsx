@@ -20,6 +20,9 @@ import {
   X,
   Sun,
   Moon,
+  Copy,
+  Share2,
+  Sparkles,
 } from "lucide-react";
 import { PublicFormItem, FormField, submitPublicResponseApi } from "@/lib/api-client";
 import { FormTheme, resolveFormTheme, applyThemeMood, getThemeComputedStyles, getComputedFieldStyles } from "@/lib/form-theme";
@@ -38,6 +41,9 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
   const [hasPreviouslySubmitted, setHasPreviouslySubmitted] = useState(false);
   const [previouslySubmittedAt, setPreviouslySubmittedAt] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [submissionToken, setSubmissionToken] = useState<string>("");
+  const [isTokenCopied, setIsTokenCopied] = useState(false);
+  const [isShareCopied, setIsShareCopied] = useState(false);
 
   // Theme & Publishing Mood resolution (Light / Dark / Auto / Interactive)
   const baseResolvedTheme = resolveFormTheme(form.theme, form.style);
@@ -52,11 +58,13 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
     return "light";
   });
 
-  // Effective theme computed based on active mood
+  // Effective theme computed based on active mood (preserve base resolved theme if mood matches)
   const theme =
-    activeMood === "dark"
-      ? applyThemeMood(baseResolvedTheme, "dark")
-      : applyThemeMood(baseResolvedTheme, "light");
+    activeMood === configuredMood
+      ? baseResolvedTheme
+      : activeMood === "dark"
+        ? applyThemeMood(baseResolvedTheme, "dark")
+        : applyThemeMood(baseResolvedTheme, "light");
 
   const { backgroundStyle, containerStyle, inputStyle, buttonStyle, headingStyle, descriptionStyle } =
     getThemeComputedStyles(theme);
@@ -289,6 +297,8 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
       const res = await submitPublicResponseApi(form.slug, submissionAnswers);
 
       if (res.success) {
+        const token = Math.random().toString(36).substring(2, 8).toUpperCase();
+        setSubmissionToken(token);
         setIsSubmitted(true);
         setHasPreviouslySubmitted(true);
         try {
@@ -300,10 +310,16 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
         }
         try {
           confetti({
-            particleCount: 80,
-            spread: 70,
+            particleCount: 90,
+            spread: 80,
             origin: { y: 0.6 },
-            colors: ["#FF5A36", "#E44825", "#FBBF24", "#34D399", "#60A5FA"],
+            colors: [
+              theme.colors.primary || "#FF5A36",
+              theme.colors.accent || "#3B82F6",
+              "#FBBF24",
+              "#10B981",
+              "#8B5CF6",
+            ],
           });
         } catch (e) {
           // ignore canvas confetti errors
@@ -326,6 +342,23 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
     setCurrentStep(0);
     setIsSubmitted(false);
     setServerError(null);
+    setIsTokenCopied(false);
+    setIsShareCopied(false);
+  };
+
+  const handleCopyToken = () => {
+    if (!submissionToken) return;
+    navigator.clipboard.writeText(`#${submissionToken}`);
+    setIsTokenCopied(true);
+    setTimeout(() => setIsTokenCopied(false), 2000);
+  };
+
+  const handleCopyShareLink = () => {
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(window.location.href);
+      setIsShareCopied(true);
+      setTimeout(() => setIsShareCopied(false), 2000);
+    }
   };
 
   // Keyboard navigation for Conversation style (Enter to proceed)
@@ -375,20 +408,25 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
         )}
         <DynamicFontLoader theme={theme} />
 
-        {/* Respondent Mood Toggle Floating Button */}
+        {/* Respondent Mood Toggle Floating Pill */}
         {theme.allowRespondentMoodToggle !== false && (
           <button
             type="button"
             onClick={() => setActiveMood((prev) => (prev === "dark" ? "light" : "dark"))}
-            aria-label="Toggle dark and light theme"
+            aria-label={`Switch to ${activeMood === "dark" ? "Light" : "Dark"} mode`}
             title={`Switch to ${activeMood === "dark" ? "Light" : "Dark"} mode`}
-            className="fixed top-4 right-4 z-50 p-2.5 rounded-full bg-white/90 dark:bg-[#111827]/90 backdrop-blur-md border border-[#EAE3D6] dark:border-[#1F2937] text-[#1C1917] dark:text-[#F8FAFC] shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            className="fixed top-4 right-4 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-xl bg-white/85 dark:bg-[#111827]/85 border border-[#EAE3D6] dark:border-white/10 text-xs font-medium text-[#1C1917] dark:text-[#F8FAFC] shadow-lg shadow-black/5 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer select-none"
           >
-            {activeMood === "dark" ? (
-              <Sun className="w-4 h-4 text-amber-400" />
-            ) : (
-              <Moon className="w-4 h-4 text-[#78716C]" />
-            )}
+            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-black/5 dark:bg-white/10 transition-transform duration-300">
+              {activeMood === "dark" ? (
+                <Sun className="w-3.5 h-3.5 text-amber-400" />
+              ) : (
+                <Moon className="w-3.5 h-3.5 text-[#78716C]" />
+              )}
+            </span>
+            <span className="text-[11px] font-semibold hidden sm:inline-block opacity-80">
+              {activeMood === "dark" ? "Dark" : "Light"}
+            </span>
           </button>
         )}
 
@@ -422,13 +460,13 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
     );
   }
 
-  // 2. Immediate Success State Screen
+  // 2. Immediate Success State Screen (Interactive & Rich UI)
   if (isSubmitted) {
     return (
-      <div className="w-full min-h-screen flex items-center justify-center p-4 relative" style={backgroundStyle}>
+      <div className=" w-full min-h-screen flex flex-col items-center justify-center p-4 relative transition-colors duration-300 ease-in-out" style={backgroundStyle}>
         {theme.background.overlayOpacity > 0 && (
           <div
-            className="absolute inset-0 pointer-events-none transition-all z-0"
+            className="absolute inset-0 pointer-events-none transition-all duration-300 z-0"
             style={{
               backgroundColor: theme.background.overlayColor || "#000000",
               opacity: theme.background.overlayOpacity / 100,
@@ -437,46 +475,135 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
         )}
         <DynamicFontLoader theme={theme} />
 
-        {/* Respondent Mood Toggle Floating Button */}
+        {/* Respondent Mood Toggle Floating Pill */}
         {theme.allowRespondentMoodToggle !== false && (
           <button
             type="button"
             onClick={() => setActiveMood((prev) => (prev === "dark" ? "light" : "dark"))}
-            aria-label="Toggle dark and light theme"
+            aria-label={`Switch to ${activeMood === "dark" ? "Light" : "Dark"} mode`}
             title={`Switch to ${activeMood === "dark" ? "Light" : "Dark"} mode`}
-            className="fixed top-4 right-4 z-50 p-2.5 rounded-full bg-white/90 dark:bg-[#111827]/90 backdrop-blur-md border border-[#EAE3D6] dark:border-[#1F2937] text-[#1C1917] dark:text-[#F8FAFC] shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            className="fixed top-4 right-4 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-xl bg-white/85 dark:bg-[#111827]/85 border border-[#EAE3D6] dark:border-white/10 text-xs font-medium text-[#1C1917] dark:text-[#F8FAFC] shadow-lg shadow-black/5 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer select-none"
           >
-            {activeMood === "dark" ? (
-              <Sun className="w-4 h-4 text-amber-400" />
-            ) : (
-              <Moon className="w-4 h-4 text-[#78716C]" />
-            )}
+            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-black/5 dark:bg-white/10 transition-transform duration-300">
+              {activeMood === "dark" ? (
+                <Sun className="w-3.5 h-3.5 text-amber-400" />
+              ) : (
+                <Moon className="w-3.5 h-3.5 text-[#78716C]" />
+              )}
+            </span>
+            <span className="text-[11px] font-semibold hidden sm:inline-block opacity-80">
+              {activeMood === "dark" ? "Dark" : "Light"}
+            </span>
           </button>
         )}
 
         <div
-          className="w-full max-w-md text-center animate-in zoom-in-95 duration-200 space-y-4 relative z-10"
-          style={containerStyle}
+          className="w-full max-w-lg text-center animate-in zoom-in-95 duration-300 space-y-6 relative z-10  rounded-3xl"
+          style={{
+            ...containerStyle,
+            borderRadius:
+              containerStyle.borderRadius && containerStyle.borderRadius !== "0px"
+                ? containerStyle.borderRadius
+                : "1.5rem",
+          }}
         >
           <CardSurfaceBackground theme={theme} />
-          <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto mb-2 animate-in zoom-in-50 duration-300 relative z-10">
-            <CheckCircle2 className="w-9 h-9" />
+
+          {/* Animated Celebration Icon */}
+          <div className="relative mx-auto w-20 h-20 flex items-center justify-center ">
+            <div
+              className="absolute inset-0 rounded-full animate-ping opacity-20 duration-1000"
+              style={{ backgroundColor: theme.colors.primary || "#FF5A36" }}
+            />
+            <div
+              className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-105 relative z-10"
+              style={{
+                backgroundColor: `${theme.colors.primary || "#FF5A36"}18`,
+                border: `2px solid ${theme.colors.primary || "#FF5A36"}40`,
+                color: theme.colors.primary || "#FF5A36",
+              }}
+            >
+              <CheckCircle2 className="w-10 h-10 animate-in zoom-in-50 duration-500" />
+            </div>
           </div>
 
-          <h2 style={headingStyle} className="tracking-tight text-xl font-bold relative z-10">
-            Thank you!
-          </h2>
+          {/* Heading & Subtext */}
+          <div className="space-y-2 ">
+            <h2 style={headingStyle} className="tracking-tight text-2xl font-bold">
+              Thank You!
+            </h2>
+            <p
+              className="text-xs sm:text-sm leading-relaxed max-w-sm mx-auto"
+              style={{ color: theme.colors.mutedText || "#78716C" }}
+            >
+              Your response has been recorded successfully. We truly appreciate your time and feedback.
+            </p>
+          </div>
 
-          <p
-            className="text-xs sm:text-sm leading-relaxed max-w-xs mx-auto relative z-10"
-            style={{ color: theme.colors.mutedText || "#78716C" }}
+          {/* Submission Receipt Box */}
+          <div
+            className="p-3.5 rounded-2xl border flex items-center justify-between gap-3 text-left transition-all"
+            style={{
+              backgroundColor: activeMood === "dark" ? "rgba(15, 23, 42, 0.6)" : "rgba(250, 248, 245, 0.8)",
+              borderColor: theme.container.borderColor || "rgba(255, 255, 255, 0.1)",
+            }}
           >
-            Your response has been submitted successfully.
-          </p>
+            <div className="space-y-0.5 min-w-0">
+              <div className="text-[10px] font-semibold uppercase tracking-wider opacity-60">
+                Receipt / Reference ID
+              </div>
+              <div className="text-xs font-mono font-bold tracking-tight truncate" style={{ color: theme.colors.text || "#1C1917" }}>
+                #{submissionToken || "SUB-RECORDED"}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleCopyToken}
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer hover:opacity-90 active:scale-95 shrink-0"
+              style={{
+                backgroundColor: isTokenCopied ? "#10B981" : (theme.colors.primary || "#FF5A36"),
+                color: "#FFFFFF",
+              }}
+            >
+              {isTokenCopied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span>Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy ID</span>
+                </>
+              )}
+            </button>
+          </div>
 
-          <p className="text-[11px] text-[#A8A29E] relative z-10">
-            Your submission has been recorded.
-          </p>
+          {/* Centered Share Form Button at Bottom */}
+          <div className="pt-2 flex justify-center">
+            <button
+              type="button"
+              onClick={handleCopyShareLink}
+              className="px-6 py-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer hover:opacity-85 active:scale-95 shadow-xs"
+              style={{
+                backgroundColor: activeMood === "dark" ? "#1E293B" : "#FFFFFF",
+                borderColor: theme.container.borderColor || (activeMood === "dark" ? "rgba(255,255,255,0.12)" : "#EAE3D6"),
+                color: theme.colors.text || "#1C1917",
+              }}
+            >
+              {isShareCopied ? (
+                <>
+                  <Check className="w-4 h-4 text-emerald-500 stroke-[2.5]" />
+                  <span>Link Copied</span>
+                </>
+              ) : (
+                <>
+                  <Share2 className="w-4 h-4 opacity-70" />
+                  <span>Share Form</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -501,66 +628,68 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
         )}
         <DynamicFontLoader theme={theme} />
 
-        {/* Respondent Mood Toggle Floating Button */}
+        {/* Respondent Mood Toggle Floating Pill */}
         {theme.allowRespondentMoodToggle !== false && (
           <button
             type="button"
             onClick={() => setActiveMood((prev) => (prev === "dark" ? "light" : "dark"))}
-            aria-label="Toggle dark and light theme"
+            aria-label={`Switch to ${activeMood === "dark" ? "Light" : "Dark"} mode`}
             title={`Switch to ${activeMood === "dark" ? "Light" : "Dark"} mode`}
-            className="fixed top-4 right-4 z-50 p-2.5 rounded-full bg-white/90 dark:bg-[#111827]/90 backdrop-blur-md border border-[#EAE3D6] dark:border-[#1F2937] text-[#1C1917] dark:text-[#F8FAFC] shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            className="fixed top-4 right-4 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-xl bg-white/85 dark:bg-[#111827]/85 border border-[#EAE3D6] dark:border-white/10 text-xs font-medium text-[#1C1917] dark:text-[#F8FAFC] shadow-lg shadow-black/5 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer select-none"
           >
-            {activeMood === "dark" ? (
-              <Sun className="w-4 h-4 text-amber-400" />
-            ) : (
-              <Moon className="w-4 h-4 text-[#78716C]" />
-            )}
+            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-black/5 dark:bg-white/10 transition-transform duration-300">
+              {activeMood === "dark" ? (
+                <Sun className="w-3.5 h-3.5 text-amber-400" />
+              ) : (
+                <Moon className="w-3.5 h-3.5 text-[#78716C]" />
+              )}
+            </span>
+            <span className="text-[11px] font-semibold hidden sm:inline-block opacity-80">
+              {activeMood === "dark" ? "Dark" : "Light"}
+            </span>
           </button>
         )}
 
         {/* Branding Logo */}
         {theme.branding.logoUrl && (
           <div
-            className={`w-full max-w-2xl mb-4 flex relative z-20 ${
-              theme.branding.logoPosition === "left"
-                ? "justify-start pl-2"
-                : theme.branding.logoPosition === "right"
+            className={`w-full max-w-2xl mb-4 flex relative z-20 ${theme.branding.logoPosition === "left"
+              ? "justify-start pl-2"
+              : theme.branding.logoPosition === "right"
                 ? "justify-end pr-2"
                 : theme.branding.logoPosition === "center-top"
-                ? "justify-center -mt-2"
-                : theme.branding.logoPosition === "center-bottom"
-                ? "justify-center mt-2"
-                : "justify-center"
-            }`}
+                  ? "justify-center -mt-2"
+                  : theme.branding.logoPosition === "center-bottom"
+                    ? "justify-center mt-2"
+                    : "justify-center"
+              }`}
           >
             <div
-              className={`inline-flex items-center justify-center transition-all select-none ${
-                theme.branding.logoFrame === "circle"
-                  ? "rounded-full p-2 bg-black/5 dark:bg-white/10"
-                  : theme.branding.logoFrame === "badge"
-                    ? "rounded-2xl p-2 bg-black/5 dark:bg-white/10"
-                    : "p-0 bg-transparent shadow-none border-0 ring-0"
-              }`}
+              className={`inline-flex items-center justify-center transition-all select-none ${theme.branding.logoFrame === "circle"
+                ? "rounded-full p-2 bg-black/5 dark:bg-white/10"
+                : theme.branding.logoFrame === "badge"
+                  ? "rounded-2xl p-2 bg-black/5 dark:bg-white/10"
+                  : "p-0 bg-transparent shadow-none border-0 ring-0"
+                }`}
             >
               <img
                 src={theme.branding.logoUrl}
                 alt="Form logo"
-                className={`object-contain border-0 shadow-none ring-0 ${
-                  theme.branding.logoFrame === "circle" ? "rounded-full" : "rounded-xl"
-                }`}
+                className={`object-contain border-0 shadow-none ring-0 ${theme.branding.logoFrame === "circle" ? "rounded-full" : "rounded-xl"
+                  }`}
                 style={{
                   height:
                     theme.branding.logoSize === "sm"
                       ? "36px"
                       : theme.branding.logoSize === "lg"
-                      ? "64px"
-                      : "48px",
+                        ? "64px"
+                        : "48px",
                   maxWidth:
                     theme.branding.logoSize === "sm"
                       ? "110px"
                       : theme.branding.logoSize === "lg"
-                      ? "200px"
-                      : "150px",
+                        ? "200px"
+                        : "150px",
                 }}
               />
             </div>
@@ -669,7 +798,10 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
           </div>
 
           {/* Footer Navigation Controls */}
-          <div className="flex items-center justify-between pt-6 border-t border-[#F5F2EB] relative z-10">
+          <div
+            className="flex items-center justify-between pt-6 border-t relative z-10"
+            style={{ borderTopColor: theme.container.borderColor || theme.colors.border || "rgba(0,0,0,0.08)" }}
+          >
             <button
               type="button"
               onClick={() => setCurrentStep((s) => Math.max(0, s - 1))}
@@ -715,10 +847,10 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
 
   // 3. Multi-Field Card Styles
   return (
-    <div className="w-full min-h-screen flex flex-col items-center justify-center p-4 relative" style={backgroundStyle}>
+    <div className="w-full min-h-screen flex flex-col items-center justify-center p-4 relative transition-colors duration-300 ease-in-out" style={backgroundStyle}>
       {theme.background.overlayOpacity > 0 && (
         <div
-          className="absolute inset-0 pointer-events-none transition-all z-0"
+          className="absolute inset-0 pointer-events-none transition-all duration-300 z-0"
           style={{
             backgroundColor: theme.background.overlayColor || "#000000",
             opacity: theme.background.overlayOpacity / 100,
@@ -727,20 +859,25 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
       )}
       <DynamicFontLoader theme={theme} />
 
-      {/* Respondent Mood Toggle Floating Button */}
+      {/* Respondent Mood Toggle Floating Pill */}
       {theme.allowRespondentMoodToggle !== false && (
         <button
           type="button"
           onClick={() => setActiveMood((prev) => (prev === "dark" ? "light" : "dark"))}
-          aria-label="Toggle dark and light theme"
+          aria-label={`Switch to ${activeMood === "dark" ? "Light" : "Dark"} mode`}
           title={`Switch to ${activeMood === "dark" ? "Light" : "Dark"} mode`}
-          className="fixed top-4 right-4 z-50 p-2.5 rounded-full bg-white/90 dark:bg-[#111827]/90 backdrop-blur-md border border-[#EAE3D6] dark:border-[#1F2937] text-[#1C1917] dark:text-[#F8FAFC] shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
+          className="fixed top-4 right-4 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-xl bg-white/85 dark:bg-[#111827]/85 border border-[#EAE3D6] dark:border-white/10 text-xs font-medium text-[#1C1917] dark:text-[#F8FAFC] shadow-lg shadow-black/5 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer select-none"
         >
-          {activeMood === "dark" ? (
-            <Sun className="w-4 h-4 text-amber-400" />
-          ) : (
-            <Moon className="w-4 h-4 text-[#78716C]" />
-          )}
+          <span className="flex items-center justify-center w-5 h-5 rounded-full bg-black/5 dark:bg-white/10 transition-transform duration-300">
+            {activeMood === "dark" ? (
+              <Sun className="w-3.5 h-3.5 text-amber-400" />
+            ) : (
+              <Moon className="w-3.5 h-3.5 text-[#78716C]" />
+            )}
+          </span>
+          <span className="text-[11px] font-semibold hidden sm:inline-block opacity-80">
+            {activeMood === "dark" ? "Dark" : "Light"}
+          </span>
         </button>
       )}
 
@@ -754,8 +891,8 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
               theme.branding.headerImageHeight === "sm"
                 ? "130px"
                 : theme.branding.headerImageHeight === "lg"
-                ? "240px"
-                : "180px",
+                  ? "240px"
+                  : "180px",
             borderTopLeftRadius: containerStyle.borderBottomLeftRadius || containerStyle.borderRadius || "1.5rem",
             borderTopRightRadius: containerStyle.borderBottomRightRadius || containerStyle.borderRadius || "1.5rem",
             borderLeftWidth: containerStyle.borderLeftWidth || containerStyle.borderWidth || "1px",
@@ -785,46 +922,43 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
         {/* Form Logo */}
         {theme.branding.logoUrl && (
           <div
-            className={`flex relative z-20 ${
-              theme.branding.logoPosition === "left"
-                ? `justify-start ${theme.branding.headerImageUrl ? "-mt-8 sm:-mt-10 mb-6 pl-4 sm:pl-6" : "mb-4"}`
-                : theme.branding.logoPosition === "right"
+            className={`flex relative z-20 ${theme.branding.logoPosition === "left"
+              ? `justify-start ${theme.branding.headerImageUrl ? "-mt-8 sm:-mt-10 mb-6 pl-4 sm:pl-6" : "mb-4"}`
+              : theme.branding.logoPosition === "right"
                 ? `justify-end ${theme.branding.headerImageUrl ? "-mt-8 sm:-mt-10 mb-6 pr-4 sm:pr-6" : "mb-4"}`
                 : theme.branding.logoPosition === "center-top"
-                ? `justify-center ${theme.branding.headerImageUrl ? "-mt-24 sm:-mt-28 mb-12" : "-mt-6 sm:-mt-8 mb-4"}`
-                : theme.branding.logoPosition === "center-bottom"
-                ? `justify-center ${theme.branding.headerImageUrl ? "mt-4 mb-6" : "mt-2 mb-4"}`
-                : `justify-center ${theme.branding.headerImageUrl ? "-mt-8 sm:-mt-10 mb-6" : "mb-4"}`
-            }`}
+                  ? `justify-center ${theme.branding.headerImageUrl ? "-mt-24 sm:-mt-28 mb-12" : "-mt-6 sm:-mt-8 mb-4"}`
+                  : theme.branding.logoPosition === "center-bottom"
+                    ? `justify-center ${theme.branding.headerImageUrl ? "mt-4 mb-6" : "mt-2 mb-4"}`
+                    : `justify-center ${theme.branding.headerImageUrl ? "-mt-8 sm:-mt-10 mb-6" : "mb-4"}`
+              }`}
           >
             <div
-              className={`inline-flex items-center justify-center transition-all select-none ${
-                theme.branding.logoFrame === "circle"
-                  ? "rounded-full p-2 bg-black/5 dark:bg-white/10"
-                  : theme.branding.logoFrame === "badge"
-                    ? "rounded-2xl p-2 bg-black/5 dark:bg-white/10"
-                    : "p-0 bg-transparent shadow-none border-0 ring-0"
-              }`}
+              className={`inline-flex items-center justify-center transition-all select-none ${theme.branding.logoFrame === "circle"
+                ? "rounded-full p-2 bg-black/5 dark:bg-white/10"
+                : theme.branding.logoFrame === "badge"
+                  ? "rounded-2xl p-2 bg-black/5 dark:bg-white/10"
+                  : "p-0 bg-transparent shadow-none border-0 ring-0"
+                }`}
             >
               <img
                 src={theme.branding.logoUrl}
                 alt="Form logo"
-                className={`object-contain border-0 shadow-none ring-0 ${
-                  theme.branding.logoFrame === "circle" ? "rounded-full" : "rounded-xl"
-                }`}
+                className={`object-contain border-0 shadow-none ring-0 ${theme.branding.logoFrame === "circle" ? "rounded-full" : "rounded-xl"
+                  }`}
                 style={{
                   height:
                     theme.branding.logoSize === "sm"
                       ? "36px"
                       : theme.branding.logoSize === "lg"
-                      ? "64px"
-                      : "48px",
+                        ? "64px"
+                        : "48px",
                   maxWidth:
                     theme.branding.logoSize === "sm"
                       ? "110px"
                       : theme.branding.logoSize === "lg"
-                      ? "200px"
-                      : "150px",
+                        ? "200px"
+                        : "150px",
                 }}
               />
             </div>
@@ -864,12 +998,12 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
               theme.inputs?.fieldSpacing === "compact"
                 ? "12px"
                 : theme.inputs?.fieldSpacing === "relaxed"
-                ? "24px"
-                : theme.inputs?.fieldSpacing === "loose"
-                ? "32px"
-                : theme.inputs?.fieldSpacing === "custom" && theme.inputs.customFieldSpacing !== undefined
-                ? `${theme.inputs.customFieldSpacing}px`
-                : "16px",
+                  ? "24px"
+                  : theme.inputs?.fieldSpacing === "loose"
+                    ? "32px"
+                    : theme.inputs?.fieldSpacing === "custom" && theme.inputs.customFieldSpacing !== undefined
+                      ? `${theme.inputs.customFieldSpacing}px`
+                      : "16px",
           }}
         >
           {fields.map((field, idx) => {
@@ -978,7 +1112,10 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
         </div>
 
         {/* Submit Button */}
-        <div className="pt-6 border-t border-[#F5F2EB] flex justify-end relative z-10">
+        <div
+          className="pt-6 border-t flex justify-end relative z-10"
+          style={{ borderTopColor: theme.container.borderColor || theme.colors.border || "rgba(0,0,0,0.08)" }}
+        >
           <button
             type="button"
             onClick={handleSubmit}
@@ -1028,10 +1165,10 @@ function FileUploadFieldControl({
   const accept = isImage
     ? "image/*"
     : isVideo
-    ? "video/*"
-    : isAudio
-    ? "audio/*"
-    : ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.png,.jpg,.jpeg";
+      ? "video/*"
+      : isAudio
+        ? "audio/*"
+        : ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.png,.jpg,.jpeg";
 
   const Icon = isImage ? ImageIcon : isVideo ? Video : isAudio ? Mic : Upload;
 
@@ -1103,8 +1240,8 @@ function FileUploadFieldControl({
     typeof value === "object" && value !== null
       ? value
       : typeof value === "string" && value
-      ? { name: value }
-      : null;
+        ? { name: value }
+        : null;
 
   return (
     <div className="space-y-2">
@@ -1197,8 +1334,8 @@ function FileUploadFieldControl({
             borderColor: hasError
               ? errorBorderColor
               : isDragging
-              ? fieldStyles.accentColor
-              : fieldStyles.dropzoneStyle.borderColor,
+                ? fieldStyles.accentColor
+                : fieldStyles.dropzoneStyle.borderColor,
             backgroundColor: isDragging
               ? `${fieldStyles.accentColor}10`
               : fieldStyles.dropzoneStyle.backgroundColor,
@@ -1222,10 +1359,10 @@ function FileUploadFieldControl({
             {isImage
               ? "PNG, JPG, WEBP, SVG up to 10MB"
               : isVideo
-              ? "MP4, WebM, MOV up to 50MB"
-              : isAudio
-              ? "MP3, WAV, M4A up to 25MB"
-              : "PDF, DOCX, XLSX, TXT, ZIP up to 25MB"}
+                ? "MP4, WebM, MOV up to 50MB"
+                : isAudio
+                  ? "MP3, WAV, M4A up to 25MB"
+                  : "PDF, DOCX, XLSX, TXT, ZIP up to 25MB"}
           </div>
         </div>
       )}
@@ -1247,11 +1384,11 @@ function renderPublicInput(
 
   const currentInputStyle: React.CSSProperties = hasError
     ? {
-        ...fieldStyles.inputStyle,
-        borderColor: errorBorderColor,
-        boxShadow: `0 0 0 1px ${errorBorderColor}33`,
-        backgroundColor: errorBgColor || fieldStyles.inputStyle.backgroundColor,
-      }
+      ...fieldStyles.inputStyle,
+      borderColor: errorBorderColor,
+      boxShadow: `0 0 0 1px ${errorBorderColor}33`,
+      backgroundColor: errorBgColor || fieldStyles.inputStyle.backgroundColor,
+    }
     : fieldStyles.inputStyle;
 
   // 1. Star Rating
@@ -1272,13 +1409,15 @@ function renderPublicInput(
               onClick={() => onChange(star)}
               style={{
                 ...fieldStyles.ratingStyle,
+                backgroundColor: fieldStyles.inputStyle?.backgroundColor || "#FFFFFF",
+                borderColor: fieldStyles.inputStyle?.borderColor || "#EAE3D6",
+                borderRadius: fieldStyles.inputStyle?.borderRadius || "0.75rem",
                 color: isFilled ? activeColor : inactiveColor,
                 minWidth: `${Math.max(starSize + 16, 38)}px`,
                 height: `${Math.max(starSize + 16, 38)}px`,
               }}
-              className={`border rounded-xl flex items-center justify-center transition-all cursor-pointer ${
-                isFilled ? "scale-105 shadow-2xs" : "hover:opacity-80"
-              }`}
+              className={`border flex items-center justify-center transition-all cursor-pointer ${isFilled ? "scale-105 shadow-2xs" : "hover:opacity-80"
+                }`}
             >
               <Star
                 style={{
@@ -1312,15 +1451,15 @@ function renderPublicInput(
               style={
                 value === num
                   ? {
-                      backgroundColor: fieldStyles.accentColor,
-                      color: "#FFFFFF",
-                      borderColor: fieldStyles.accentColor,
-                      borderRadius: fieldStyles.inputStyle.borderRadius,
-                    }
+                    backgroundColor: fieldStyles.accentColor,
+                    color: "#FFFFFF",
+                    borderColor: fieldStyles.accentColor,
+                    borderRadius: fieldStyles.inputStyle.borderRadius,
+                  }
                   : {
-                      ...currentInputStyle,
-                      padding: "0.25rem",
-                    }
+                    ...currentInputStyle,
+                    padding: "0.25rem",
+                  }
               }
               className="flex-1 min-w-[28px] h-9 text-xs font-semibold transition-all cursor-pointer flex items-center justify-center"
             >
@@ -1349,15 +1488,15 @@ function renderPublicInput(
               style={
                 value === num
                   ? {
-                      backgroundColor: fieldStyles.accentColor,
-                      color: "#FFFFFF",
-                      borderColor: fieldStyles.accentColor,
-                      borderRadius: fieldStyles.inputStyle.borderRadius,
-                    }
+                    backgroundColor: fieldStyles.accentColor,
+                    color: "#FFFFFF",
+                    borderColor: fieldStyles.accentColor,
+                    borderRadius: fieldStyles.inputStyle.borderRadius,
+                  }
                   : {
-                      ...currentInputStyle,
-                      padding: "0.25rem",
-                    }
+                    ...currentInputStyle,
+                    padding: "0.25rem",
+                  }
               }
               className="h-9 text-xs font-semibold transition-all cursor-pointer flex items-center justify-center"
             >
@@ -1387,8 +1526,8 @@ function renderPublicInput(
               borderColor: hasError
                 ? errorBorderColor
                 : value === opt
-                ? accentColor
-                : fieldStyles.radioStyle.borderColor,
+                  ? accentColor
+                  : fieldStyles.radioStyle.borderColor,
               backgroundColor:
                 value === opt ? `${accentColor}10` : fieldStyles.radioStyle.backgroundColor,
             }}
@@ -1439,8 +1578,8 @@ function renderPublicInput(
                 borderColor: hasError
                   ? errorBorderColor
                   : isChecked
-                  ? accentColor
-                  : fieldStyles.checkboxStyle.borderColor,
+                    ? accentColor
+                    : fieldStyles.checkboxStyle.borderColor,
                 backgroundColor:
                   isChecked ? `${accentColor}10` : fieldStyles.checkboxStyle.backgroundColor,
               }}
@@ -1522,9 +1661,8 @@ function renderPublicInput(
                           borderColor: isChecked ? fieldStyles.accentColor : "#D6D3D1",
                           color: "#FFFFFF",
                         }}
-                        className={`w-4 h-4 mx-auto border flex items-center justify-center transition-all cursor-pointer ${
-                          field.type === "multiple_choice_grid" ? "rounded-full" : "rounded-md"
-                        }`}
+                        className={`w-4 h-4 mx-auto border flex items-center justify-center transition-all cursor-pointer ${field.type === "multiple_choice_grid" ? "rounded-full" : "rounded-md"
+                          }`}
                       >
                         {isChecked && <Check className="w-2.5 h-2.5 stroke-[3]" />}
                       </button>
@@ -1586,11 +1724,11 @@ function renderPublicInput(
             style={
               value === choice
                 ? {
-                    backgroundColor: fieldStyles.accentColor,
-                    color: "#FFFFFF",
-                    borderColor: fieldStyles.accentColor,
-                    borderRadius: fieldStyles.inputStyle.borderRadius,
-                  }
+                  backgroundColor: fieldStyles.accentColor,
+                  color: "#FFFFFF",
+                  borderColor: fieldStyles.accentColor,
+                  borderRadius: fieldStyles.inputStyle.borderRadius,
+                }
                 : currentInputStyle
             }
             className="flex-1 py-2.5 px-4 text-xs font-semibold transition-all cursor-pointer text-center"
@@ -1923,11 +2061,11 @@ function renderPublicInput(
         style={
           hasError
             ? {
-                ...fieldStyles.textareaStyle,
-                borderColor: errorBorderColor,
-                boxShadow: `0 0 0 1px ${errorBorderColor}33`,
-                backgroundColor: errorBgColor || fieldStyles.textareaStyle.backgroundColor,
-              }
+              ...fieldStyles.textareaStyle,
+              borderColor: errorBorderColor,
+              boxShadow: `0 0 0 1px ${errorBorderColor}33`,
+              backgroundColor: errorBgColor || fieldStyles.textareaStyle.backgroundColor,
+            }
             : fieldStyles.textareaStyle
         }
         className="w-full focus:outline-none"
@@ -2040,14 +2178,14 @@ function renderPublicInput(
         field.type === "email"
           ? "email"
           : field.type === "password"
-          ? "password"
-          : field.type === "number" || field.type === "decimal"
-          ? "number"
-          : field.type === "date"
-          ? "date"
-          : field.type === "time"
-          ? "time"
-          : "text"
+            ? "password"
+            : field.type === "number" || field.type === "decimal"
+              ? "number"
+              : field.type === "date"
+                ? "date"
+                : field.type === "time"
+                  ? "time"
+                  : "text"
       }
       value={value || ""}
       onChange={(e) => onChange(e.target.value)}
@@ -2056,8 +2194,8 @@ function renderPublicInput(
         (field.type === "email"
           ? "name@example.com"
           : field.type === "url"
-          ? "https://..."
-          : "Enter your answer...")
+            ? "https://..."
+            : "Enter your answer...")
       }
       style={currentInputStyle}
       className="w-full focus:outline-none"

@@ -1,65 +1,63 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { clsx } from "clsx";
 
 interface LogoProps {
   className?: string;
   isDark?: boolean;
+  iconOnly?: boolean;
+  size?: "sm" | "md" | "lg";
 }
 
-export function Logo({ className, isDark = false }: LogoProps) {
+export function Logo({
+  className,
+  isDark = false,
+  iconOnly = false,
+  size = "md",
+}: LogoProps) {
+  const heightClass = {
+    sm: "h-7",
+    md: "h-8 sm:h-8.5",
+    lg: "h-9 sm:h-10",
+  }[size];
+
   return (
     <Link
       href="/"
       className={clsx(
-        "inline-flex items-center gap-2.5 font-sans-modern group focus:outline-hidden",
+        "inline-flex items-center focus:outline-hidden group select-none shrink-0",
         className
       )}
       aria-label="InstantForm Home"
     >
-      <div className="relative flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FF5A36] to-[#FFA07A] text-white shadow-xs group-hover:scale-105 transition-transform duration-200">
-        {/* Abstract stylized form shape icon */}
-        <svg
-          className="w-4.5 h-4.5"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <rect
-            x="4"
-            y="3"
-            width="16"
-            height="18"
-            rx="3"
-            stroke="currentColor"
-            strokeWidth="2.2"
-          />
-          <path
-            d="M8 8H16"
-            stroke="currentColor"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-          />
-          <path
-            d="M8 12H13"
-            stroke="currentColor"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-          />
-          <circle cx="15.5" cy="15.5" r="2.5" fill="white" />
-        </svg>
-      </div>
-
-      <div className="flex items-baseline gap-0.5">
-        <span
+      {iconOnly ? (
+        <Image
+          src="/logo-icon.png"
+          alt="InstantForm Icon"
+          width={40}
+          height={32}
+          priority
           className={clsx(
-            "text-xl font-bold tracking-tight",
-            isDark ? "text-white" : "text-[#1C1917] dark:text-[#F8FAFC]"
+            heightClass,
+            "w-auto object-contain transition-transform duration-200 group-hover:scale-105"
           )}
-        >
-          Instant<span className="text-[#FF5A36]">Form</span>
-        </span>
-      </div>
+        />
+      ) : (
+        <Image
+          src="/logo.png"
+          alt="InstantForm Logo"
+          width={180}
+          height={36}
+          priority
+          className={clsx(
+            heightClass,
+            "w-auto object-contain transition-transform duration-200 group-hover:scale-105",
+            isDark && "brightness-125 contrast-125"
+          )}
+        />
+      )}
     </Link>
   );
 }
+

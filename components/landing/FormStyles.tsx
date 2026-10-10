@@ -136,7 +136,7 @@ export function FormStyles() {
                 onClick={() => setActiveStyle(style.key)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                   isActive
-                    ? "bg-[#1C1917] dark:bg-[#FF5A36] text-white shadow-md scale-105"
+                    ? "bg-[#FF5A36] hover:bg-[#E44825] text-white shadow-md shadow-[#FF5A36]/25 border border-transparent scale-105"
                     : "bg-white dark:bg-[#161F30] text-[#57534E] dark:text-[#94A3B8] border border-[#EAE3D6] dark:border-[#293548] hover:bg-[#F4EFE6] dark:hover:bg-[#1E293B] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
                 }`}
               >

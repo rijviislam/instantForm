@@ -201,7 +201,7 @@ export function Templates() {
               onClick={() => setActiveCategory(cat)}
               className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                 activeCategory === cat
-                  ? "bg-[#1C1917] dark:bg-[#FF5A36] text-white shadow-xs"
+                  ? "bg-[#FF5A36] hover:bg-[#E44825] text-white shadow-sm shadow-[#FF5A36]/25 border border-transparent"
                   : "bg-white dark:bg-[#161F30] text-[#57534E] dark:text-[#94A3B8] border border-[#EAE3D6] dark:border-[#293548] hover:bg-[#F4EFE6] dark:hover:bg-[#1E293B] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
               }`}
             >

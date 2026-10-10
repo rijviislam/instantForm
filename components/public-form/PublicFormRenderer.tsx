@@ -18,8 +18,6 @@ import {
   Loader2,
   RotateCcw,
   X,
-  Sun,
-  Moon,
   Copy,
   Share2,
   Sparkles,
@@ -45,26 +43,12 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
   const [isTokenCopied, setIsTokenCopied] = useState(false);
   const [isShareCopied, setIsShareCopied] = useState(false);
 
-  // Theme & Publishing Mood resolution (Light / Dark / Auto / Interactive)
+  // Theme resolution: Public links are strictly rendered in crisp light mode
   const baseResolvedTheme = resolveFormTheme(form.theme, form.style);
-  const configuredMood = baseResolvedTheme.colorMood || "light";
-
-  const [activeMood, setActiveMood] = useState<"light" | "dark">(() => {
-    if (configuredMood === "dark") return "dark";
-    if (configuredMood === "light") return "light";
-    if (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      return "dark";
-    }
-    return "light";
-  });
-
-  // Effective theme computed based on active mood (preserve base resolved theme if mood matches)
   const theme =
-    activeMood === configuredMood
-      ? baseResolvedTheme
-      : activeMood === "dark"
-        ? applyThemeMood(baseResolvedTheme, "dark")
-        : applyThemeMood(baseResolvedTheme, "light");
+    baseResolvedTheme.colorMood === "dark"
+      ? applyThemeMood(baseResolvedTheme, "light")
+      : baseResolvedTheme;
 
   const { backgroundStyle, containerStyle, inputStyle, buttonStyle, headingStyle, descriptionStyle } =
     getThemeComputedStyles(theme);
@@ -408,27 +392,6 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
         )}
         <DynamicFontLoader theme={theme} />
 
-        {/* Respondent Mood Toggle Floating Pill */}
-        {theme.allowRespondentMoodToggle !== false && (
-          <button
-            type="button"
-            onClick={() => setActiveMood((prev) => (prev === "dark" ? "light" : "dark"))}
-            aria-label={`Switch to ${activeMood === "dark" ? "Light" : "Dark"} mode`}
-            title={`Switch to ${activeMood === "dark" ? "Light" : "Dark"} mode`}
-            className="fixed top-4 right-4 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-xl bg-white/85 dark:bg-[#111827]/85 border border-[#EAE3D6] dark:border-white/10 text-xs font-medium text-[#1C1917] dark:text-[#F8FAFC] shadow-lg shadow-black/5 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer select-none"
-          >
-            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-black/5 dark:bg-white/10 transition-transform duration-300">
-              {activeMood === "dark" ? (
-                <Sun className="w-3.5 h-3.5 text-amber-400" />
-              ) : (
-                <Moon className="w-3.5 h-3.5 text-[#78716C]" />
-              )}
-            </span>
-            <span className="text-[11px] font-semibold hidden sm:inline-block opacity-80">
-              {activeMood === "dark" ? "Dark" : "Light"}
-            </span>
-          </button>
-        )}
 
         <div
           className="w-full max-w-md text-center animate-in zoom-in-95 duration-200 space-y-4 relative z-10"
@@ -475,27 +438,6 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
         )}
         <DynamicFontLoader theme={theme} />
 
-        {/* Respondent Mood Toggle Floating Pill */}
-        {theme.allowRespondentMoodToggle !== false && (
-          <button
-            type="button"
-            onClick={() => setActiveMood((prev) => (prev === "dark" ? "light" : "dark"))}
-            aria-label={`Switch to ${activeMood === "dark" ? "Light" : "Dark"} mode`}
-            title={`Switch to ${activeMood === "dark" ? "Light" : "Dark"} mode`}
-            className="fixed top-4 right-4 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-xl bg-white/85 dark:bg-[#111827]/85 border border-[#EAE3D6] dark:border-white/10 text-xs font-medium text-[#1C1917] dark:text-[#F8FAFC] shadow-lg shadow-black/5 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer select-none"
-          >
-            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-black/5 dark:bg-white/10 transition-transform duration-300">
-              {activeMood === "dark" ? (
-                <Sun className="w-3.5 h-3.5 text-amber-400" />
-              ) : (
-                <Moon className="w-3.5 h-3.5 text-[#78716C]" />
-              )}
-            </span>
-            <span className="text-[11px] font-semibold hidden sm:inline-block opacity-80">
-              {activeMood === "dark" ? "Dark" : "Light"}
-            </span>
-          </button>
-        )}
 
         <div
           className="w-full max-w-lg text-center animate-in zoom-in-95 duration-300 space-y-6 relative z-10  rounded-3xl"
@@ -544,7 +486,7 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
           <div
             className="p-3.5 rounded-2xl border flex items-center justify-between gap-3 text-left transition-all"
             style={{
-              backgroundColor: activeMood === "dark" ? "rgba(15, 23, 42, 0.6)" : "rgba(250, 248, 245, 0.8)",
+              backgroundColor: "rgba(250, 248, 245, 0.8)",
               borderColor: theme.container.borderColor || "rgba(255, 255, 255, 0.1)",
             }}
           >
@@ -586,8 +528,8 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
               onClick={handleCopyShareLink}
               className="px-6 py-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer hover:opacity-85 active:scale-95 shadow-xs"
               style={{
-                backgroundColor: activeMood === "dark" ? "#1E293B" : "#FFFFFF",
-                borderColor: theme.container.borderColor || (activeMood === "dark" ? "rgba(255,255,255,0.12)" : "#EAE3D6"),
+                backgroundColor: "#FFFFFF",
+                borderColor: theme.container.borderColor || "#EAE3D6",
                 color: theme.colors.text || "#1C1917",
               }}
             >
@@ -628,27 +570,6 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
         )}
         <DynamicFontLoader theme={theme} />
 
-        {/* Respondent Mood Toggle Floating Pill */}
-        {theme.allowRespondentMoodToggle !== false && (
-          <button
-            type="button"
-            onClick={() => setActiveMood((prev) => (prev === "dark" ? "light" : "dark"))}
-            aria-label={`Switch to ${activeMood === "dark" ? "Light" : "Dark"} mode`}
-            title={`Switch to ${activeMood === "dark" ? "Light" : "Dark"} mode`}
-            className="fixed top-4 right-4 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-xl bg-white/85 dark:bg-[#111827]/85 border border-[#EAE3D6] dark:border-white/10 text-xs font-medium text-[#1C1917] dark:text-[#F8FAFC] shadow-lg shadow-black/5 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer select-none"
-          >
-            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-black/5 dark:bg-white/10 transition-transform duration-300">
-              {activeMood === "dark" ? (
-                <Sun className="w-3.5 h-3.5 text-amber-400" />
-              ) : (
-                <Moon className="w-3.5 h-3.5 text-[#78716C]" />
-              )}
-            </span>
-            <span className="text-[11px] font-semibold hidden sm:inline-block opacity-80">
-              {activeMood === "dark" ? "Dark" : "Light"}
-            </span>
-          </button>
-        )}
 
         {/* Branding Logo */}
         {theme.branding.logoUrl && (
@@ -859,27 +780,6 @@ export function PublicFormRenderer({ form }: PublicFormRendererProps) {
       )}
       <DynamicFontLoader theme={theme} />
 
-      {/* Respondent Mood Toggle Floating Pill */}
-      {theme.allowRespondentMoodToggle !== false && (
-        <button
-          type="button"
-          onClick={() => setActiveMood((prev) => (prev === "dark" ? "light" : "dark"))}
-          aria-label={`Switch to ${activeMood === "dark" ? "Light" : "Dark"} mode`}
-          title={`Switch to ${activeMood === "dark" ? "Light" : "Dark"} mode`}
-          className="fixed top-4 right-4 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-xl bg-white/85 dark:bg-[#111827]/85 border border-[#EAE3D6] dark:border-white/10 text-xs font-medium text-[#1C1917] dark:text-[#F8FAFC] shadow-lg shadow-black/5 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer select-none"
-        >
-          <span className="flex items-center justify-center w-5 h-5 rounded-full bg-black/5 dark:bg-white/10 transition-transform duration-300">
-            {activeMood === "dark" ? (
-              <Sun className="w-3.5 h-3.5 text-amber-400" />
-            ) : (
-              <Moon className="w-3.5 h-3.5 text-[#78716C]" />
-            )}
-          </span>
-          <span className="text-[11px] font-semibold hidden sm:inline-block opacity-80">
-            {activeMood === "dark" ? "Dark" : "Light"}
-          </span>
-        </button>
-      )}
 
       {/* Header Banner Image */}
       {theme.branding.headerImageUrl && (

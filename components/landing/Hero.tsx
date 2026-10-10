@@ -157,14 +157,14 @@ export function Hero() {
     <section
       ref={heroRef}
       id="hero-preview"
-      className="relative pt-32 pb-16 md:pt-40 md:pb-24 overflow-hidden warm-mesh-bg"
+      className="relative min-h-screen min-h-[100dvh] flex items-center justify-center pt-24 pb-16 md:pt-28 md:pb-20 overflow-hidden warm-mesh-bg"
     >
       {/* Decorative ambient radial gradients */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-b from-[#FF5A36]/10 via-[#FFA07A]/5 to-transparent rounded-full blur-3xl -z-10 pointer-events-none" />
 
       <div
         ref={scrollSectionRef}
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center w-full my-auto"
       >
         {/* Eyebrow Badge */}
         <div id="hero-eyebrow" className="mb-6">

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useTheme } from "@/components/theme/ThemeProvider";
@@ -95,26 +96,33 @@ export function Sidebar({ user, onOpenCommandPalette }: SidebarProps) {
         <div className="flex items-center h-12 px-2.5 mb-4 overflow-hidden">
           <Link
             href="/dashboard"
-            className="flex items-center gap-3 focus:outline-hidden group"
+            className="flex items-center gap-2.5 focus:outline-hidden group"
             aria-label="InstantForm Dashboard"
           >
-            <div className="w-8 h-8 shrink-0 rounded-xl bg-gradient-to-tr from-[#FF5A36] to-[#FFA07A] text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform duration-200">
-              <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="4" y="3" width="16" height="18" rx="3" stroke="currentColor" strokeWidth="2.2" />
-                <path d="M8 8H16" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-                <path d="M8 12H13" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-                <circle cx="15.5" cy="15.5" r="2.5" fill="white" />
-              </svg>
+            <div className="w-8 h-8 shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+              <Image
+                src="/logo-icon.png"
+                alt="InstantForm"
+                width={32}
+                height={32}
+                className="w-8 h-8 object-contain"
+                priority
+              />
             </div>
             <div
               className={clsx(
-                "flex items-baseline whitespace-nowrap transition-opacity duration-200 font-sans-modern",
+                "whitespace-nowrap transition-opacity duration-200",
                 isHovered ? "opacity-100" : "opacity-0 pointer-events-none"
               )}
             >
-              <span className="text-base font-bold text-[#1C1917] dark:text-[#F8FAFC] tracking-tight">
-                Instant<span className="text-[#FF5A36]">Form</span>
-              </span>
+              <Image
+                src="/logo.png"
+                alt="InstantForm"
+                width={130}
+                height={26}
+                className="h-6 w-auto object-contain dark:brightness-125 dark:contrast-125"
+                priority
+              />
             </div>
           </Link>
         </div>

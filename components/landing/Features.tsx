@@ -291,7 +291,7 @@ export function Features() {
                       onClick={() => setActiveTheme(t.id)}
                       className={`px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-all cursor-pointer ${
                         activeTheme === t.id
-                          ? "bg-[#1C1917] dark:bg-[#FF5A36] text-white border-[#1C1917] dark:border-[#FF5A36]"
+                          ? "bg-[#FF5A36] text-white border-[#FF5A36] shadow-xs shadow-[#FF5A36]/20"
                           : "bg-[#FAF8F5] dark:bg-[#1E293B] text-[#57534E] dark:text-[#94A3B8] border-[#EAE3D6] dark:border-[#293548] hover:border-[#D6CEC1] dark:hover:border-[#475569]"
                       }`}
                     >

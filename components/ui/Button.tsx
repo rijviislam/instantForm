@@ -34,7 +34,7 @@ export function Button({
     ghost:
       "bg-transparent text-[#57534E] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] hover:bg-[#F4EFE6]/60 dark:hover:bg-[#1E293B]/60 transition-all duration-200 cursor-pointer",
     dark:
-      "bg-[#1C1917] dark:bg-[#0B0F17] text-white hover:bg-[#292524] dark:hover:bg-[#161F30] active:scale-[0.98] border border-[#292524] dark:border-[#1F2937] shadow-sm transition-all duration-200 cursor-pointer",
+      "bg-[#FF5A36] text-white hover:bg-[#E44825] dark:bg-[#0B0F17] dark:hover:bg-[#161F30] active:scale-[0.98] border border-[#FF5A36] dark:border-[#1F2937] shadow-sm hover:shadow-md hover:shadow-[#FF5A36]/20 transition-all duration-200 cursor-pointer",
   };
 
   return (

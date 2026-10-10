@@ -190,8 +190,8 @@ export function Footer() {
                 onClick={() => setSelectedLanguage("en")}
                 className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold transition-all cursor-pointer ${
                   selectedLanguage === "en"
-                    ? "bg-white dark:bg-[#1E293B] text-[#1C1917] dark:text-[#F8FAFC] shadow-xs"
-                    : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
+                    ? "bg-[#FF5A36] text-white shadow-xs"
+                    : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#FF5A36] dark:hover:text-[#F8FAFC]"
                 }`}
               >
                 English
@@ -201,8 +201,8 @@ export function Footer() {
                 onClick={() => setSelectedLanguage("bn")}
                 className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold transition-all cursor-pointer ${
                   selectedLanguage === "bn"
-                    ? "bg-white dark:bg-[#1E293B] text-[#1C1917] dark:text-[#F8FAFC] shadow-xs"
-                    : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC]"
+                    ? "bg-[#FF5A36] text-white shadow-xs"
+                    : "text-[#78716C] dark:text-[#94A3B8] hover:text-[#FF5A36] dark:hover:text-[#F8FAFC]"
                 }`}
               >
                 বাংলা (Bangla)

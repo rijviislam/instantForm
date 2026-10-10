@@ -150,7 +150,7 @@ export function ResponsesChart({ data, isLoading = false }: ResponsesChartProps)
           {/* Hover Tooltip */}
           {hoveredPoint && (
             <div
-              className="absolute pointer-events-none bg-[#1C1917] dark:bg-[#F8FAFC] text-white dark:text-[#1C1917] text-[11px] font-semibold px-2.5 py-1 rounded-lg shadow-lg -translate-x-1/2 -translate-y-10 transition-all z-10"
+              className="absolute pointer-events-none bg-[#FF5A36] text-white text-[11px] font-semibold px-2.5 py-1 rounded-lg shadow-lg shadow-[#FF5A36]/30 -translate-x-1/2 -translate-y-10 transition-all z-10"
               style={{
                 left: `${(hoveredPoint.x / width) * 100}%`,
                 top: `${(hoveredPoint.y / height) * 100}%`,

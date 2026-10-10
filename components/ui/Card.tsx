@@ -18,7 +18,7 @@ export function Card({
     default: "bg-white dark:bg-[#111827] border-[#EAE3D6] dark:border-[#1F2937] text-[#1C1917] dark:text-[#F8FAFC]",
     cream: "bg-[#F7F2EA] dark:bg-[#161F30] border-[#E5DEC7] dark:border-[#293548] text-[#1C1917] dark:text-[#F8FAFC]",
     glass: "bg-white/80 dark:bg-[#111827]/80 backdrop-blur-md border-[#EAE3D6]/90 dark:border-[#1F2937]/90 text-[#1C1917] dark:text-[#F8FAFC]",
-    dark: "bg-[#1C1917] dark:bg-[#0B0F17] border-[#2E2A27] dark:border-[#1F2937] text-[#FAF8F5]",
+    dark: "bg-[#FF5A36] text-white border-[#FF5A36] dark:bg-[#0B0F17] dark:border-[#1F2937]",
     accent: "bg-[#FFF6F3] dark:bg-[#FF5A36]/10 border-[#FFD8CC] dark:border-[#FF5A36]/20 text-[#1C1917] dark:text-[#F8FAFC]",
   };
 

@@ -162,7 +162,7 @@ export function Sidebar({ user, onOpenCommandPalette }: SidebarProps) {
                   "relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group overflow-hidden",
                   item.active
                     ? "bg-[#FFF0EB] dark:bg-[#FF5A36]/15 text-[#FF5A36] font-semibold"
-                    : "text-[#57534E] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] hover:bg-[#F4EFE6]/70 dark:hover:bg-[#1F2937]/70"
+                    : "text-[#57534E] dark:text-[#94A3B8] hover:text-[#FF5A36] dark:hover:text-[#F8FAFC] hover:bg-[#FFF0EB]/80 dark:hover:bg-[#1F2937]/70"
                 )}
                 title={!isHovered ? item.label : undefined}
                 aria-current={item.active ? "page" : undefined}

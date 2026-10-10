@@ -1019,7 +1019,7 @@ export function FormStyleCustomizer({
                       {theme.typography.customFontName ? theme.typography.customFontName : "Upload font file..."}
                     </span>
                   </div>
-                  <span className="text-[10px] bg-[#1C1917] text-white px-2 py-0.5 rounded-lg shrink-0">Upload</span>
+                  <span className="text-[10px] bg-[#FF5A36] text-white px-2 py-0.5 rounded-lg shrink-0 font-medium">Upload</span>
                   <input type="file" accept=".woff,.woff2,.ttf,.otf" onChange={handleCustomFontUpload} className="hidden" />
                 </label>
               </div>

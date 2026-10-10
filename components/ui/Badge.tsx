@@ -22,7 +22,7 @@ export function Badge({
     subtle:
       "bg-white/80 dark:bg-[#111827]/80 backdrop-blur-xs text-[#292524] dark:text-[#F8FAFC] border-[#E7E2D8] dark:border-[#1F2937] shadow-xs",
     dark:
-      "bg-[#1C1917] dark:bg-[#0B0F17] text-[#FAF8F5] border-[#292524] dark:border-[#1F2937]",
+      "bg-[#FF5A36] text-white border-[#FF5A36] dark:bg-[#0B0F17] dark:border-[#1F2937]",
   };
 
   return (

@@ -200,7 +200,7 @@ export function FormsView() {
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl bg-[#1C1917] dark:bg-[#1E293B] text-white shadow-xl text-xs sm:text-sm font-medium border border-transparent dark:border-[#334155] animate-in slide-in-from-bottom-3 duration-200">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl bg-[#FF5A36] text-white shadow-xl shadow-[#FF5A36]/30 text-xs sm:text-sm font-medium border border-transparent animate-in slide-in-from-bottom-3 duration-200">
           {toastMessage.type === "success" ? (
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           ) : (

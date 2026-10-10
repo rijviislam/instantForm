@@ -84,7 +84,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={toggleTheme}
-              className="p-2 rounded-full text-[#57534E] dark:text-[#94A3B8] hover:text-[#1C1917] dark:hover:text-[#F8FAFC] hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
+              className="p-2 rounded-full text-[#57534E] dark:text-[#94A3B8] hover:text-[#FF5A36] dark:hover:text-[#FF6B4A] hover:bg-[#FFF0EB] dark:hover:bg-[#FF5A36]/15 transition-colors cursor-pointer"
               title={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
               aria-label="Toggle theme"
             >

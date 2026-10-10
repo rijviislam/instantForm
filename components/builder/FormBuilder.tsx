@@ -498,13 +498,13 @@ export function FormBuilder({ initialForm }: FormBuilderProps) {
         </div>
 
         {/* Mobile Floating Drawer Toggles */}
-        <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-[#1C1917] text-white p-1.5 rounded-2xl shadow-xl border border-white/10">
+        <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-[#FF5A36] text-white p-1.5 rounded-2xl shadow-xl shadow-[#FF5A36]/30 border border-white/20">
           <button
             type="button"
             onClick={() => setShowLeftDrawer(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold hover:bg-white/10 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold hover:bg-white/15 transition-colors cursor-pointer"
           >
-            <Plus className="w-3.5 h-3.5 text-[#FF5A36]" />
+            <Plus className="w-3.5 h-3.5 text-white" />
             <span>Add Field</span>
           </button>
 

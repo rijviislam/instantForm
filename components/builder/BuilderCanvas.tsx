@@ -648,7 +648,7 @@ function renderCanvasFieldMockup(
         <span style={{ opacity: 0.7 }}>
           {field.placeholder || `Enter custom ${inputType}...`}
         </span>
-        <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded border border-black/10 bg-black/5">
+        <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded border border-[#FF5A36]/25 bg-[#FF5A36]/10 text-[#FF5A36] font-semibold">
           {inputType}
         </span>
       </div>

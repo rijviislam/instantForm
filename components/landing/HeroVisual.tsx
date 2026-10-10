@@ -99,7 +99,7 @@ export function HeroVisual() {
       {/* Floating Badge 3: Live Indicator */}
       <div
         id="hero-floating-3"
-        className="hidden md:flex absolute top-1/2 -right-10 z-20 items-center gap-2 bg-[#1C1917] dark:bg-[#1E293B] text-white px-3 py-1.5 rounded-full shadow-lg text-[11px] font-medium border border-transparent dark:border-[#334155]"
+        className="hidden md:flex absolute top-1/2 -right-10 z-20 items-center gap-2 bg-[#FF5A36] text-white px-3 py-1.5 rounded-full shadow-lg shadow-[#FF5A36]/25 text-[11px] font-medium border border-transparent"
       >
         <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
         Live interactive demo
@@ -260,7 +260,7 @@ export function HeroVisual() {
                     onClick={() => setCategory(item)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all cursor-pointer ${
                       category === item
-                        ? "bg-[#1C1917] dark:bg-[#FF5A36] text-white border-[#1C1917] dark:border-[#FF5A36]"
+                        ? "bg-[#FF5A36] text-white border-[#FF5A36] shadow-xs shadow-[#FF5A36]/20"
                         : "bg-white dark:bg-[#161F30] text-[#57534E] dark:text-[#94A3B8] border-[#EAE3D6] dark:border-[#293548] hover:border-[#D6CEC1] dark:hover:border-[#334155]"
                     }`}
                   >

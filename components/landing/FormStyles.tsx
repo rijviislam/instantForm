@@ -248,7 +248,7 @@ export function FormStyles() {
                 </div>
 
                 <div className="flex items-start justify-end gap-3">
-                  <div className="bg-[#1C1917] dark:bg-[#1E293B] text-white p-3.5 rounded-2xl rounded-tr-xs text-xs sm:text-sm">
+                  <div className="bg-[#FF5A36] text-white p-3.5 rounded-2xl rounded-tr-xs text-xs sm:text-sm shadow-xs shadow-[#FF5A36]/20">
                     Hi! I&apos;m Jordan, founder at Acme Labs.
                   </div>
                   <div className="w-8 h-8 rounded-full bg-[#FAF8F5] dark:bg-[#161F30] border border-[#EAE3D6] dark:border-[#293548] text-[#1C1917] dark:text-[#F8FAFC] flex items-center justify-center text-xs font-bold shrink-0">
@@ -330,8 +330,8 @@ export function FormStyles() {
             {/* Style 05: MINIMAL */}
             {activeStyle === "minimal" && (
               <div className="space-y-6 max-w-lg mx-auto py-4 animate-in fade-in duration-300 font-mono text-xs">
-                <div className="border-b border-black dark:border-white/30 pb-2 flex justify-between items-baseline">
-                  <span className="font-bold uppercase tracking-widest text-black dark:text-white">
+                <div className="border-b border-[#FF5A36]/30 dark:border-white/30 pb-2 flex justify-between items-baseline">
+                  <span className="font-bold uppercase tracking-widest text-[#FF5A36] dark:text-white">
                     FEEDBACK_V1.0
                   </span>
                   <span className="text-[#78716C] dark:text-[#94A3B8]">[STATUS: READY]</span>
@@ -339,21 +339,21 @@ export function FormStyles() {
 
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-black dark:text-white font-bold">01.</span>
+                    <span className="text-[#FF5A36] dark:text-white font-bold">01.</span>
                     <span className="text-[#1C1917] dark:text-[#E2E8F0]">Rate API reliability (1-5):</span>
-                    <span className="ml-auto font-bold text-black dark:text-[#5EEAD4]">[ 5 / 5 ]</span>
+                    <span className="ml-auto font-bold text-[#FF5A36] dark:text-[#5EEAD4]">[ 5 / 5 ]</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-black dark:text-white font-bold">02.</span>
+                    <span className="text-[#FF5A36] dark:text-white font-bold">02.</span>
                     <span className="text-[#1C1917] dark:text-[#E2E8F0]">Latency satisfaction:</span>
-                    <span className="ml-auto font-bold text-black dark:text-[#5EEAD4]">[ 12ms OK ]</span>
+                    <span className="ml-auto font-bold text-[#FF5A36] dark:text-[#5EEAD4]">[ 12ms OK ]</span>
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-black dark:border-white/30 flex justify-end">
+                <div className="pt-3 border-t border-[#FF5A36]/30 dark:border-white/30 flex justify-end">
                   <button
                     type="button"
-                    className="px-4 py-2 bg-black dark:bg-white text-white dark:text-black text-[11px] font-bold uppercase tracking-wider"
+                    className="px-4 py-2 bg-[#FF5A36] hover:bg-[#E44825] dark:bg-white text-white dark:text-black text-[11px] font-bold uppercase tracking-wider rounded-lg transition-colors cursor-pointer shadow-xs shadow-[#FF5A36]/20"
                   >
                     SEND_PAYLOAD
                   </button>
